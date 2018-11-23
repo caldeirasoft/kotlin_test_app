@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/menu_settings"
+      android:enabled="true"
+      android:title="@string/menu_settings"
+      android:icon="@drawable/ic_subscriptions_24dp"
+      app:showAsAction="always"/>
+  <item
+      android:id="@+id/bb_menu_catalog"
+      android:enabled="true"
+      android:title="Catalog"
+      android:icon="@drawable/ic_earth_24dp"/>
+  <item
+      android:id="@+id/bb_menu_home"
+      android:enabled="true"
+      android:title="Settings"
+      android:icon="@drawable/ic_menu_24dp"/>
+</menu>

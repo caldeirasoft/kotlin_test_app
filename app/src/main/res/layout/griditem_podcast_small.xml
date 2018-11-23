@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="podcast"
+            type="com.caldeirasoft.basicapp.data.entity.Podcast"/>
+        <variable
+            name="handler"
+            type="com.caldeirasoft.basicapp.ui.podcast.PodcastViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:padding="3dp"
+        android:onClick="@{() -> handler.onPodcastClick(podcast)}">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/img_row"
+            android:contentDescription="Thumbnail"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            app:layout_constraintDimensionRatio="W,1:1"
+            app:imageUrl="@{podcast.imageUrl}"
+            android:src="@drawable/thumb_1_0"/>
+
+        <TextView android:id="@+id/podcastTitle"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:text="@{podcast.title, default=`Default Title`}"
+                  android:textSize="13sp"
+                  android:lines="2"
+                  android:ellipsize="end"
+                  app:layout_constraintStart_toStartOf="@id/img_row"
+                  app:layout_constraintTop_toBottomOf="@id/img_row"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

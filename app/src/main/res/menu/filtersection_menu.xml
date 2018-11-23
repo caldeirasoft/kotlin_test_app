@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/menu_section_all"
+      android:enabled="true"
+      android:title="@string/menu_filter_all"
+      android:icon="@drawable/ic_menu_24dp"/>
+  <item
+      android:id="@+id/menu_section_queue"
+      android:enabled="true"
+      android:title="@string/menu_filter_queue"
+      android:icon="@drawable/ic_queue_24dp"/>
+  <item
+      android:id="@+id/menu_section_inbox"
+      android:enabled="true"
+      android:title="@string/menu_filter_inbox"
+      android:icon="@drawable/ic_inbox_24dp"/>
+  <item
+      android:id="@+id/menu_section_starred"
+      android:enabled="true"
+      android:title="@string/menu_filter_starred"
+      android:icon="@drawable/ic_favorite_24dp"/>
+  <item
+      android:id="@+id/menu_section_history"
+      android:enabled="true"
+      android:title="@string/menu_filter_history"
+      android:icon="@drawable/ic_history_24dp"/>
+</menu>

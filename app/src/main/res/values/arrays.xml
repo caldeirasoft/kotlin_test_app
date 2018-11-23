@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sleep_timer_options">
+        <item>@string/do_not_stop</item>
+        <item>@string/five_minutes</item>
+        <item>@string/ten_minutes</item>
+        <item>@string/fifteen_minutes</item>
+        <item>@string/twenty_minutes</item>
+        <item>@string/thirty_minutes</item>
+        <item>@string/forty_five_minutes</item>
+        <item>@string/one_hour</item>
+    </string-array>
+
+    <string-array name="subscribe_options">
+        <item>@string/add_to_inbox</item>
+        <item>@string/queue_next</item>
+        <item>@string/queue_next</item>
+        <item>@string/archive</item>
+    </string-array>
+
+    <string-array name="categories_options">
+        <item>@string/category_all</item>
+        <item>@string/category_arts</item>
+        <item>@string/category_comedy</item>
+        <item>@string/category_education</item>
+        <item>@string/category_kids</item>
+        <item>@string/category_health</item>
+        <item>@string/category_tv</item>
+        <item>@string/category_music</item>
+        <item>@string/category_news</item>
+        <item>@string/category_religion</item>
+        <item>@string/category_science</item>
+        <item>@string/category_sports</item>
+        <item>@string/category_technology</item>
+        <item>@string/category_business</item>
+        <item>@string/category_games</item>
+        <item>@string/category_society</item>
+        <item>@string/category_government</item>
+    </string-array>
+
+    <integer-array name="categories_options_ids">
+        <item>26</item>
+        <item>1301</item>
+        <item>1303</item>
+        <item>1304</item>
+        <item>1305</item>
+        <item>1307</item>
+        <item>1309</item>
+        <item>1310</item>
+        <item>1311</item>
+        <item>1314</item>
+        <item>1315</item>
+        <item>1316</item>
+        <item>1318</item>
+        <item>1321</item>
+        <item>1323</item>
+        <item>1324</item>
+        <item>1325</item>
+    </integer-array>
+</resources>

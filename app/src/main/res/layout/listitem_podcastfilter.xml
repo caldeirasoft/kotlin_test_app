@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="podcast"
+            type="com.caldeirasoft.basicapp.data.entity.PodcastWithCount"/>
+    </data>
+    <LinearLayout
+        android:id="@+id/id_filter_podcast"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/dp_15"
+        android:paddingEnd="@dimen/dp_15"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_marginBottom="@dimen/dp_5"
+        android:orientation="horizontal"
+        android:background="@drawable/list_selector"
+        android:outlineProvider="background"
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true">
+        <!--android:background="@drawable/list_selector"-->
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/tabImageView"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:imageUrl="@{podcast.imageUrl}"
+            app:riv_corner_radius="5dp"
+            android:background="@drawable/round_outline"
+            android:outlineProvider="background"
+            android:visibility="@{podcast.isPodcast() ? View.VISIBLE : View.GONE}"/>
+
+        <TextView
+            android:id="@+id/tabTextView"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:text="@string/label_all"
+            android:textSize="@dimen/text_large"
+            android:textAllCaps="true"
+            android:visibility="@{podcast.isPodcast() ? View.GONE : View.VISIBLE}"/>
+    </LinearLayout>
+</layout>

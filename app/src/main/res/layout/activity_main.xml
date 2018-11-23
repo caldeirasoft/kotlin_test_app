@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.flexbox.FlexboxLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:flexWrap="wrap"
+    app:flexDirection="column"
+    app:alignItems="stretch"
+    app:alignContent="stretch"
+    tools:context="com.caldeirasoft.basicapp.ui.home.MainActivity">
+
+    <FrameLayout android:id="@+id/container_fragment"
+                 android:layout_width="match_parent"
+                 android:layout_height="0dp"
+                 android:layout_centerInParent="true"
+                 app:layout_order="0"
+                 app:layout_flexGrow="1"
+                 app:layout_flexShrink="1"
+                 />
+
+    <fragment
+        android:name="com.caldeirasoft.basicapp.ui.mediaplayback.MediaPlaybackControlsFragment"
+        android:id="@+id/fragment_playback_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_playback_controls"
+        app:layout_order="1"
+        app:layout_flexGrow="0"
+        app:layout_flexShrink="1"/>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_order="2"
+        app:layout_flexGrow="0"
+        app:layout_flexShrink="1"
+        app:itemHorizontalTranslationEnabled="false"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/navigation" />
+
+</com.google.android.flexbox.FlexboxLayout>

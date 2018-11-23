@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/bb_menu_queue"
+      android:enabled="true"
+      android:title="Queue"
+      android:icon="@drawable/ic_queue_24dp"/>
+  <item
+      android:id="@+id/bb_menu_inbox"
+      android:enabled="true"
+      android:title="Inbox"
+      android:icon="@drawable/ic_inbox_24dp"/>
+  <item
+      android:id="@+id/bb_menu_podcasts"
+      android:enabled="true"
+      android:title="Podcasts"
+      android:icon="@drawable/ic_archive_24dp"/>
+  <item
+      android:id="@+id/bb_menu_catalog"
+      android:enabled="true"
+      android:title="Settings"
+      android:icon="@drawable/ic_database_search_24dp"/>
+</menu>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <import type="android.view.View" />
+    <variable
+        name="viewModel"
+        type="com.caldeirasoft.basicapp.ui.catalog.CatalogViewModel"/>
+  </data>
+
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:orientation="vertical">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      <androidx.appcompat.widget.Toolbar
+          android:id="@+id/toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="?attr/colorPrimary"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/catalog_swipeRefreshLayout"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/rw_catalog"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_filtersection_catalog"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/bottom_sheet_behavior"
+        android:elevation="@dimen/design_bottom_sheet_modal_elevation"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_filtersection_catalog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right|end"
+        android:layout_margin="16dp"
+        android:visibility="@{viewModel.catalogCategory == null ? View.VISIBLE : View.GONE}"
+        android:src="@drawable/ic_filter_list_24dp" />
+
+  </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

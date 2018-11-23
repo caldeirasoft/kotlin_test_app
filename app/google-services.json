@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "532999338724",
+    "firebase_url": "https://podcastly-7c8cf.firebaseio.com",
+    "project_id": "podcastly-7c8cf",
+    "storage_bucket": "podcastly-7c8cf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532999338724:android:b43aa762ce4c7a5c",
+        "android_client_info": {
+          "package_name": "com.caldeirasoft.basicapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "532999338724-1cvgie9fmesuqmm5f0bse5tu45jm3up4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.caldeirasoft.basicapp",
+            "certificate_hash": "fc98ab3b297185f48574fb0c1b6af165f01b4be4"
+          }
+        },
+        {
+          "client_id": "532999338724-gvejk95nfekfk5en4ul2j286ogsnldc3.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "532999338724-gvejk95nfekfk5en4ul2j286ogsnldc3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFlHX4kdhfEhABHnjBAjMNnQqyhpL8SOQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "532999338724-gvejk95nfekfk5en4ul2j286ogsnldc3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
