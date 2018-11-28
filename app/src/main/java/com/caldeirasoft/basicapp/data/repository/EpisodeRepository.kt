@@ -33,6 +33,8 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
 
     override fun getEpisodeDbDataSource(section:Int, feedUrl: String?): EpisodeDbDataSourceFactory = EpisodeDbDataSourceFactory(database.episodeDao(), section, feedUrl)
 
+    override fun getEpisodeDataSourceFromFake(feed: Podcast): EpisodeFakeDataSourceFactory = EpisodeFakeDataSourceFactory(feed, feedlyAPI, database.episodeDao())
+
     override fun getPodcastById(feedUrl: String): LiveData<Podcast> = database.podcastDao().getPodcastById(feedUrl)
 
     override fun getEpisodes(feedUrl: String): LiveData<List<Episode>> = database.episodeDao().getEpisodes(feedUrl)

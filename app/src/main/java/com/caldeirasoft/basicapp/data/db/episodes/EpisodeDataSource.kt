@@ -8,6 +8,7 @@ import com.caldeirasoft.basicapp.data.entity.Podcast;
 import com.caldeirasoft.basicapp.data.entity.PodcastWithCount
 import com.caldeirasoft.basicapp.data.entity.SectionWithCount
 import com.caldeirasoft.basicapp.data.repository.EpisodeDbDataSourceFactory
+import com.caldeirasoft.basicapp.data.repository.EpisodeFakeDataSourceFactory
 import com.caldeirasoft.basicapp.data.repository.EpisodeFeedlyDataSourceFactory
 
 /**
@@ -82,6 +83,11 @@ interface EpisodeDataSource {
      * fetch inbox episodes data source factory
      */
     fun getEpisodeDbDataSource(section:Int, feedUrl: String?): EpisodeDbDataSourceFactory
+
+    /**
+     * fetch episodes from fake datasource
+     */
+    fun getEpisodeDataSourceFromFake(feed: Podcast): EpisodeFakeDataSourceFactory
 
     /**
      * Select an episode by url

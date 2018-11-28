@@ -3,9 +3,11 @@ package com.caldeirasoft.basicapp.ui.podcast
 import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.DataSource
 import com.caldeirasoft.basicapp.App
+import com.caldeirasoft.basicapp.Mockup
 import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDataSource
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
@@ -20,7 +22,7 @@ class PodcastViewModel : ViewModel() {
     lateinit private var mainThreadExecutor: Executor
     private var ioExecutor: Executor
 
-    var podcasts : LiveData<List<Podcast>>
+    var podcasts: MutableLiveData<List<Podcast>> = MutableLiveData<List<Podcast>>()
     var datasourceFactory: DataSource.Factory<Int, Podcast>
 
     internal val openPodcastEvent = SingleLiveEvent<Podcast>()
@@ -30,7 +32,10 @@ class PodcastViewModel : ViewModel() {
         podcastRepository = PodcastRepository()
         ioExecutor = Executors.newFixedThreadPool(5)
         datasourceFactory = podcastRepository.getPodcastsDataSourceFromDb()
-        podcasts = podcastRepository.getPodcastsFromDb()
+        //podcasts = podcastRepository.getPodcastsFromDb()
+        Mockup.getPodcasts()?.let {
+            podcasts.postValue(it)
+        }
     }
 
     companion object {

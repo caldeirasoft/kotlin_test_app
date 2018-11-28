@@ -1,8 +1,10 @@
 package com.caldeirasoft.basicapp.ui.queue
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.DataSource
+import com.caldeirasoft.basicapp.Mockup
 import com.caldeirasoft.basicapp.data.db.episodes.EpisodeDataSource
 import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDataSource
 import com.caldeirasoft.basicapp.data.entity.Episode
@@ -29,7 +31,14 @@ class QueueViewModel : ViewModel() {
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
         episodeRepository = EpisodeRepository()
-        episodes = episodeRepository.getEpisodesBySection(SectionState.QUEUE.value)
+        //TODO: remove : episodes = episodeRepository.getEpisodesBySection(SectionState.QUEUE.value)
+        val mutableEpisodes = MutableLiveData<List<Episode>>()
+        val listEpisodes = Mockup.getEpisodesMockup()?.let {
+            it.sortedBy { episode -> episode.title }.let {
+                mutableEpisodes.postValue(it)
+            }
+        }
+        episodes = mutableEpisodes
     }
 
     companion object {

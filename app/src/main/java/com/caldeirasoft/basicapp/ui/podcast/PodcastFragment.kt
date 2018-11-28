@@ -54,9 +54,7 @@ class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Pod
 
         setupRecyclerView()
         setHasOptionsMenu(true)
-        launch(UI) {
-            observePodcast()
-        }
+        observePodcast()
     }
 
     /*
@@ -88,6 +86,7 @@ class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Pod
     private fun observePodcast()
     {
         viewModel.apply {
+            podcastAdapter.submitList(this.podcasts.value)
             // collection
             podcasts.observe(this@PodcastFragment, Observer { podcasts ->
                 podcastAdapter.submitList(podcasts.toList())

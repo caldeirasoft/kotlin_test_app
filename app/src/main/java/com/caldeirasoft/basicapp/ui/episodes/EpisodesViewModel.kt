@@ -1,6 +1,7 @@
 package com.caldeirasoft.basicapp.ui.episodes
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
@@ -37,7 +38,9 @@ abstract class EpisodesViewModel(protected val sectionState: SectionState) : Vie
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(5)
                 .build()
-        episodes = LivePagedListBuilder(sourceFactory, pagedListConfig)
+
+        var sourceFactory2 = episodeRepository.getEpisodeDataSourceFromFake(Podcast.DEFAULT_PODCAST)
+        episodes = LivePagedListBuilder(sourceFactory2, pagedListConfig)
                 .setFetchExecutor(ioExecutor)
                 .build()
 

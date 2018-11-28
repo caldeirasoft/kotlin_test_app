@@ -37,7 +37,7 @@ class MainActivity : MediaPlayerBaseActivity()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_podcasts -> {
-                super.addFragment(LibraryFragment(), "podcasts", true)
+                super.addFragment(PodcastFragment(), "podcasts", true)
                 setTitle("podcasts")
                 return@OnNavigationItemSelectedListener true
             }
