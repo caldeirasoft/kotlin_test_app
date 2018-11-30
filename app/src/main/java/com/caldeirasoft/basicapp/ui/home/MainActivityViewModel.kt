@@ -1,11 +1,6 @@
 package com.caldeirasoft.basicapp.ui.home
 
 import androidx.lifecycle.ViewModel
-import com.caldeirasoft.basicapp.data.entity.Episode
-import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.ui.base.SingleLiveEvent
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 class MainActivityViewModel : ViewModel() {
 

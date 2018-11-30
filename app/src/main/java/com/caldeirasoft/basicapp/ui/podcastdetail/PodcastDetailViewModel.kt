@@ -2,20 +2,18 @@ package com.caldeirasoft.basicapp.ui.podcastdetail
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.api.rss.retrofit.RssAPI
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.entity.SectionWithCount
 import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.data.enum.SubscribeAction
 import com.caldeirasoft.basicapp.data.repository.*
-import com.caldeirasoft.basicapp.ui.base.SingleLiveEvent
+import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors

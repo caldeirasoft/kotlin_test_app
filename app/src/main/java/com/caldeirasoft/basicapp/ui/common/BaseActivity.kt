@@ -1,10 +1,9 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import com.caldeirasoft.basicapp.App
 import com.caldeirasoft.basicapp.R
 
 //Colombet 06.63.54.26.65

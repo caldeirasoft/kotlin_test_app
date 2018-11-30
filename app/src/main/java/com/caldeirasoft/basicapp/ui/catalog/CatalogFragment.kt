@@ -10,22 +10,17 @@ import androidx.databinding.library.baseAdapters.BR
 import com.avast.android.githubbrowser.extensions.start
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.enum.SectionState
-import com.caldeirasoft.basicapp.data.repository.NetworkState
 import com.caldeirasoft.basicapp.databinding.FragmentCatalogBinding
 import com.caldeirasoft.basicapp.databinding.ListitemCatalogBinding
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.SimplePagedDataBindingAdapter
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
-import com.caldeirasoft.basicapp.ui.base.BindingFragment
+import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.viewModelProviders
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 import kotlinx.android.synthetic.main.fragment_catalog.*
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.android.UI
 
 class CatalogFragment : BindingFragment<FragmentCatalogBinding>(), IMainFragment, ItemViewClickListener<Podcast> {
 
@@ -106,7 +101,7 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>(), IMainFragment
                 setCategory(it)
 
                 // collection
-                podcasts.observe(this@CatalogFragment, Observer { podcasts ->
+                data.observe(this@CatalogFragment, Observer { podcasts ->
                     catalogAdapter.submitList(podcasts)
                 })
 
@@ -119,7 +114,7 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>(), IMainFragment
                 // network updates
                 loadingState.observe(this@CatalogFragment, Observer { state ->
                     state?.let {
-                        catalogAdapter.setState(state)
+                        //catalogAdapter.setState(state)
                     }
                 })
             }

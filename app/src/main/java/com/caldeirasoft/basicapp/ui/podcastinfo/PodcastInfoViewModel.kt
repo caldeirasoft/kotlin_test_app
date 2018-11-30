@@ -9,7 +9,7 @@ import androidx.paging.PagedList
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.repository.*
-import com.caldeirasoft.basicapp.ui.base.SingleLiveEvent
+import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors

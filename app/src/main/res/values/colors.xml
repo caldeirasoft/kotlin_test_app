@@ -8,12 +8,15 @@
     <color name="yellow">#fcd230</color>
     <color name="orange">#ff6c00</color>
     <color name="white">#fff</color>
+    <color name="grey_3">#f7f7f7</color>
+    <color name="grey_5">#f2f2f2</color>
+    <color name="grey_10">#e6e6e6</color>
     <color name="grey_800">#424242</color>
     <color name="grey_600">#747474</color>
     <color name="spacer_grey">#e0e0e0</color>
     <color name="white_90">#e6ffffff</color>
 
-    <!-- base colors -->
+    <!-- common colors -->
     <color name="colorPrimary">@color/indigo</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>

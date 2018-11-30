@@ -18,8 +18,8 @@ import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion
 import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_LABEL
 import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_MILLISECONDS
 import com.caldeirasoft.basicapp.service.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
-import com.caldeirasoft.basicapp.ui.base.MediaBrowserProvider
-import com.caldeirasoft.basicapp.ui.base.MediaPlayerBaseActivity
+import com.caldeirasoft.basicapp.ui.common.MediaBrowserProvider
+import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_media_playback.*
 

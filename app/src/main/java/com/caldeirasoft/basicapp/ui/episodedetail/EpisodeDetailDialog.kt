@@ -6,7 +6,7 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.BR
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.ui.base.FullScreenBottomSheetDialog
+import com.caldeirasoft.basicapp.ui.common.FullScreenBottomSheetDialog
 import com.caldeirasoft.basicapp.viewModelProviders
 
 

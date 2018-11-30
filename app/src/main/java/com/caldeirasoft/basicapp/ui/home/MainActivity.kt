@@ -2,19 +2,16 @@ package com.caldeirasoft.basicapp.ui.home
 
 import android.os.Bundle
 import android.os.PersistableBundle
-import androidx.databinding.library.baseAdapters.BR
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.printActivityFragmentList
-import com.caldeirasoft.basicapp.ui.base.MediaPlayerBaseActivity
+import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.ui.catalog.CatalogFragment
 import com.caldeirasoft.basicapp.ui.inbox.InboxFragment
-import com.caldeirasoft.basicapp.ui.library.LibraryFragment
 import com.caldeirasoft.basicapp.ui.podcast.PodcastFragment
 import com.caldeirasoft.basicapp.ui.queue.QueueFragment
 import com.caldeirasoft.basicapp.viewModelProviders
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
 class MainActivity : MediaPlayerBaseActivity()
 {

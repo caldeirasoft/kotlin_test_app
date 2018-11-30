@@ -62,14 +62,9 @@ abstract class ExpandableEpisodesListAdapter<B : ViewDataBinding>(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BindingViewHolder<B> =
-            when (viewType) {
-                TYPE_FOOTER ->
-                    super.onCreateViewHolder(parent, viewType)
-                else ->
-                    ViewHolder(layoutRes = layout, parent = parent, positionClick = this::onPositionClick,
-                            lifecycleOwner = lifecycleOwner, expandTriggerLayoutId = expandTriggerLayoutId, expandLayoutId = expandLayoutId,
-                            cardViewLayoutId = cardViewLayoutId)
-            }
+            ViewHolder(layoutRes = layout, parent = parent, positionClick = this::onPositionClick,
+                    lifecycleOwner = lifecycleOwner, expandTriggerLayoutId = expandTriggerLayoutId, expandLayoutId = expandLayoutId,
+                    cardViewLayoutId = cardViewLayoutId)
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)

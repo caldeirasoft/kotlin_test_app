@@ -1,10 +1,5 @@
 package com.caldeirasoft.basicapp.ui.podcast
 
-import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,27 +7,17 @@ import androidx.databinding.library.baseAdapters.BR
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.addFragment
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.enum.EnumPodcastLayout
-import com.caldeirasoft.basicapp.data.preferences.UserPref
 import com.caldeirasoft.basicapp.databinding.ListitemPodcastBinding
 import com.caldeirasoft.basicapp.extensions.withArgs
-import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemDividerDecoration
-import com.caldeirasoft.basicapp.ui.base.BaseActivity
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
-import com.caldeirasoft.basicapp.ui.favorite.FavoriteFragment
-import com.caldeirasoft.basicapp.ui.history.HistoryFragment
+import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailFragment
 import com.caldeirasoft.basicapp.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_podcasts.*
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.android.UI
-import org.jetbrains.anko.support.v4.intentFor
 
 class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Podcast> {
 

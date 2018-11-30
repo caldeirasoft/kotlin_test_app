@@ -12,23 +12,19 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.databinding.library.baseAdapters.BR
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
-import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.enum.EnumPodcastLayout
 import com.caldeirasoft.basicapp.data.preferences.UserPref
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodesqueueBinding
 import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
+import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_queue.*
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.android.UI
-import org.jetbrains.anko.support.v4.act
-import org.jetbrains.anko.support.v4.intentFor
 
 class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episode> {
 

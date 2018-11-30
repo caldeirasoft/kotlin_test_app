@@ -9,7 +9,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
-import com.caldeirasoft.basicapp.ui.base.BaseActivity
+import com.caldeirasoft.basicapp.ui.common.BaseActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
 import org.threeten.bp.Instant

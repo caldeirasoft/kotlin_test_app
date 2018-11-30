@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 /**
  * Fragments representing main navigation destinations (shown by [MainActivity]) implement this

@@ -5,14 +5,10 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.annotation.MenuRes
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.RecyclerArrayAdapter
-import com.caldeirasoft.basicapp.ui.adapter.decorations.GridDividerDecoration
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import kotlinx.android.synthetic.main.bottom_sheet_filter_section.*
 
 class FilterSectionFragment() : BaseFragment() {

@@ -8,21 +8,21 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.repository.NetworkState
 import com.caldeirasoft.basicapp.data.repository.PodcastItunesDataSourceFactory
 import com.caldeirasoft.basicapp.data.repository.PodcastRepository
-import com.caldeirasoft.basicapp.ui.base.SingleLiveEvent
+import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
+import com.caldeirasoft.basicapp.ui.viewmodel.PagedListViewModel
 import com.caldeirasoft.basicapp.util.LoadingState
 import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CatalogViewModel : ViewModel() {
+class CatalogViewModel : PagedListViewModel<Podcast>() {
 
     lateinit private var mainThreadExecutor: Executor
-    private var ioExecutor: Executor
+    private var ioExecutor: ExecutorService
 
 
-    lateinit var podcasts: LiveData<PagedList<Podcast>>
     var catalogCategory = MutableLiveData<Int>()
     var podcastRepository: PodcastRepository
     lateinit var sourceFactory: PodcastItunesDataSourceFactory
@@ -30,7 +30,8 @@ class CatalogViewModel : ViewModel() {
     var descriptionLoadingState
             = MutableLiveData<Boolean>().apply { value = false }
 
-    lateinit var loadingState : LiveData<LoadingState>
+    lateinit override var loadingState : LiveData<LoadingState>
+    lateinit override var data: LiveData<PagedList<Podcast>>
 
     internal val openPodcastEvent = SingleLiveEvent<Podcast>()
     internal val openLastEpisodeEvent = SingleLiveEvent<Episode>()
@@ -57,10 +58,11 @@ class CatalogViewModel : ViewModel() {
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
-                .setEnablePlaceholders(false)
+                .setEnablePlaceholders(true)
                 .setPrefetchDistance(5)
+                .setInitialLoadSizeHint(40)
                 .build()
-        podcasts =  LivePagedListBuilder(sourceFactory, pagedListConfig)
+        data =  LivePagedListBuilder(sourceFactory, pagedListConfig)
                 .setFetchExecutor(ioExecutor)
                 .build()
     }
@@ -73,7 +75,7 @@ class CatalogViewModel : ViewModel() {
 
 
     fun getPodcastFromItunesId(trackId: Int): Podcast? =
-        podcasts.value?.find { podcast -> podcast.trackId == trackId }
+        data.value?.find { podcast -> podcast.trackId == trackId }
 
 
     /**

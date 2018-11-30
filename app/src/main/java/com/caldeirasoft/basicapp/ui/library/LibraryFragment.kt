@@ -6,10 +6,8 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
-import com.caldeirasoft.basicapp.ui.episodes.EpisodesBaseFragment
+import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.viewModelProviders
 import kotlinx.android.synthetic.main.fragment_library.*
 
 class LibraryFragment : BaseFragment(), IMainFragment {

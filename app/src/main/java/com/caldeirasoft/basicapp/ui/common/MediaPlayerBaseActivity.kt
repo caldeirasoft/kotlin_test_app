@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 import android.content.ComponentName
 import android.os.Bundle
@@ -9,7 +9,6 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import com.caldeirasoft.basicapp.App
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.service.mediaplayback.MediaPlaybackService
 import com.caldeirasoft.basicapp.ui.mediaplayback.MediaPlaybackControlsFragment

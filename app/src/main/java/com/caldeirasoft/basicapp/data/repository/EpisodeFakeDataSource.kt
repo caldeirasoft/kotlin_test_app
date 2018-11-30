@@ -1,21 +1,16 @@
 package com.caldeirasoft.basicapp.data.repository
 
-import android.media.MediaMetadataRetriever
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
-import com.avast.android.githubbrowser.extensions.retrofitCallback
 import com.caldeirasoft.basicapp.Mockup
 import com.caldeirasoft.basicapp.data.db.episodes.EpisodeDao
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.api.feedly.retrofit.FeedlyAPI
-import com.caldeirasoft.basicapp.data.enum.SectionState
-import com.caldeirasoft.basicapp.ui.base.SingleLiveEvent
+import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
-import org.jetbrains.anko.doAsync
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * Created by Edmond on 15/02/2018.

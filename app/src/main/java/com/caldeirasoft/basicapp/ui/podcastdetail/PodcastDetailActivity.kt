@@ -3,7 +3,7 @@ package com.caldeirasoft.basicapp.ui.podcastdetail
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.databinding.ActivityPodcastdetailBinding
-import com.caldeirasoft.basicapp.ui.base.MediaPlayerBaseActivity
+import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.util.setContentBinding
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.viewModelProviders
@@ -18,7 +18,7 @@ import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodespodcastBinding
 import com.caldeirasoft.basicapp.ui.adapter.decorations.HeaderViewDecoration
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
-import com.caldeirasoft.basicapp.ui.base.RecyclerHeaderHelper
+import com.caldeirasoft.basicapp.ui.common.RecyclerHeaderHelper
 import com.squareup.picasso.Callback
 import android.widget.Toast
 import android.view.Menu

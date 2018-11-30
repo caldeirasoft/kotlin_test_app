@@ -13,7 +13,8 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/grey_3">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/toolbar_layout"
@@ -38,7 +39,6 @@
                 android:id="@+id/rw_podcastdetail_episodes"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layoutManager="LinearLayoutManager"
                 />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

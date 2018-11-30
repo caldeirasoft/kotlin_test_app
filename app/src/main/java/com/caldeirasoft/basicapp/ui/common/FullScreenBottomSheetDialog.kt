@@ -1,14 +1,8 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.Dialog
-import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import com.caldeirasoft.basicapp.App
-import com.caldeirasoft.basicapp.R
 import android.util.DisplayMetrics
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.databinding.DataBindingUtil

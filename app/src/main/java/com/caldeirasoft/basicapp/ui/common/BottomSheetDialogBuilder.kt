@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 import android.content.Context
 import android.content.DialogInterface
@@ -10,10 +10,8 @@ import android.widget.*
 import androidx.annotation.DrawableRes
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
-import androidx.annotation.StyleRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.ui.adapter.defaultItemDiffCallback
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 

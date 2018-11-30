@@ -1,13 +1,10 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.caldeirasoft.basicapp.App
 import com.caldeirasoft.basicapp.R
 
 abstract class BaseFragment : Fragment() {

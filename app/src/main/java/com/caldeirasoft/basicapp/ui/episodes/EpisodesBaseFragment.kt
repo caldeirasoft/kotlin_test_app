@@ -11,7 +11,7 @@ import com.caldeirasoft.basicapp.data.entity.PodcastWithCount
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodesinboxBinding
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderDecoration
-import com.caldeirasoft.basicapp.ui.base.BaseFragment
+import com.caldeirasoft.basicapp.ui.common.BaseFragment
 
 abstract class EpisodesBaseFragment : BaseFragment(), ItemViewClickListener<Episode> {
 

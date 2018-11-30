@@ -13,7 +13,7 @@ import com.caldeirasoft.basicapp.ui.adapter.ChipAdapter
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewSelectedListener
 import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemOffsetDecoration
-import com.caldeirasoft.basicapp.ui.base.BindingFragment
+import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.material.chip.Chip

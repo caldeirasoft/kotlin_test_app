@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
@@ -17,8 +16,8 @@ import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemOffsetDecoration
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderLeftDecoration
-import com.caldeirasoft.basicapp.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.ui.base.MainNavigationFragment
+import com.caldeirasoft.basicapp.ui.common.BindingFragment
+import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
 import com.caldeirasoft.basicapp.util.fabVisibility
@@ -114,7 +113,7 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         // sticky header
         with(rw_podcastdetail_episodes) {
             //addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            addItemDecoration(ItemOffsetDecoration(0, 15))
+            addItemDecoration(ItemOffsetDecoration(5, 5))
             addItemDecoration(StickyHeaderLeftDecoration(episodesAdapter))
             adapter = episodesAdapter
         }
@@ -167,7 +166,7 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
                 // network updates
                 loadingState.observe(this@PodcastDetailFragment, Observer { state ->
                     state?.let { st ->
-                        episodesAdapter.setState(st)
+                        //episodesAdapter.setState(st)
                     }
                 })
             }

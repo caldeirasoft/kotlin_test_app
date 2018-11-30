@@ -1,20 +1,9 @@
-package com.caldeirasoft.basicapp.ui.base
+package com.caldeirasoft.basicapp.ui.common
 
 import android.graphics.Rect
-import android.text.Layout
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.enum.EnumPodcastLayout
-import com.caldeirasoft.basicapp.data.preferences.UserPref
-import com.caldeirasoft.basicapp.data.repository.PodcastRepository
-import kotlinx.android.synthetic.main.fragment_podcasts.view.*
-import java.util.concurrent.Executor
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import androidx.recyclerview.widget.RecyclerView
-import kotlin.math.max
 
 
 class RecyclerHeaderHelper

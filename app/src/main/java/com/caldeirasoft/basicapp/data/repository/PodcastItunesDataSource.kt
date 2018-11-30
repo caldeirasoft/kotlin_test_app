@@ -17,15 +17,37 @@ class PodcastItunesDataSource(
         val itunesApi: ITunesAPI,
         val podcastDao: PodcastDao,
         val genre: Int
-) : PositionalDataSource<Podcast>()
+) : PageKeyedDataSource<Int, Podcast>()
 {
     var startPosition:Int = 0
     var ids:List<String> = arrayListOf<String>()
     val loadingState = MutableLiveData<LoadingState>()
 
-    fun loadInternal(startPosition:Int, pageSize:Int, callback: (List<Podcast>) -> Unit)
+    override fun loadInitial(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Podcast>) {
+        loadingState.postValue(LoadingState.LOADING)
+        // request Ids
+        loadIds {
+            loadInternal(0, 1, params.requestedLoadSize, initialCallback = callback, callback = null)
+        }
+    }
+
+    override fun loadAfter(params: LoadParams<Int> , callback: LoadCallback<Int, Podcast>)
     {
-        val idsSubset = ids.subList(startPosition, startPosition + pageSize)
+        val page = params.key
+        loadingState.postValue(LoadingState.LOADING_MORE)
+
+        loadInternal(page, page + 1, params.requestedLoadSize, initialCallback = null, callback = callback)
+    }
+
+    override fun loadBefore(params: LoadParams<Int> , callback: LoadCallback<Int, Podcast>) {
+    }
+
+    fun loadInternal(requestedPage:Int, adjacentPage:Int, requestedLoadSize:Int
+                     , initialCallback: LoadInitialCallback<Int, Podcast>?
+                     , callback: LoadCallback<Int, Podcast>?)
+    {
+        val startPosition = requestedPage * requestedLoadSize
+        val idsSubset = ids.subList(startPosition, startPosition + requestedLoadSize)
 
         // request Podcasts from Ids
         if (idsSubset.isNotEmpty()) {
@@ -56,11 +78,23 @@ class PodcastItunesDataSource(
                                 */
                             }
 
+                            val state = if (podcasts.isEmpty()) LoadingState.EMPTY else LoadingState.OK
+                            loadingState.postValue(state)
                             if (podcasts.any()) {
-                                this.startPosition += podcasts.size
-                                callback.invoke(podcasts)
+                                //this.startPosition += podcasts.size
+                                initialCallback?.let {
+                                    loadingState.postValue(LoadingState.OK)
+                                    it.onResult(podcasts, null, adjacentPage)
+                                }
+                                callback?.let {
+                                    loadingState.postValue(LoadingState.LOAD_MORE_COMPLETE)
+                                    it.onResult(podcasts, adjacentPage)
+                                }
                             }
                             else {
+                                initialCallback?.let {
+                                    loadingState.postValue(LoadingState.EMPTY)
+                                }
                                 invalidate()
                             }
                         }
@@ -80,47 +114,18 @@ class PodcastItunesDataSource(
         // request Ids
         var request = itunesApi.top("fr", 200, genre);
         request.enqueue(retrofitCallback(
-            { response ->
-                if (response.isSuccessful) {
-                    var podcasts = arrayListOf<Podcast>()
-                    var result = response.body()
-                    this.ids = result?.resultIds ?: emptyList()
-                    callback()
+                { response ->
+                    if (response.isSuccessful) {
+                        var podcasts = arrayListOf<Podcast>()
+                        var result = response.body()
+                        this.ids = result?.resultIds ?: emptyList()
+                        callback()
+                    }
+                },
+                { throwable ->
+                    loadingState.postValue(LoadingState.LOAD_ERR)
+                    //networkState.postValue(NetworkState.error(throwable.message ?: "unknown error"))
                 }
-            },
-            { throwable ->
-                loadingState.postValue(LoadingState.LOAD_ERR)
-                //networkState.postValue(NetworkState.error(throwable.message ?: "unknown error"))
-            }
         ))
-    }
-
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Podcast>) {
-        loadingState.postValue(LoadingState.LOADING)
-
-        val totalCount = 500
-        val startPosition = PositionalDataSource.computeInitialLoadPosition(params, totalCount)
-        val loadSize = PositionalDataSource.computeInitialLoadSize(params, startPosition, totalCount)
-
-        // request Ids
-        loadIds {
-            loadInternal(startPosition, loadSize, {podcasts ->
-                val state = if (podcasts.isEmpty()) LoadingState.EMPTY else LoadingState.OK
-                loadingState.postValue(state)
-                callback.onResult(podcasts, startPosition, podcasts.count())
-            })
-        }
-    }
-
-    override fun loadRange(params: LoadRangeParams , callback: LoadRangeCallback<Podcast>)
-    {
-        val startPosition = params.startPosition
-        val pageSize = params.loadSize
-        loadingState.postValue(LoadingState.LOADING_MORE)
-
-        loadInternal(startPosition, pageSize, {podcasts ->
-            loadingState.postValue(LoadingState.LOAD_MORE_COMPLETE)
-            callback.onResult(podcasts)
-        })
     }
 }
