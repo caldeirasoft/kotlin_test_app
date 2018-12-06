@@ -1,44 +1,44 @@
 package com.caldeirasoft.basicapp.api.feedly.data
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 /**
  * Created by Edmond on 12/02/2018.
  */
 class Entry {
-    @SerializedName("id")
+    @Json(name = "id")
     lateinit var id:String
 
-    @SerializedName("fingerprint")
+    @Json(name = "fingerprint")
     var fingerPrint:String? = null
 
-    @SerializedName("originId")
+    @Json(name = "originId")
     var originId:String? = null
 
-    @SerializedName("title")
+    @Json(name = "title")
     lateinit var title:String
 
-    @SerializedName("author")
+    @Json(name = "author")
     lateinit var author:String
 
-    @SerializedName("published")
+    @Json(name = "published")
     var published:Long? = null
 
-    @SerializedName("crawled")
+    @Json(name = "crawled")
     var crawled:Long? = null
 
-    @SerializedName("updated")
+    @Json(name = "updated")
     var updated:Long? = null
 
-    @SerializedName("summary")
+    @Json(name = "summary")
     var summary:FeedlyText? = null
 
-    @SerializedName("content")
+    @Json(name = "content")
     var content:FeedlyText? = null
 
-    @SerializedName("origin")
+    @Json(name = "origin")
     lateinit var origin:FeedlyOrigin
 
-    @SerializedName("enclosure")
+    @Json(name = "enclosure")
     var enclosure:List<Link> = ArrayList()
 }

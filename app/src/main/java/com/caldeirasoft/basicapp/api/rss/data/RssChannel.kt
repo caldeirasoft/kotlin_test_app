@@ -1,13 +1,9 @@
 package com.caldeirasoft.basicapp.api.rss.data
 
-import com.caldeirasoft.basicapp.api.itunes.data.Link
-import com.google.gson.annotations.SerializedName
 import org.jonnyzzz.kotlin.xml.bind.XAnyElements
-import org.jonnyzzz.kotlin.xml.bind.XAttribute
 import org.jonnyzzz.kotlin.xml.bind.XSub
 import org.jonnyzzz.kotlin.xml.bind.XText
 import org.jonnyzzz.kotlin.xml.bind.jdom.JXML
-import java.util.*
 
 /**
  * Created by Edmond on 12/02/2018.

@@ -5,6 +5,7 @@ import androidx.paging.DataSource
 import androidx.paging.PagedList
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast;
+import com.caldeirasoft.basicapp.data.repository.ItunesStore
 import com.caldeirasoft.basicapp.data.repository.PodcastItunesDataSourceFactory
 import io.reactivex.Flowable
 
@@ -43,6 +44,11 @@ interface PodcastDataSource {
      * Get all podcasts data source from catalog
      */
     fun getPodcastsDataSourceFactoryFromItunes(genre: Int): PodcastItunesDataSourceFactory
+
+    /**
+     * Get podcasts from itunes store front
+     */
+    fun getPodcastsPreviewFromItunes(storeFront: String): ItunesStore
 
     /**
      * Get last episode from podcast

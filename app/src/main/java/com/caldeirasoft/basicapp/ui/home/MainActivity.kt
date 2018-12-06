@@ -5,7 +5,7 @@ import android.os.PersistableBundle
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.printActivityFragmentList
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
-import com.caldeirasoft.basicapp.ui.catalog.CatalogFragment
+import com.caldeirasoft.basicapp.ui.catalog.DiscoverFragment
 import com.caldeirasoft.basicapp.ui.inbox.InboxFragment
 import com.caldeirasoft.basicapp.ui.podcast.PodcastFragment
 import com.caldeirasoft.basicapp.ui.queue.QueueFragment
@@ -39,10 +39,15 @@ class MainActivity : MediaPlayerBaseActivity()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_catalog -> {
-                super.addFragment(CatalogFragment(), "catalog", true)
+                super.addFragment(DiscoverFragment(), "catalog", true)
                 setTitle("catalog")
                 return@OnNavigationItemSelectedListener true
             }
+            /*R.id.navigation_menu -> {
+                super.addFragment(SettingsFr(), "catalog", true)
+                setTitle("catalog")
+                return@OnNavigationItemSelectedListener true
+            }*/
         }
         false
     }
@@ -99,7 +104,7 @@ class MainActivity : MediaPlayerBaseActivity()
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
     }
 

@@ -1,47 +1,47 @@
 package com.caldeirasoft.basicapp.api.feedly.data
 
-import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 /**
  * Created by Edmond on 12/02/2018.
  */
 class Feed {
-    @SerializedName("id")
+    @Json(name = "id")
     lateinit var id:String
 
-    @SerializedName("feedId")
+    @Json(name = "feedId")
     lateinit var feedId:String
 
-    @SerializedName("title")
+    @Json(name = "title")
     lateinit var name:String
 
-    @SerializedName("visualUrl")
+    @Json(name = "visualUrl")
     var image:String? = null
 
-    @SerializedName("converColor")
+    @Json(name = "converColor")
     var coverColor:String? = null
 
-    @SerializedName("coverUrl")
+    @Json(name = "coverUrl")
     var coverUrl:String? = null
 
-    @SerializedName("iconUrl")
+    @Json(name = "iconUrl")
     var iconImage:String? = null
 
-    @SerializedName("updated")
+    @Json(name = "updated")
     var updated:Long = 0
 
-    @SerializedName("language")
+    @Json(name = "language")
     var language:String? = null
 
-    @SerializedName("description")
+    @Json(name = "description")
     var description:String? = null
 
-    @SerializedName("subscribers")
+    @Json(name = "subscribers")
     var subscribers:Int? = null
 
-    @SerializedName("velocity")
+    @Json(name = "velocity")
     var velocity:Double? = null
 
-    @SerializedName("state")
+    @Json(name = "state")
     var state:String? = null
 }

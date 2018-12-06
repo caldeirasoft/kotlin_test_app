@@ -95,6 +95,11 @@ class PodcastRepository : PodcastDataSource, LazyKodeinAware
         return source
     }
 
+    override fun getPodcastsPreviewFromItunes(storeFront: String): ItunesStore {
+        val store = ItunesStore(itunesApi = iTunesAPI, podcastDao = database.podcastDao(), storeFront = storeFront)
+        return store;
+    }
+
     /**
      * Get all podcasts data source from catalog
      */

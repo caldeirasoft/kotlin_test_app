@@ -17,7 +17,7 @@ class PodcastFilterFragment : AAH_FabulousFragment() {
 
     fun getLayout() = R.layout.fragment_podcastfilter
 
-    override fun setupDialog(dialog: Dialog?, style: Int) {
+    override fun setupDialog(dialog: Dialog, style: Int) {
         val contentView = View.inflate(context, getLayout(), null)
 
         val content = contentView.findViewById<View>(R.id.rl_content)

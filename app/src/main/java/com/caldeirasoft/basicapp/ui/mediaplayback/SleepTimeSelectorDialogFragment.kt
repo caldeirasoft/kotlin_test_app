@@ -19,7 +19,7 @@ class SleepTimeSelectorDialogFragment: DialogFragment() {
 
     private lateinit var listener: Listener
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         listener = context as MediaPlaybackFullScreenActivity
     }

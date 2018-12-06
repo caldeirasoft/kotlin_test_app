@@ -63,7 +63,7 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
         (activity as AppCompatActivity).setSupportActionBar(toolbar);
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
         inflater?.inflate(R.menu.main_menu, menu)
         // change "podcast layout" icon
@@ -71,7 +71,7 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item?.itemId) {
             R.id.menu_refresh -> {
                 val syncAdapterManager = SyncAdapterManager(activity!!)

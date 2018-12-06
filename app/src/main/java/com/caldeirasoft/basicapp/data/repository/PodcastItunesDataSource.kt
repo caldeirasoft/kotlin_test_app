@@ -63,7 +63,8 @@ class PodcastItunesDataSource(
                                 val podcast = Podcast()
                                 podcast.feedUrl = entry.feedUrl
                                 podcast.title = entry.trackName
-                                podcast.imageUrl = entry.artwork
+                                podcast.imageUrl = entry.artworkUrl100
+                                podcast.bigImageUrl = entry.artworkUrl600
                                 podcast.authors = entry.artistName
                                 podcast.trackId = entry.trackId
                                 podcasts.add(podcast)

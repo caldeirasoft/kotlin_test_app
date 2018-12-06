@@ -1,23 +1,24 @@
 package com.caldeirasoft.basicapp.api.feedly.data
 
 import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 
 /**
  * Created by Edmond on 12/02/2018.
  */
 class StreamEntries {
-    @SerializedName("id")
+    @Json(name = "id")
     lateinit var id:String
 
-    @SerializedName("title")
+    @Json(name = "title")
     lateinit var title:String
 
-    @SerializedName("updated")
+    @Json(name = "updated")
     var updated:Long = 0
 
-    @SerializedName("continuation")
+    @Json(name = "continuation")
     var continuation:String? = null
 
-    @SerializedName("items")
+    @Json(name = "items")
     var items:List<Entry> = ArrayList()
 }

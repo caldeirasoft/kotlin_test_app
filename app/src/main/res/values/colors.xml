@@ -17,9 +17,17 @@
     <color name="white_90">#e6ffffff</color>
 
     <!-- common colors -->
-    <color name="colorPrimary">@color/indigo</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#344955</color>
+    <color name="colorPrimaryLight">#4A6572</color>
+    <color name="colorPrimaryDark">#232F34</color>
+    <color name="colorAccent">#F9AA33</color>
+    <color name="colorSecondary">#F9AA33</color>
+    <color name="colorSecondaryLight">#ffdc65</color>
+    <color name="colorSecondaryDark">#c17b00</color>
+    <color name="colorPrimaryText">#767676</color>
+    <color name="colorSecondaryText">#17262A</color>
+    <color name="colorBackground">#EDF0F2</color>
+
 
     <color name="status_bar">#202124</color>
     <color name="text_color_tertiary">#dadce0</color>

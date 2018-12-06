@@ -29,7 +29,7 @@ class LibraryFragment : BaseFragment(), IMainFragment {
         (activity as AppCompatActivity).setSupportActionBar(toolbar);
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
         inflater?.inflate(R.menu.main_menu, menu)
         // change "podcast layout" icon
@@ -37,7 +37,7 @@ class LibraryFragment : BaseFragment(), IMainFragment {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item?.itemId) {
             R.id.menu_refresh -> {
                 val syncAdapterManager = SyncAdapterManager(activity!!)

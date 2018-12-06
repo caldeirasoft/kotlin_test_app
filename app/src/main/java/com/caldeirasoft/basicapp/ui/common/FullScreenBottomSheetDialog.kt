@@ -17,7 +17,7 @@ abstract class FullScreenBottomSheetDialog : BottomSheetDialogFragment()
     private var _behavior: BottomSheetBehavior<*>? = null
 
     @SuppressLint("RestrictedApi")
-    override fun setupDialog(dialog: Dialog?, style: Int) {
+    override fun setupDialog(dialog: Dialog, style: Int) {
         super.setupDialog(dialog, style)
 
         val view = View.inflate(this.context, getLayout(), null)

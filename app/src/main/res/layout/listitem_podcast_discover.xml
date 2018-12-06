@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="podcast"
+            type="com.caldeirasoft.basicapp.data.entity.Podcast"/>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp">
+
+        <LinearLayout
+            android:id="@+id/ll_item_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/dp_80"
+                android:layout_height="@dimen/dp_80"
+                android:layout_margin="7dp"
+                android:id="@+id/img_row"
+                android:contentDescription="Thumbnail"
+                app:imageUrl="@{podcast.imageUrl}"
+                android:src="@drawable/thumb_1_0" />
+
+            <TextView
+                android:id="@+id/textview_podcast"
+                android:layout_width="@dimen/dp_80"
+                android:layout_height="wrap_content"
+                android:layout_margin="7dp"
+                android:text="@{podcast.title, default=`Default Title`}"
+                android:textColor="#616161"
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView_artist"
+                android:layout_width="@dimen/dp_80"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="@{podcast.authors, default=`Description`}"
+                android:textSize="@dimen/text_small"
+                android:textStyle="italic"
+                android:textColor="#616161"/>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
