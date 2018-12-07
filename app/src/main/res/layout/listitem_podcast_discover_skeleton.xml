@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/ll_item_podcast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View
+            android:layout_width="@dimen/dp_90"
+            android:layout_height="@dimen/dp_90"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:id="@+id/img_row"
+            android:contentDescription="Thumbnail"
+            android:background="@color/light_transparent" />
+
+        <View
+            android:id="@+id/textview_podcast"
+            android:layout_width="@dimen/dp_90"
+            android:layout_height="14dp"
+            android:layout_marginBottom="2dp"
+            android:background="@color/light_transparent"/>
+
+        <TextView
+            android:id="@+id/textView_artist"
+            android:layout_width="@dimen/dp_90"
+            android:layout_height="14dp"
+            android:background="@color/light_transparent"/>
+    </LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

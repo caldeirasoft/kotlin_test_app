@@ -16,19 +16,26 @@
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/toolbar_layout"
+            android:id="@+id/discover_appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:fitsSystemWindows="true">
+            android:background="@android:color/transparent">
 
-            <Toolbar
-                android:id="@+id/toolbar"
+            <com.lapism.searchview.widget.SearchView
+                android:id="@+id/searchView"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:contentInsetStartWithNavigation="0dp"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                app:layout_collapseMode="pin"/>
+                app:elevation="5dp"
+                app:layout_scrollFlags="scroll|enterAlways"
+                app:layout_behavior="@string/search_behavior"/>
+
+            <!--
+            <SearchView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_scrollFlags="scroll|enterAlways|snap"/>
+            -->
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -37,6 +44,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="-60dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
@@ -47,7 +55,7 @@
                 <androidx.viewpager.widget.ViewPager
                     android:id="@+id/viewpager_slider"
                     android:layout_width="match_parent"
-                    android:layout_height="250dp"/>
+                    android:layout_height="200dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerView"

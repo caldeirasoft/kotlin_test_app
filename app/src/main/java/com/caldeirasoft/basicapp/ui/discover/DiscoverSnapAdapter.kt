@@ -29,6 +29,7 @@ import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderAdapter
 import com.caldeirasoft.basicapp.ui.adapter.defaultItemDiffCallback
 import com.caldeirasoft.basicapp.util.RelativeTimestampGenerator
+import com.ethanhua.skeleton.Skeleton
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import com.google.android.material.button.MaterialButton
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -62,18 +63,28 @@ class DiscoverSnapAdapter(var lifecycleOwner: LifecycleOwner)
         if (snap.padding) {
 
         }*/
-        val snapAdapter = SimpleDataBindingAdapter<Podcast, ListitemPodcastDiscoverBinding>(
+        holder.recyclerView.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
+            GravitySnapHelper(Gravity.START).attachToRecyclerView(this)
+
+            SimpleDataBindingAdapter<Podcast, ListitemPodcastDiscoverBinding>(
                 layoutId = R.layout.listitem_podcast_discover,
                 variableId = BR.podcast,
                 itemViewClickListener = this@DiscoverSnapAdapter,
                 lifecycleOwner = lifecycleOwner,
                 clickAwareViewIds = *intArrayOf(R.id.itemEpisodeConstraintLayout))
-        snapAdapter.submitList(snap.podcasts)
-
-        holder.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-            adapter = snapAdapter
-            GravitySnapHelper(Gravity.START).attachToRecyclerView(this)
+                .let { adapter ->
+                    val skeleton = Skeleton.bind(holder.recyclerView)
+                            .adapter(adapter)
+                            .load(R.layout.listitem_podcast_discover_skeleton)
+                            .show()
+                    snap.podcasts.observe(lifecycleOwner, androidx.lifecycle.Observer {
+                        it?.let { podcasts ->
+                            skeleton.hide()
+                            adapter.submitList(podcasts)
+                        }
+                    })
+                }
         }
     }
 

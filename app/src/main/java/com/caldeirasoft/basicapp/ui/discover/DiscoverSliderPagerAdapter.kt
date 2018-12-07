@@ -14,7 +14,7 @@ class DiscoverSliderPagerAdapter(
     private var podcasts : List<PodcastArtwork> = ArrayList()
 
     override fun getItem(position: Int): Fragment =
-        PodcastFragment.newInstance(podcasts[position])
+        DiscoverSliderFragment.newInstance(podcasts[position])
 
     override fun getCount(): Int = podcasts.size
 

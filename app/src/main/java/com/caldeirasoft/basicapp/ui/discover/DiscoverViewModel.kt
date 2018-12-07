@@ -42,6 +42,13 @@ class DiscoverViewModel : ViewModel() {
         podcastGroups = map(itunesStore.livePodcastGroups) { it }
     }
 
+    fun request() {
+        itunesStore.request()
+    }
+
+    fun requestGroup(group: PodcastGroup) {
+        itunesStore.requestGroup(group)
+    }
 
     companion object {
         val PAGE_SIZE = 15

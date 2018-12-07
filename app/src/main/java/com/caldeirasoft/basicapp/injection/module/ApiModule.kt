@@ -1,6 +1,7 @@
 package com.caldeirasoft.basicapp.injection.module
 
 import android.os.Build
+import com.caldeirasoft.basicapp.App
 import com.caldeirasoft.basicapp.BuildConfig
 import com.caldeirasoft.basicapp.api.feedly.retrofit.FeedlyAPI
 import com.caldeirasoft.basicapp.api.itunes.retrofit.ITunesAPI
@@ -9,6 +10,7 @@ import com.caldeirasoft.basicapp.util.HttpLogger
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.provider
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
@@ -28,14 +30,15 @@ class ApiModule()
         private const val DEFAULT_READ_TIME_OUT = 30000
         private const val DEFAULT_WRITE_TIME_OUT = 30000
 
+        private const val DEFAULT_CACHE_SIZE = 32L * 1024L * 1024L // 32 MiB
     }
 
     val bind = Kodein.Module {
         bind<FeedlyAPI>() with provider { provideRetrofit(FEEDLY_BASE_URL).create(FeedlyAPI::class.java) }
-        bind<ITunesAPI>() with provider { provideRetrofit(ITUNES_BASE_URL).create(ITunesAPI::class.java) }
+        bind<ITunesAPI>() with provider { provideRetrofit(ITUNES_BASE_URL, true).create(ITunesAPI::class.java) }
     }
 
-    fun provideRetrofit(baseURL: String) : Retrofit
+    fun provideRetrofit(baseURL: String, enableCache:Boolean = false) : Retrofit
     {
         val httpClientBuilder = OkHttpClient.Builder().apply {
 
@@ -43,6 +46,12 @@ class ApiModule()
             connectTimeout(DEFAULT_CONN_TIME_OUT.toLong(), TimeUnit.MILLISECONDS)
             readTimeout(DEFAULT_READ_TIME_OUT.toLong(), TimeUnit.MILLISECONDS)
             writeTimeout(DEFAULT_WRITE_TIME_OUT.toLong(), TimeUnit.MILLISECONDS)
+
+            //set cache
+            if (enableCache) {
+                val cache = Cache(App.context?.cacheDir, DEFAULT_CACHE_SIZE)
+                cache(cache)
+            }
 
             if (BuildConfig.DEBUG) {
                 //set logging interceptor

@@ -28,11 +28,11 @@ class ItunesStore(
     private var podcastGroups = ArrayList<PodcastGroup>()
 
     fun request() {
-        var requestItems = itunesApi.viewGrouping(storeFront);
+        var requestItems = itunesApi.viewGrouping(storeFront)
         requestItems.enqueue(retrofitCallback(
                 { response ->
                     if (response.isSuccessful) {
-                        val storeResult = response.body();
+                        val storeResult = response.body()
                         storeResult?.let {
                             // set lockup
                             val lockup = storeResult.storePlatformData.lockup.results
@@ -41,8 +41,7 @@ class ItunesStore(
 
                                 podcast.trackId = kvp.key.toInt()
                                 kvp.value.apply {
-                                    if (!feedUrl.isNullOrEmpty())
-                                    {
+                                    if (!feedUrl.isNullOrEmpty()) {
                                         podcast.feedUrl = feedUrl
                                         podcast.authors = artistName
                                         podcast.title = name
@@ -61,8 +60,7 @@ class ItunesStore(
                             var headerEntries =
                                     storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first().children.first().children
                             headerEntries.forEach { kvp ->
-                                if (kvp.link.type == "content")
-                                {
+                                if (kvp.link.type == "content") {
                                     val id = kvp.link.contentId
                                     podcastsLookup[id]?.let { cast ->
                                         PodcastArtwork().apply {
@@ -77,48 +75,20 @@ class ItunesStore(
                             }
 
                             // do on background
-                            doAsync {
-                                // set content
-                                var contentGroup =
-                                        storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first().children.filter { v -> v.fcKind == 271 }
-                                contentGroup.forEach { kvp ->
-                                    val group = PodcastGroup()
-                                    group.name = kvp.name
+                            // set content
+                            var contentGroup =
+                                    storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first().children.filter { v -> v.fcKind == 271 }
+                            contentGroup.forEach { kvp ->
 
-                                    // for each group, get podcasts
-                                    var ids = kvp.children.first().content.map { kvp -> kvp.contentId }
-                                    val idsJoin = ids.joinToString(",")
-                                    var requestLookup = itunesApi.lookup(idsJoin)
-                                    val response = requestLookup.execute()
-                                    if (response.isSuccessful) {
-                                        val podcasts = arrayListOf<Podcast>()
-                                        val resultItem = response.body();
-                                        val entries = resultItem?.results ?: emptyList()
-                                        entries.forEach { entry ->
-                                            val podcast = Podcast()
-                                            podcast.feedUrl = entry.feedUrl
-                                            podcast.title = entry.trackName
-                                            podcast.imageUrl = entry.artworkUrl100
-                                            podcast.authors = entry.artistName
-                                            podcast.trackId = entry.trackId
-                                            group.podcasts.add(podcast)
-                                        }
-                                    }
-
-                                    podcastGroups.add(group)
-                                }
-
-                                /*
-                                kvp.children.first().content.forEach { kvc ->
-                                    val id = kvc.contentId
-                                    podcastsLookup[id]?.let { podcast ->
-                                        group.podcasts.add(podcast)
-                                    }
-                                }
-                                */
-                                liveTrendingPodcasts.postValue(trendingPodcasts)
-                                livePodcastGroups.postValue(podcastGroups)
+                                val group = PodcastGroup()
+                                group.name = kvp.name
+                                group.ids = kvp.children.first().content.map { kvp -> kvp.contentId.toInt() }
+                                podcastGroups.add(group)
                             }
+
+                            liveTrendingPodcasts.postValue(trendingPodcasts)
+                            livePodcastGroups.postValue(podcastGroups)
+
                         }
                     }
                 },
@@ -128,4 +98,34 @@ class ItunesStore(
                             ?: "unknown error"))*/
                 }))
     }
+
+    fun requestGroup(group: PodcastGroup) {
+        val idsJoin = group.ids.joinToString(",")
+        var requestItems = itunesApi.lookup(idsJoin)
+        requestItems.enqueue(retrofitCallback(
+                { response ->
+                    if (response.isSuccessful) {
+
+                        val resultItem = response.body();
+                        val entries = resultItem?.results ?: emptyList()
+                        val podcasts = entries.map { entry ->
+                            Podcast().apply {
+                                feedUrl = entry.feedUrl
+                                title = entry.trackName
+                                imageUrl = entry.artworkUrl100
+                                authors = entry.artistName
+                                trackId = entry.trackId
+                            }
+                        }
+                        group.podcasts.postValue(podcasts)
+                    }
+                },
+                { throwable ->
+                    //loadingState.postValue(LoadingState.LOAD_ERR)
+                    /*networkState.postValue(NetworkState.error(throwable.message
+                            ?: "unknown error"))*/
+                }))
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.caldeirasoft.basicapp.data.repository
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 import com.caldeirasoft.basicapp.data.db.DbTypeConverter
 import com.caldeirasoft.basicapp.data.entity.Podcast
@@ -12,5 +13,6 @@ import java.util.*
  */
 class PodcastGroup() {
     var name:String = ""
-    var podcasts = ArrayList<Podcast>()
+    var ids: List<Int> = ArrayList()
+    var podcasts = MutableLiveData<List<Podcast>>()
 }

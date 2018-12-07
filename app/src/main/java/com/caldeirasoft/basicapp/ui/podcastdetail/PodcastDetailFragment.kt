@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
@@ -75,7 +76,6 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
             it.viewModel = viewModel
         }
 
-
         setupFabClick()
         //-setupBottomSheet()
         observePodcast()
@@ -112,6 +112,7 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
     private fun setupRecyclerView() {
         // sticky header
         with(rw_podcastdetail_episodes) {
+            layoutManager = LinearLayoutManager(this.context, RecyclerView.VERTICAL, false)
             //addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
             addItemDecoration(ItemOffsetDecoration(5, 5))
             addItemDecoration(StickyHeaderLeftDecoration(episodesAdapter))

@@ -3,15 +3,12 @@ package com.caldeirasoft.basicapp
 import android.app.Application
 import com.caldeirasoft.basicapp.injection.module.ApiModule
 import com.caldeirasoft.basicapp.injection.module.AppModule
-import com.caldeirasoft.basicapp.injection.module.MediaModule
 import com.caldeirasoft.basicapp.injection.module.RoomDbModule
 import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
 import com.caldeirasoft.basicapp.service.sync.SyncHelper
-import com.caldeirasoft.basicapp.util.PicassoImageLoadingService
 import com.chibatching.kotpref.Kotpref
 import com.github.salomonbrys.kodein.*
 import com.jakewharton.threetenabp.AndroidThreeTen
-import ss.com.bannerslider.Slider
 
 class App : Application(), KodeinAware {
     override lateinit var kodein: Kodein
@@ -20,7 +17,6 @@ class App : Application(), KodeinAware {
         super.onCreate()
         App.context = this
         init310()
-        initSlider()
         initKodein()
         initKotpref()
         initLeakDetection()
@@ -51,10 +47,6 @@ class App : Application(), KodeinAware {
         if (BuildConfig.DEBUG) {
             //LeakCanary.install(this)
         }
-    }
-
-    private fun initSlider() {
-        Slider.init(PicassoImageLoadingService(applicationContext))
     }
 
     private fun setErrorHandler() {

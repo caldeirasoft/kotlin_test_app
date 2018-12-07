@@ -106,7 +106,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/cl_title_filter_section"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layoutManager="GridLayoutManager"
                 app:spanCount="2"
                 app:selectedFilter="@{viewModel.section}"
                 app:viewModel="@{viewModel}"/>

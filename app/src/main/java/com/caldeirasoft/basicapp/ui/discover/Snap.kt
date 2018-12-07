@@ -10,17 +10,22 @@ import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations.map
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.App
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
+import com.caldeirasoft.basicapp.data.repository.ItunesStore
+import com.caldeirasoft.basicapp.data.repository.PodcastGroup
 import com.caldeirasoft.basicapp.ui.adapter.IItemDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.adapter.viewholder.ClickAwareViewHolder
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderAdapter
 import com.caldeirasoft.basicapp.ui.adapter.defaultItemDiffCallback
+import com.caldeirasoft.basicapp.ui.catalog.DiscoverViewModel
 import com.caldeirasoft.basicapp.util.RelativeTimestampGenerator
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper
 import com.google.android.material.button.MaterialButton
@@ -35,6 +40,11 @@ import java.util.*
 class Snap(var gravity:Int,
            var text:String,
            var padding: Boolean,
-           var podcasts: List<Podcast>)
+           podcastGroup: PodcastGroup)
 {
+    var podcasts: LiveData<List<Podcast>>
+
+    init {
+        podcasts = map(podcastGroup.podcasts, { it })
+    }
 }

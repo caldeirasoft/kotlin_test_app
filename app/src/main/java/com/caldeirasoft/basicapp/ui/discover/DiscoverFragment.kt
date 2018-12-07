@@ -1,5 +1,7 @@
 package com.caldeirasoft.basicapp.ui.catalog
 
+import android.animation.ObjectAnimator
+import android.animation.StateListAnimator
 import android.os.Bundle
 import android.view.*
 import androidx.lifecycle.Observer
@@ -17,6 +19,8 @@ import com.caldeirasoft.basicapp.ui.discover.Snap
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.viewModelProviders
+import com.ethanhua.skeleton.RecyclerViewSkeletonScreen
+import com.ethanhua.skeleton.Skeleton
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 import kotlinx.android.synthetic.main.fragment_discover.*
@@ -29,6 +33,7 @@ class DiscoverFragment
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<View>
     private val discoverAdapter = DiscoverSnapAdapter(lifecycleOwner = this)
     lateinit private var viewPagerAdapter: DiscoverSliderPagerAdapter
+    private var skeletonScreen: RecyclerViewSkeletonScreen? = null
 
     override fun getMenuItem() = R.id.bb_menu_catalog
 
@@ -42,7 +47,7 @@ class DiscoverFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setToolbar()
+        setAppBar()
         setTitle()
         setupViewPager()
         setupRecyclerView()
@@ -50,8 +55,11 @@ class DiscoverFragment
         observeCatalog()
     }
 
-    private fun setToolbar() {
-       // (activity as AppCompatActivity).setSupportActionBar(toolbar);
+    private fun setAppBar() {
+       StateListAnimator().apply {
+           addState(IntArray(0), ObjectAnimator.ofFloat(discover_appbar_layout, "elevation", 0.1f))
+           discover_appbar_layout.stateListAnimator = this
+       }
     }
 
     private fun setTitle() {
@@ -72,13 +80,16 @@ class DiscoverFragment
         }
     }
 
-    private fun setupRecyclerView() =
-            with(recyclerView) {
-                layoutManager = LinearLayoutManager(activity)
-                setHasFixedSize(true)
-                addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-                adapter = discoverAdapter
-            }
+    private fun setupRecyclerView() {
+        with(recyclerView) {
+            layoutManager = LinearLayoutManager(activity)
+            setHasFixedSize(true)
+            skeletonScreen = Skeleton.bind(this)
+                    .adapter(discoverAdapter)
+                    .load(R.layout.listitem_snap_discover_skeleton)
+                    .show()
+        }
+    }
 
     private fun observeCatalog() {
         category.let { it ->
@@ -95,14 +106,18 @@ class DiscoverFragment
                 // groups
                 this.podcastGroups.observe(this@DiscoverFragment, Observer { list ->
                     list?.let { groups ->
+                        skeletonScreen?.hide()
                         groups.forEach { item ->
-                            discoverAdapter.addSnap(Snap(Gravity.START, item.name, false, item.podcasts))
+                            // add snap to adapter
+                            discoverAdapter.addSnap(Snap(Gravity.START, item.name, false, item))
+                            // request group
+                            viewModel.requestGroup(item)
                         }
                     }
                 })
 
                 // request
-                this.itunesStore.request()
+                this.request()
             }
         }
     }

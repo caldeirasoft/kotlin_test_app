@@ -47,9 +47,6 @@ dependencies {
     // Android debug database
     debugImplementation "com.amitshekhar.android:debug-db:1.0.3"
 
-    // Banner Slider
-    implementation 'com.ss.bannerslider:bannerslider:2.0.0'
-
     // Expendable Layout
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
 
@@ -107,6 +104,13 @@ dependencies {
 
     // RoundedImageView
     implementation 'com.makeramen:roundedimageview:2.3.0'
+
+    // Search View
+    implementation 'com.lapism:searchview:27.1.1.0.0'
+
+    // Skeleton
+    implementation 'com.ethanhua:skeleton:1.1.1'
+    implementation 'io.supercharge:shimmerlayout:2.1.0'
 
     // Sticky header decoration
     implementation 'com.github.qdxxxx:StickyHeaderDecoration:1.0.1'
