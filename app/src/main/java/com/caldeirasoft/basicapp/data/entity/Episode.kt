@@ -1,10 +1,12 @@
 package com.caldeirasoft.basicapp.data.entity
 
+import android.annotation.SuppressLint
 import androidx.room.*
 import com.caldeirasoft.basicapp.data.db.DbTypeConverter
 import com.caldeirasoft.basicapp.data.enum.SectionState
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneOffset
 import java.text.SimpleDateFormat
-import java.time.Instant
 import java.util.*
 
 /**
@@ -51,10 +53,19 @@ data class Episode @JvmOverloads constructor(
     //@get:com.google.firebase.firestore.ServerTimestamp
     var timePlayed: Date? = null
 
-    fun publishedFormat():String? =
+    fun publishedFormat():String =
             SimpleDateFormat("dd/MM/yyyy").let {
                 val epoch = Date(published)
                 return it.format(epoch)
+            }
+
+    fun durationFormat(): String? =
+            duration?.let {
+                Instant.ofEpochMilli(it).let {
+                    it.atZone(ZoneOffset.UTC).toLocalDateTime().let {
+                        return String.format("%sm%s", it.minute.toString(), it.second.toString())
+                    }
+                }
             }
 
     companion object {

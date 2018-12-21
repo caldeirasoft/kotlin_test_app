@@ -21,19 +21,21 @@
             android:background="@color/white"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:layout_margin="7dp"
                 android:id="@+id/img_row"
-                android:contentDescription="Thumbnail"
+                android:contentDescription="@null"
                 app:imageUrl="@{podcast.imageUrl}"
-                android:src="@drawable/ic_favorite_24dp" />
+                app:riv_border_color="@color/light_gray"
+                app:riv_border_width="1dp"
+                app:riv_corner_radius="5dp" />
 
             <TextView android:id="@+id/podcastTitle"
                       android:layout_width="match_parent"
                       android:layout_height="match_parent"
-                      android:layout_marginLeft="10dp"
+                      android:layout_marginStart="10dp"
                       android:text="@{podcast.title, default=`Default Title`}"
                       android:layout_gravity="center_horizontal"
                       android:textColor="#616161"

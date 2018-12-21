@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.ui.util
+package com.caldeirasoft.basicapp.ui.adapters
 
 import androidx.annotation.IdRes
 import androidx.appcompat.app.ActionBar

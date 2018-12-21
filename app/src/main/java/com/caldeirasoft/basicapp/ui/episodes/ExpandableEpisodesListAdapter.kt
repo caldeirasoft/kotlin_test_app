@@ -71,18 +71,6 @@ abstract class ExpandableEpisodesListAdapter<B : ViewDataBinding>(
         mRecyclerView = recyclerView
     }
 
-    fun updateItem(newItem: Episode) =
-        currentList?.indexOf(newItem)?.let {
-            this.notifyItemChanged(it)
-        }
-
-    fun updateItem(position:Int, newItem: Episode) {
-        currentList?.let {
-            it[position] = newItem
-            this.notifyItemChanged(position)
-        }
-    }
-
     private fun onPositionClick(position: Int, @IdRes viewId: Int) {
         when (viewId) {
             expandTriggerLayoutId -> onExpansionClick(position, viewId)

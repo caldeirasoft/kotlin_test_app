@@ -1,28 +1,23 @@
-package com.caldeirasoft.basicapp.ui.catalog
+package com.caldeirasoft.basicapp.ui.discover
 
 import android.animation.ObjectAnimator
 import android.animation.StateListAnimator
 import android.os.Bundle
-import android.view.*
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.avast.android.githubbrowser.extensions.start
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.databinding.FragmentDiscoverBinding
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
-import com.caldeirasoft.basicapp.ui.discover.DiscoverSliderPagerAdapter
-import com.caldeirasoft.basicapp.ui.discover.DiscoverSnapAdapter
-import com.caldeirasoft.basicapp.ui.discover.Snap
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.viewModelProviders
 import com.ethanhua.skeleton.RecyclerViewSkeletonScreen
-import com.ethanhua.skeleton.Skeleton
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-
 import kotlinx.android.synthetic.main.fragment_discover.*
 
 class DiscoverFragment
@@ -30,10 +25,7 @@ class DiscoverFragment
 
     var category:Int = 26
     private val viewModel by lazy { viewModelProviders<DiscoverViewModel>() }
-    private lateinit var mBottomSheetBehavior: BottomSheetBehavior<View>
-    private val discoverAdapter = DiscoverSnapAdapter(lifecycleOwner = this)
-    lateinit private var viewPagerAdapter: DiscoverSliderPagerAdapter
-    private var skeletonScreen: RecyclerViewSkeletonScreen? = null
+    lateinit private var viewPagerAdapter: DiscoverPagerAdapter
 
     override fun getMenuItem() = R.id.bb_menu_catalog
 
@@ -50,7 +42,6 @@ class DiscoverFragment
         setAppBar()
         setTitle()
         setupViewPager()
-        setupRecyclerView()
         setHasOptionsMenu(true)
         observeCatalog()
     }
@@ -74,52 +65,14 @@ class DiscoverFragment
     }
 
     private fun setupViewPager() {
-        viewPagerAdapter = DiscoverSliderPagerAdapter(context = this.requireContext(), fm = this.childFragmentManager)
-        with(viewpager_slider) {
+        viewPagerAdapter = DiscoverPagerAdapter(context = this.requireContext(), fm = this.childFragmentManager)
+        with(viewpager_discover) {
             adapter = viewPagerAdapter
-        }
-    }
-
-    private fun setupRecyclerView() {
-        with(recyclerView) {
-            layoutManager = LinearLayoutManager(activity)
-            setHasFixedSize(true)
-            skeletonScreen = Skeleton.bind(this)
-                    .adapter(discoverAdapter)
-                    .load(R.layout.listitem_snap_discover_skeleton)
-                    .show()
+            tabs_discover.setupWithViewPager(this)
         }
     }
 
     private fun observeCatalog() {
-        category.let { it ->
-            //viewModel
-            viewModel.apply {
-                // header
-                this.trendingPodcasts.observe(this@DiscoverFragment, Observer { list ->
-                    list?.let { items ->
-                        if (::viewPagerAdapter.isInitialized)
-                            viewPagerAdapter.submitPodcasts(items)
-                    }
-                })
-
-                // groups
-                this.podcastGroups.observe(this@DiscoverFragment, Observer { list ->
-                    list?.let { groups ->
-                        skeletonScreen?.hide()
-                        groups.forEach { item ->
-                            // add snap to adapter
-                            discoverAdapter.addSnap(Snap(Gravity.START, item.name, false, item))
-                            // request group
-                            viewModel.requestGroup(item)
-                        }
-                    }
-                })
-
-                // request
-                this.request()
-            }
-        }
     }
 
     override fun onItemClick(item: Podcast?, position: Int, viewId: Int) {

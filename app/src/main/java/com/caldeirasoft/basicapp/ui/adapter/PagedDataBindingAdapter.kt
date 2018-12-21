@@ -46,4 +46,15 @@ abstract class PagedDataBindingAdapter<T, B : ViewDataBinding>(
     private fun onPositionClick(position: Int, @IdRes viewId: Int) {
         itemViewClickListener?.onItemClick(getItem(position), position, viewId)
     }
+
+    fun updateItem(newItem: T) =
+            currentList?.indexOf(newItem)?.let {
+                this.notifyItemChanged(it)
+            }
+
+    fun updateItem(position:Int, newItem: T) =
+        currentList?.let {
+            it[position] = newItem
+            this.notifyItemChanged(position)
+        }
 }

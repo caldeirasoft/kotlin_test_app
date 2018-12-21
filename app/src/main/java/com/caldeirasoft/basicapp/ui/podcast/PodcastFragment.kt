@@ -15,6 +15,7 @@ import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemDividerDecoration
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailFragment
+import com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoFragment
 import com.caldeirasoft.basicapp.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_podcasts.*
@@ -63,7 +64,7 @@ class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Pod
         with(podcasts_recyclerView) {
             layoutManager = LinearLayoutManager(activity)
             addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            addItemDecoration(ItemDividerDecoration(context, 30, 2))
+            //addItemDecoration(ItemDividerDecoration(context, 15, 2))
             adapter = podcastAdapter
         }
     }
@@ -87,8 +88,8 @@ class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Pod
 
     private fun openPodcastDetail(podcast: Podcast)
     {
-        PodcastDetailFragment().let {
-            it.withArgs(EXTRA_FEED_ID to podcast)
+        PodcastInfoFragment().let {
+            it.withArgs(EXTRA_FEED_ID to podcast, COLLAPSED to true)
             this.activity?.addFragment(it, "podcastdetail" + podcast.feedUrl, true)
         }
     }
@@ -114,5 +115,6 @@ class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Pod
 
     companion object {
         const val EXTRA_FEED_ID = "FEED_ID"
+        const val COLLAPSED = "COLLAPSED"
     }
 }

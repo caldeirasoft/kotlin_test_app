@@ -1,13 +1,10 @@
-package com.caldeirasoft.basicapp.ui.catalog
+package com.caldeirasoft.basicapp.ui.discover
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.map
 import androidx.lifecycle.ViewModel
-import com.caldeirasoft.basicapp.data.entity.Episode
-import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.repository.*
-import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
@@ -17,17 +14,18 @@ class DiscoverViewModel : ViewModel() {
 
     lateinit private var mainThreadExecutor: Executor
     private var ioExecutor: ExecutorService
+    private var isDiscoverLoaded = false
 
     var catalogCategory = MutableLiveData<Int>()
     var podcastRepository: PodcastRepository
-    var itunesStore: ItunesStore
+    var itunesStore: ItunesStoreSourceFactory
     lateinit var sourceFactory: PodcastItunesDataSourceFactory
 
     var descriptionLoadingState
             = MutableLiveData<Boolean>().apply { value = false }
 
     var trendingPodcasts: LiveData<List<PodcastArtwork>>
-    var podcastGroups: LiveData<List<PodcastGroup>>
+    var podcastGroups: LiveData<List<ItunesSection>>
     lateinit var loadingState : LiveData<LoadingState>
 
     /**
@@ -37,17 +35,16 @@ class DiscoverViewModel : ViewModel() {
         podcastRepository = PodcastRepository()
         ioExecutor = Executors.newFixedThreadPool(5)
 
-        itunesStore = podcastRepository.getPodcastsPreviewFromItunes("143442-3,30")
-        trendingPodcasts = map(itunesStore.liveTrendingPodcasts) { it }
-        podcastGroups = map(itunesStore.livePodcastGroups) { it }
+        itunesStore = podcastRepository.getItunesStoreSourceFactory("143442-3,30")
+        trendingPodcasts = map(itunesStore.trendingPodcasts) { it }
+        podcastGroups = map(itunesStore.itunesSections) { it }
     }
 
     fun request() {
-        itunesStore.request()
-    }
-
-    fun requestGroup(group: PodcastGroup) {
-        itunesStore.requestGroup(group)
+        if (!isDiscoverLoaded) {
+            itunesStore.request()
+            isDiscoverLoaded = true
+        }
     }
 
     companion object {

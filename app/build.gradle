@@ -66,6 +66,10 @@ dependencies {
     // GravitySnapHelper
     implementation 'com.github.rubensousa:gravitysnaphelper:2.0'
 
+    // Infinite viewpager
+    implementation 'com.github.santalu:auto-viewpager:1.0.8'
+    implementation 'com.asksira.android:loopingviewpager:1.1.4'
+
     // Internationalisation
     implementation 'com.neovisionaries:nv-i18n:1.22'
 
@@ -78,8 +82,7 @@ dependencies {
     implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
 
     // Kodein coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.3'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'
 
     // Kotlin XML databinding DSL
     implementation "org.jonnyzzz.kotlin.xml.bind:jdom:0.2.0"

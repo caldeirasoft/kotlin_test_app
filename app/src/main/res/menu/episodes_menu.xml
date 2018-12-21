@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+  <item
+      android:id="@+id/menu_episode_play"
+      android:enabled="true"
+      android:title="Play"
+      android:icon="@drawable/ic_play_24dp"
+      app:showAsAction="always"/>
+  <item
+      android:id="@+id/menu_episode_queue_next"
+      android:enabled="true"
+      android:title="Queue Next"
+      android:icon="@drawable/ic_add_to_top_24dp"
+      app:showAsAction="always"/>
+  <item
+      android:id="@+id/menu_episode_queue_last"
+      android:enabled="true"
+      android:title="Queue Last"
+      android:icon="@drawable/ic_add_to_bottom_24dp"
+      app:showAsAction="always"/>
+  <item
+      android:id="@+id/menu_episode_archive"
+      android:enabled="true"
+      android:title="Archive"
+      android:icon="@drawable/ic_archive_24dp"
+      app:showAsAction="always"/>
+  <item
+      android:id="@+id/menu_episode_favorite"
+      android:enabled="true"
+      android:title="Favorite"
+      android:icon="@drawable/ic_favorite_24dp"
+      app:showAsAction="always"/>
+</menu>

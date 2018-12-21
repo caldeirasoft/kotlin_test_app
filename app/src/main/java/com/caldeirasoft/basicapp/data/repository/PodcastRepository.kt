@@ -2,11 +2,9 @@ package com.caldeirasoft.basicapp.data.repository
 
 import androidx.lifecycle.*
 import androidx.paging.*
-import android.content.Context
 import android.util.Log
 import com.avast.android.githubbrowser.extensions.retrofitCallback
 import com.caldeirasoft.basicapp.App
-import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDao
 import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDataSource
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.api.feedly.retrofit.FeedlyAPI
@@ -17,13 +15,8 @@ import com.caldeirasoft.basicapp.data.entity.Episode
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.instance
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.doAsyncResult
-import java.net.URLEncoder
-import java.util.concurrent.Executor
-import java.util.logging.Logger
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -91,13 +84,24 @@ class PodcastRepository : PodcastDataSource, LazyKodeinAware
 
     override fun getPodcastsDataSourceFromDb(): DataSource.Factory<Int, Podcast>
     {
-        var source = database.podcastDao().getPodcastDataSource()
+        val source = database.podcastDao().getPodcastDataSource()
         return source
     }
 
-    override fun getPodcastsPreviewFromItunes(storeFront: String): ItunesStore {
-        val store = ItunesStore(itunesApi = iTunesAPI, podcastDao = database.podcastDao(), storeFront = storeFront)
+    /**
+     * Get itunes store front
+     */
+    override fun getItunesStoreSourceFactory(storeFront: String): ItunesStoreSourceFactory {
+        val store = ItunesStoreSourceFactory(itunesApi = iTunesAPI, podcastDao = database.podcastDao(), storeFront = storeFront)
         return store;
+    }
+
+    /**
+     * Get itunes podcasts data source from a list of ids
+     */
+    override fun getItunesLookupDataSourceFactory(ids: List<Int>): ItunesLookupDataSourceFactory {
+        val sourceFactory = ItunesLookupDataSourceFactory(itunesApi = iTunesAPI, podcastDao = database.podcastDao(), ids = ids)
+        return sourceFactory;
     }
 
     /**
@@ -105,7 +109,7 @@ class PodcastRepository : PodcastDataSource, LazyKodeinAware
      */
     override fun getPodcastsDataSourceFactoryFromItunes(genre: Int): PodcastItunesDataSourceFactory
     {
-        var sourceFactory = PodcastItunesDataSourceFactory(iTunesAPI, database.podcastDao(), genre);
+        val sourceFactory = PodcastItunesDataSourceFactory(iTunesAPI, database.podcastDao(), genre);
         return sourceFactory
     }
 

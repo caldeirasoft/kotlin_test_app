@@ -1,49 +1,55 @@
-package com.caldeirasoft.basicapp.ui.podcastdetail
+package com.caldeirasoft.basicapp.ui.podcastinfo
 
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.enum.SectionState
-import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
-import com.caldeirasoft.basicapp.databinding.ListitemEpisodespodcastBinding
+import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
+import com.caldeirasoft.basicapp.databinding.ListitemEpisodesinfoBinding
 import com.caldeirasoft.basicapp.extensions.lazyArg
 import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
-import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemOffsetDecoration
-import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderLeftDecoration
+import com.caldeirasoft.basicapp.ui.adapter.SimplePagedDataBindingAdapter
+import com.caldeirasoft.basicapp.ui.adapter.decorations.HeaderViewDecoration
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
-import com.caldeirasoft.basicapp.ui.adapters.fabVisibility
 import com.caldeirasoft.basicapp.viewModelProviders
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_COLLAPSED
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_EXPANDED
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_HIDDEN
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.android.synthetic.main.fragment_podcastdetail.*
+import kotlinx.android.synthetic.main.fragment_podcastinfo.*
+import kotlinx.android.synthetic.main.fragment_podcastinfo.view.*
 
-class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), ItemViewClickListener<Episode>, MainNavigationFragment {
+class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemViewClickListener<Episode>, MainNavigationFragment {
 
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
+    val collapsed by lazyArg<Boolean>(COLLAPSED)
 
     private var menu: Menu? = null
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var filtersFab: FloatingActionButton
 
-    private val viewModel by lazy { viewModelProviders<PodcastDetailViewModel>() }
+    private val viewModel by lazy { viewModelProviders<PodcastInfoViewModel>() }
     private val episodesAdapter by lazy {
-        PodcastDetailEpisodesListAdapter<ListitemEpisodespodcastBinding>(
+        SimplePagedDataBindingAdapter<Episode, ListitemEpisodesinfoBinding>(
+                layoutId = R.layout.listitem_episodesinfo,
+                variableId = BR.episode,
                 itemViewClickListener = this,
                 lifecycleOwner = this,
-                clickAwareViewIds = *intArrayOf(R.id.buttonInfo, R.id.button_play, R.id.button_archive, R.id.button_queuenext, R.id.button_queuelast, R.id.button_favorite))
+                clickAwareViewIds = *intArrayOf(R.id.buttonInfo, R.id.button_play, R.id.button_archive, R.id.button_queuenext, R.id.button_queuelast, R.id.button_favorite)
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,12 +57,10 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
-        mBinding = FragmentPodcastdetailBinding.inflate(inflater, container, false).apply {
-            setLifecycleOwner(this@PodcastDetailFragment)
-            viewModel = this@PodcastDetailFragment.viewModel
+        mBinding = FragmentPodcastinfoBinding.inflate(inflater, container, false).apply {
+            setLifecycleOwner(this@PodcastInfoFragment)
+            viewModel = this@PodcastInfoFragment.viewModel
         }
-        filtersFab = mBinding.fabFiltersectionPodcastdetail
-
         return mBinding.root
     }
 
@@ -67,21 +71,15 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         setupRecyclerView()
         setupSwipeRefreshLayout()
         //setHasOptionsMenu(true)
-
-        mBottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.fragment_filter_sheet))
-
-        val fm = childFragmentManager
-        var bottomSheetFragment = fm.findFragmentById(R.id.fragment_filter_sheet) as PodcastFilterFragment?
-        bottomSheetFragment?.let {
-            it.viewModel = viewModel
-        }
-
-        setupFabClick()
         //-setupBottomSheet()
         observePodcast()
     }
 
     private fun setToolbar() {
+        if (collapsed) {
+            appbar.setExpanded(false, false)
+        }
+
         (activity as AppCompatActivity).apply {
             setSupportActionBar(toolbar)
             supportActionBar?.apply {
@@ -111,26 +109,28 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
 
     private fun setupRecyclerView() {
         // sticky header
-        with(rw_podcastdetail_episodes) {
+        with(recyclerView_podcastinfo) {
             layoutManager = LinearLayoutManager(this.context, RecyclerView.VERTICAL, false)
-            //addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            addItemDecoration(ItemOffsetDecoration(5, 5))
-            addItemDecoration(StickyHeaderLeftDecoration(episodesAdapter))
+            addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
+            addItemDecoration(HeaderViewDecoration(R.layout.header_podcastinfo))
+            //addItemDecoration(ItemOffsetDecoration(5, 5))
+            //addItemDecoration(StickyHeaderLeftDecoration(episodesAdapter))
             adapter = episodesAdapter
         }
 
         episodesAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 if (positionStart == 0)
-                    rw_podcastdetail_episodes.layoutManager?.scrollToPosition(0)
+                    recyclerView_podcastinfo.layoutManager?.scrollToPosition(0)
             }
         })
     }
 
     private fun setupSwipeRefreshLayout() =
-            with (srl_podcastDetail) {
+            with (swipeRefreshLayout_podcastinfo) {
                 setOnRefreshListener {
                     viewModel.refresh()
+                    this.isRefreshing = false
                 }
             }
 
@@ -138,34 +138,31 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         podcast.let {
             viewModel.apply {
 
-                mBinding.let {
-                    it.viewModel = this
-                    it.setLifecycleOwner(this@PodcastDetailFragment)
-                }
-
                 // data binding
                 this.setDataSource(it)
 
                 // update episode event
-                updateEpisodeEvent.observe(this@PodcastDetailFragment, Observer { episode ->
+                updateEpisodeEvent.observe(this@PodcastInfoFragment, Observer { episode ->
                     episode?.let { ep ->
-                        episodesAdapter.apply { updateItem(ep) }
+                        episodesAdapter.apply {
+                            updateItem(ep)
+                        }
                     }
                 })
                 // collection without section
-                episodes.observe(this@PodcastDetailFragment, Observer { episodes ->
+                episodes.observe(this@PodcastInfoFragment, Observer { episodes ->
                     episodes?.let { list ->
                         episodesAdapter.submitList(list)
                     }
                 })
 
                 // update section
-                section.observe(this@PodcastDetailFragment, Observer { section ->
+                section.observe(this@PodcastInfoFragment, Observer { section ->
                     updateFilterUI(section)
                 })
 
                 // network updates
-                loadingState.observe(this@PodcastDetailFragment, Observer { state ->
+                loadingState.observe(this@PodcastInfoFragment, Observer { state ->
                     state?.let { st ->
                         //episodesAdapter.setState(st)
                     }
@@ -199,7 +196,7 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         val showFab = section == null
         val hideable = section == null
 
-        fabVisibility(filtersFab, showFab)
+        //fabVisibility(filtersFab, showFab)
         if (::mBottomSheetBehavior.isInitialized) {
             mBottomSheetBehavior.isHideable = hideable
             mBottomSheetBehavior.skipCollapsed = hideable
@@ -245,5 +242,6 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
 
     companion object {
         const val EXTRA_FEED_ID = "FEED_ID"
+        const val COLLAPSED = "COLLAPSED"
     }
 }

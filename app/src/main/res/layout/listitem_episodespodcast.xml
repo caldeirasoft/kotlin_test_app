@@ -141,6 +141,13 @@
                         android:layout_width="match_parent"
                         android:background="@color/grey_10"/>
 
+                    <androidx.appcompat.widget.Toolbar
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/actionBarSize"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        />
+
                     <ImageButton
                         android:id="@+id/button_play"
                         style="?android:attr/borderlessButtonStyle"

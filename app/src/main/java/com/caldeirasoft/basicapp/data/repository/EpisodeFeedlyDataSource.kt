@@ -13,6 +13,8 @@ import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.onComplete
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -78,7 +80,7 @@ class EpisodeFeedlyDataSource(
                                                             episode.playbackPosition = this.playbackPosition
                                                             episode.queuePosition = this.queuePosition
                                                         }
-                                                    } ?: doAsync {
+                                                    } ?: run {
                                                         // if the episode is new / not in db : get from podcast
                                                         // get value from podcast
                                                         episode.section = SectionState.ARCHIVE.value
@@ -86,11 +88,20 @@ class EpisodeFeedlyDataSource(
                                                         episode.bigImageUrl = feed.bigImageUrl
                                                         episode.podcastTitle = feed.title
 
-                                                        val mmr = MediaMetadataRetriever()
-                                                        mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
-                                                        episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
-
-                                                        durationEvent.postValue(episode)
+                                                        /*
+                                                        doAsync {
+                                                            try {
+                                                                val mmr = MediaMetadataRetriever()
+                                                                mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
+                                                                episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+                                                                onComplete { durationEvent.postValue(episode) }
+                                                            }
+                                                            catch(e:Exception)
+                                                            {
+                                                                Log.e("EpisodeFeedlyDataSource", "retrieve media metadata", e)
+                                                            }
+                                                        }
+                                                        */
                                                     }
                                                     //if (episodeInDb == null)
                                                     //   episodeDao.insertEpisode(it)

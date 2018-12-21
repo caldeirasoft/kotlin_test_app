@@ -69,4 +69,10 @@
         <item name="chipStartPadding">8dp</item>
         <item name="chipEndPadding">8dp</item>
     </style>
+
+    <style name="TextAppearance.TestApp.Tab" parent="TextAppearance.Design.Tab">
+        <item name="android:fontFamily">@font/googlesans_regular</item>
+        <item name="android:textStyle">bold</item>
+        <item name="textAllCaps">false</item>
+    </style>
 </resources>

@@ -5,7 +5,7 @@ import android.os.PersistableBundle
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.printActivityFragmentList
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
-import com.caldeirasoft.basicapp.ui.catalog.DiscoverFragment
+import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
 import com.caldeirasoft.basicapp.ui.inbox.InboxFragment
 import com.caldeirasoft.basicapp.ui.podcast.PodcastFragment
 import com.caldeirasoft.basicapp.ui.queue.QueueFragment
@@ -23,11 +23,6 @@ class MainActivity : MediaPlayerBaseActivity()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
-            R.id.navigation_queue -> {
-                super.addFragment(QueueFragment(), "queue", false)
-                setTitle("queue")
-                return@OnNavigationItemSelectedListener true
-            }
             R.id.navigation_inbox -> {
                 super.addFragment(InboxFragment(), "inbox", true)
                 setTitle("inbox")
@@ -78,14 +73,14 @@ class MainActivity : MediaPlayerBaseActivity()
         supportFragmentManager.apply {
             if (backStackEntryCount > 0) {
                 getBackStackEntryAt(backStackEntryCount - 1).name?.let {
-                    findFragmentByTag(it)?.apply {
+                    /*findFragmentByTag(it)?.apply {
                         addFragment(this, it, false)
-                    }
+                    }*/
                     popBackStackImmediate()
                 }
 
                 when (backStackEntryCount) {
-                    0 -> this@MainActivity.navigation.menu.findItem(R.id.navigation_queue)?.setChecked(true)
+                    0 -> this@MainActivity.navigation.menu.findItem(R.id.navigation_inbox)?.setChecked(true)
 
                     else ->
                         getBackStackEntryAt(backStackEntryCount - 1).name?.let {

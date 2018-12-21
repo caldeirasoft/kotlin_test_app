@@ -9,7 +9,9 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.PodcastWithCount
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodesinboxBinding
+import com.caldeirasoft.basicapp.databinding.ListitemEpisodesinfoBinding
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
+import com.caldeirasoft.basicapp.ui.adapter.SimplePagedDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderDecoration
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
 
@@ -17,8 +19,8 @@ abstract class EpisodesBaseFragment : BaseFragment(), ItemViewClickListener<Epis
 
     protected abstract val viewModel: EpisodesViewModel
     protected val episodesAdapter by lazy {
-        EpisodesDataBindingAdapter<ListitemEpisodesinboxBinding>(
-                layoutId = R.layout.listitem_episodesinbox,
+        SimplePagedDataBindingAdapter<Episode, ListitemEpisodesinfoBinding>(
+                layoutId = R.layout.listitem_episodesinfo,
                 variableId = BR.episode,
                 itemViewClickListener = this,
                 lifecycleOwner = this,
@@ -52,7 +54,7 @@ abstract class EpisodesBaseFragment : BaseFragment(), ItemViewClickListener<Epis
         with(recyclerView) {
             layoutManager = LinearLayoutManager(activity)
             addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            addItemDecoration(StickyHeaderDecoration(episodesAdapter))
+            //addItemDecoration(StickyHeaderDecoration(episodesAdapter))
             adapter = episodesAdapter
         }
     }

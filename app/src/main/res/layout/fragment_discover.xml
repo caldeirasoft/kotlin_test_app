@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.caldeirasoft.basicapp.ui.catalog.DiscoverViewModel"/>
+            type="com.caldeirasoft.basicapp.ui.discover.DiscoverViewModel"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -19,54 +19,32 @@
             android:id="@+id/discover_appbar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:background="@color/white">
 
             <com.lapism.searchview.widget.SearchView
                 android:id="@+id/searchView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
                 app:elevation="5dp"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:layout_behavior="@string/search_behavior"/>
 
-            <!--
-            <SearchView
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabs_discover"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|enterAlways|snap"/>
-            -->
+                android:layout_height="?actionBarSize"
+                app:tabIndicatorHeight="3dp"
+                app:tabMode="scrollable"
+                style="@style/TextAppearance.TestApp.Tab"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
-
-        <androidx.core.widget.NestedScrollView
-            android:orientation="vertical"
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager_discover"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="-60dp"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <androidx.viewpager.widget.ViewPager
-                    android:id="@+id/viewpager_slider"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:scrollbars="none"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -20,8 +20,7 @@
         android:id="@+id/tb_library"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabIndicatorHeight="3dp"
-        app:tabMode="scrollable"/>
+        app:tabMode="fixed"/>
 
   </com.google.android.material.appbar.AppBarLayout>
 

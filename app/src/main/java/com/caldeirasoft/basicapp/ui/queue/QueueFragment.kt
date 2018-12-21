@@ -23,8 +23,6 @@ import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_queue.*
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.android.UI
 
 class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episode> {
 
@@ -41,7 +39,7 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
 
     override fun getLayout() = R.layout.fragment_queue
 
-    override fun getMenuItem() = R.id.navigation_queue
+    override fun getMenuItem() = R.id.navigation_inbox
 
     override fun onCreate() {
         // toolbar
@@ -49,9 +47,7 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
 
         setupRecyclerView()
         setHasOptionsMenu(true)
-        launch(UI) {
-            observeQueue()
-        }
+        observeQueue()
     }
 
     override fun onDestroyView() {
@@ -64,10 +60,10 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        inflater?.inflate(R.menu.main_menu, menu)
+        //this.menu = menu
+        //inflater?.inflate(R.menu.main_menu, menu)
         // change "podcast layout" icon
-        super.onDestroyOptionsMenu()
+        //super.onDestroyOptionsMenu()
         super.onCreateOptionsMenu(menu, inflater)
     }
 
