@@ -1,31 +1,23 @@
 package com.caldeirasoft.basicapp.ui.discover
 
-import android.animation.ObjectAnimator
-import android.animation.StateListAnimator
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.avast.android.githubbrowser.extensions.start
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.addFragment
+import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.repository.PodcastArtwork
 import com.caldeirasoft.basicapp.databinding.FragmentDiscoverForyouBinding
 import com.caldeirasoft.basicapp.extensions.withArgs
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
-import com.caldeirasoft.basicapp.ui.discover.DiscoverViewModel
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
 import com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoFragment
 import com.ethanhua.skeleton.RecyclerViewSkeletonScreen
 import com.ethanhua.skeleton.Skeleton
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.fragment_discover_foryou.*
 
 class DiscoverForYouFragment

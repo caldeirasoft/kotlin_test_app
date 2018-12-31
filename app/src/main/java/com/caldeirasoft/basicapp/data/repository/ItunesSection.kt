@@ -10,8 +10,9 @@ import java.util.concurrent.Executors
  * Created by Edmond on 09/02/2018.
  */
 class ItunesSection(var name:String,
-                    var ids: List<Int>) {
-    val podcasts: LiveData<PagedList<Podcast>>
+                    var ids: List<Int>,
+                    val podcasts: List<Podcast>) {
+    val podcasts2: LiveData<PagedList<Podcast>>
         get() {
             val podcastRepository = PodcastRepository()
             val ioExecutor = Executors.newFixedThreadPool(5)

@@ -5,7 +5,7 @@ import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.databinding.ActivityPodcastdetailBinding
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_podcastdetail.*
 import android.graphics.drawable.BitmapDrawable
@@ -21,7 +21,6 @@ import android.widget.Toast
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
-import androidx.databinding.adapters.ViewBindingAdapter
 import androidx.lifecycle.Observer
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.DividerItemDecoration

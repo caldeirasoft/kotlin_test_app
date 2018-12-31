@@ -1,11 +1,14 @@
 package com.caldeirasoft.basicapp.ui.adapters
 
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Picasso
+import jp.wasabeef.picasso.transformations.BlurTransformation
+import org.jetbrains.anko.imageBitmap
 
 @BindingAdapter("imageUrl")
 fun ImageView.imageUrl(url: String?) {
@@ -16,6 +19,15 @@ fun ImageView.imageUrl(url: String?) {
 fun ImageView.imageUrl(url: String?, error: Drawable) {
     Picasso.with(this.context).load(url).error(error).into(this)
 }
+
+@BindingAdapter("blurUrl")
+fun ImageView.blurUrl(url: String?) {
+    Picasso.with(this.context)
+            .load(url)
+            .transform(BlurTransformation(this.context))
+            .into(this)
+}
+
 
 @BindingAdapter("android:src")
 fun ImageView.imageDrawable(drawable: Drawable) {

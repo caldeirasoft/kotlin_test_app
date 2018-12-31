@@ -17,7 +17,7 @@ import com.caldeirasoft.basicapp.ui.adapter.SimplePagedDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailActivity
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 import kotlinx.android.synthetic.main.fragment_catalog.*

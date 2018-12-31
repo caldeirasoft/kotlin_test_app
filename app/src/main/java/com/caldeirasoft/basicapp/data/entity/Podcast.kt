@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
 import com.caldeirasoft.basicapp.data.db.DbTypeConverter
+import kotlinx.android.parcel.Parcelize
 import java.net.URLEncoder
 import java.util.*
 
@@ -12,7 +13,8 @@ import java.util.*
  */
 @Entity(tableName = "podcasts")
 @TypeConverters(DbTypeConverter::class)
-class Podcast() : Parcelable {
+@Parcelize
+class Podcast : Parcelable {
     @PrimaryKey var feedUrl: String = ""
     var title: String = ""
     var trackId: Int? = null
@@ -38,41 +40,6 @@ class Podcast() : Parcelable {
     var timeCreated: Date? = null
     //@get:com.google.firebase.firestore.ServerTimestamp
     var timeUpdate: Date? = null
-
-    constructor(parcel: Parcel) : this() {
-        feedUrl = parcel.readString()
-        title = parcel.readString()
-        trackId = parcel.readValue(Int::class.java.classLoader) as? Int
-        description = parcel.readString()
-        authors = parcel.readString()
-        updated = parcel.readValue(Long::class.java.classLoader) as? Long
-        imageUrl = parcel.readString()
-        bigImageUrl = parcel.readString()
-        subscribeAction = parcel.readInt()
-        isInSync = parcel.readByte() != 0.toByte()
-        isInDatabase = parcel.readByte() != 0.toByte()
-        localStatus = parcel.readInt()
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(feedUrl)
-        parcel.writeString(title)
-        parcel.writeValue(trackId)
-        parcel.writeString(description)
-        parcel.writeString(authors)
-        parcel.writeValue(updated)
-        parcel.writeString(imageUrl)
-        parcel.writeString(bigImageUrl)
-        parcel.writeInt(subscribeAction)
-        parcel.writeByte(if (isInSync) 1 else 0)
-        parcel.writeByte(if (isInDatabase) 1 else 0)
-        parcel.writeInt(localStatus)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
     companion object {
         val PODCAST_STATE = "podcast_state"
         val PODCAST_FILE_PATH = "podcast_downloaded_file_path"
@@ -81,16 +48,6 @@ class Podcast() : Parcelable {
         val PODCAST_BIG_IMAGE_URL = "podcast_big_image_url"
         val PODCAST_DURATION = "podcast_duration"
         val PODCAST_DATE = "podcast_date"
-
-        @JvmField val CREATOR = object  : Parcelable.Creator<Podcast> {
-            override fun createFromParcel(parcel: Parcel): Podcast {
-                return Podcast(parcel)
-            }
-
-            override fun newArray(size: Int): Array<Podcast?> {
-                return arrayOfNulls(size)
-            }
-        }
 
         val DEFAULT_PODCAST : Podcast = Podcast()
     }

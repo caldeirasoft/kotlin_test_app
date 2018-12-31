@@ -5,18 +5,16 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.databinding.library.baseAdapters.BR
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.addFragment
+import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.databinding.ListitemPodcastBinding
 import com.caldeirasoft.basicapp.extensions.withArgs
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
-import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemDividerDecoration
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailFragment
 import com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoFragment
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_podcasts.*
 

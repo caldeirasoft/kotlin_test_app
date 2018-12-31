@@ -18,6 +18,9 @@ class ItunesStoreSourceFactory(
         val itunesApi: ITunesAPI,
         val podcastDao: PodcastDao)
 {
+    companion object {
+        val PODCAST_TOKEN = "audioPodcasts"
+    }
     var trendingPodcasts = MutableLiveData<List<PodcastArtwork>>()
     var itunesSections = MutableLiveData<List<ItunesSection>>()
 
@@ -56,7 +59,7 @@ class ItunesStoreSourceFactory(
                             // set trending header
                             //var header = storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first()
                             var headerEntries =
-                                    storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first().children.first().children
+                                    storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }.children.first().children.first().children
                             headerEntries.forEach { kvp ->
                                 if (kvp.link.type == "content") {
                                     val id = kvp.link.contentId
@@ -75,13 +78,19 @@ class ItunesStoreSourceFactory(
                             // do on background
                             // set content
                             var contentGroup =
-                                    storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first().children.filter { v -> v.fcKind == 271 }
+                                    storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }.children.first().children.filter { v -> v.fcKind == 271 }
                             contentGroup.forEach { kvp ->
 
-                                val section = ItunesSection(kvp.name, kvp.children.first().content.map { kwp -> kwp.contentId.toInt() })
-                                mItunesSection.add(section)
-                            }
 
+                                kvp.children.first().content.let { items ->
+                                    val section = ItunesSection(
+                                            kvp.name,
+                                            items.map { kwp -> kwp.contentId.toInt() },
+                                            items.map { kwp -> mPodcastsLookup[kwp.contentId] }.filterNotNull().take(6)
+                                    )
+                                    mItunesSection.add(section)
+                                }
+                            }
                             trendingPodcasts.postValue(mTrendingPodcasts)
                             itunesSections.postValue(mItunesSection)
 

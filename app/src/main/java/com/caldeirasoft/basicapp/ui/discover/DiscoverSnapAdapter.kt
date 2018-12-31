@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -44,24 +45,16 @@ class DiscoverSnapAdapter(
 
         holder.recyclerView.apply {
             layoutManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
-            GravitySnapHelper(Gravity.START).attachToRecyclerView(this)
+            //layoutManager = GridLayoutManager(context, 3)
+            //GravitySnapHelper(Gravity.START).attachToRecyclerView(this)
 
-            SimplePagedDataBindingAdapter<Podcast, ListitemPodcastDiscoverBinding>(
+            adapter = SimpleDataBindingAdapter<Podcast, ListitemPodcastDiscoverBinding>(
                 layoutId = R.layout.listitem_podcast_discover,
                 variableId = BR.podcast,
                 itemViewClickListener = itemViewClickListener,
                 lifecycleOwner = lifecycleOwner,
                 clickAwareViewIds = *intArrayOf(R.id.itemEpisodeConstraintLayout))
-                .let { adapter ->
-                    val skeleton = Skeleton.bind(holder.recyclerView)
-                            .adapter(adapter)
-                            .load(R.layout.listitem_podcast_discover_skeleton)
-                            .show()
-                    podcastGroup.podcasts.observe(lifecycleOwner, androidx.lifecycle.Observer {
-                        skeleton.hide()
-                        adapter.submitList(it)
-                    })
-                }
+                .apply { submitList(podcastGroup.podcasts) }
         }
     }
 

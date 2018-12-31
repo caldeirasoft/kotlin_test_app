@@ -20,7 +20,7 @@ import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
 import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 
 import kotlinx.android.synthetic.main.fragment_queue.*
 

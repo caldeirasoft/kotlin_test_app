@@ -35,7 +35,7 @@ class DiscoverViewModel : ViewModel() {
         podcastRepository = PodcastRepository()
         ioExecutor = Executors.newFixedThreadPool(5)
 
-        itunesStore = podcastRepository.getItunesStoreSourceFactory("143442-3,30")
+        itunesStore = podcastRepository.getItunesStoreSourceFactory("143442-3,31")
         trendingPodcasts = map(itunesStore.trendingPodcasts) { it }
         podcastGroups = map(itunesStore.itunesSections) { it }
     }

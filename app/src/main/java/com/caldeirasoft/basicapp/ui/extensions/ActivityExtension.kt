@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp
+package com.caldeirasoft.basicapp.ui.extensions
 
 import android.app.Activity
 import androidx.fragment.app.Fragment

@@ -10,17 +10,15 @@
           type="com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoViewModel"/>
   </data>
   <androidx.constraintlayout.motion.widget.MotionLayout
-      android:orientation="vertical"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      app:applyMotionScene="true"
-      app:layoutDescription="@xml/motionscene_podcastinfo">
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/recyclerView_podcastinfo"
           android:layout_width="0dp"
           android:layout_height="0dp"
-          android:layout_marginTop="@dimen/dp_20"
+          android:layout_marginTop="@dimen/dp_10"
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
@@ -32,9 +30,10 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:orientation="vertical"
+          android:alpha="0"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toTopOf="parent">
+          app:layout_constraintBottom_toTopOf="parent">
 
           <com.makeramen.roundedimageview.RoundedImageView
               android:id="@+id/imageview_thumbnail"
@@ -98,8 +97,7 @@
           android:layout_width="0dp"
           android:layout_height="wrap_content"
           android:layout_marginBottom="10dp"
-          android:alpha="0"
-          android:gravity="center"
+          android:gravity="start"
           android:singleLine="true"
           android:text="@{viewModel.podcast.title, default=`Default Title`}"
           android:textColor="@color/black"
@@ -118,7 +116,7 @@
           android:paddingStart="8dp"
           android:paddingEnd="8dp"
           android:text="@{viewModel.isInDatabase ? @string/button_unsubscribe : @string/button_subscribe}"
-          android:drawableLeft="@drawable/ic_add_podcast_24dp"
+          android:drawableLeft="@drawable/ic_add_24dp"
           app:rb_animation_alpha="false"
           app:rb_animation_progress_color="@color/colorAccent"
           app:rb_animation_progress_padding="8dp"
@@ -141,6 +139,7 @@
           app:layout_constraintTop_toBottomOf="@id/layout_header_podcastinfo"
           app:layout_constraintBottom_toTopOf="@+id/toolbar_divider"
           android:onClick="@{() -> viewModel.onPodcastSubscribe()}"
+          android:alpha="0"
           />
 
       <View
@@ -152,6 +151,7 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintTop_toBottomOf="@id/button_subscribe"
           android:background="@color/light_gray"/>
+
 
   </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

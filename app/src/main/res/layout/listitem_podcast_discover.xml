@@ -25,8 +25,8 @@
                 app:cardCornerRadius="@dimen/dp_5">
 
                 <ImageView
-                    android:layout_width="@dimen/dp_90"
-                    android:layout_height="@dimen/dp_90"
+                    android:layout_width="@dimen/dp_100"
+                    android:layout_height="@dimen/dp_100"
                     android:id="@+id/img_row"
                     android:contentDescription="Thumbnail"
                     app:imageUrl="@{podcast.imageUrl}" />
@@ -35,7 +35,7 @@
 
             <TextView
                 android:id="@+id/textview_podcast"
-                android:layout_width="@dimen/dp_90"
+                android:layout_width="@dimen/dp_100"
                 android:layout_height="wrap_content"
                 android:text="@{podcast.title, default=`Default Title`}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Caption"
@@ -45,7 +45,7 @@
 
             <TextView
                 android:id="@+id/textView_artist"
-                android:layout_width="@dimen/dp_90"
+                android:layout_width="@dimen/dp_100"
                 android:layout_height="wrap_content"
                 android:text="@{podcast.authors, default=`Description`}"
                 android:textSize="@dimen/text_tinier"

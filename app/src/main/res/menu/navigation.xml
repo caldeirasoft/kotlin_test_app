@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/navigation_queue"
+        android:icon="@drawable/ic_queue_24dp"
+        android:title="@string/queue" />
+
+    <item
         android:id="@+id/navigation_inbox"
         android:icon="@drawable/ic_inbox_24dp"
         android:title="@string/inbox" />

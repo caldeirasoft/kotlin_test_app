@@ -2,6 +2,8 @@ package com.caldeirasoft.basicapp.ui.podcastinfo
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.library.baseAdapters.BR
 import androidx.lifecycle.Observer
@@ -12,6 +14,7 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.enum.SectionState
+import com.caldeirasoft.basicapp.data.enum.SubscribeAction
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodesinfoBinding
 import com.caldeirasoft.basicapp.extensions.lazyArg
@@ -22,20 +25,21 @@ import com.caldeirasoft.basicapp.ui.adapter.decorations.HeaderViewDecoration
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
+import com.caldeirasoft.basicapp.ui.extensions.addFadingToolbar
+import com.caldeirasoft.basicapp.ui.extensions.collapsedTitle
 import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_COLLAPSED
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_EXPANDED
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_HIDDEN
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_podcastinfo.*
-import kotlinx.android.synthetic.main.fragment_podcastinfo.view.*
 
 class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemViewClickListener<Episode>, MainNavigationFragment {
 
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
-    val collapsed by lazyArg<Boolean>(COLLAPSED)
+    val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
     private var menu: Menu? = null
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<*>
@@ -69,19 +73,13 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
         // toolbar
         setToolbar()
         setupRecyclerView()
-        setupSwipeRefreshLayout()
         //setHasOptionsMenu(true)
         //-setupBottomSheet()
         observePodcast()
     }
 
     private fun setToolbar() {
-        if (collapsed) {
-            appbar.setExpanded(false, false)
-        }
-
         (activity as AppCompatActivity).apply {
-            setSupportActionBar(toolbar)
             supportActionBar?.apply {
                 setDisplayHomeAsUpEnabled(true)
                 setDisplayShowHomeEnabled(true)
@@ -112,7 +110,6 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
         with(recyclerView_podcastinfo) {
             layoutManager = LinearLayoutManager(this.context, RecyclerView.VERTICAL, false)
             addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            addItemDecoration(HeaderViewDecoration(R.layout.header_podcastinfo))
             //addItemDecoration(ItemOffsetDecoration(5, 5))
             //addItemDecoration(StickyHeaderLeftDecoration(episodesAdapter))
             adapter = episodesAdapter
@@ -125,14 +122,6 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
             }
         })
     }
-
-    private fun setupSwipeRefreshLayout() =
-            with (swipeRefreshLayout_podcastinfo) {
-                setOnRefreshListener {
-                    viewModel.refresh()
-                    this.isRefreshing = false
-                }
-            }
 
     private fun observePodcast() {
         podcast.let {
@@ -159,6 +148,16 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
                 // update section
                 section.observe(this@PodcastInfoFragment, Observer { section ->
                     updateFilterUI(section)
+                })
+
+                // subscribe event
+                subscribePodcastEvent.observe(this@PodcastInfoFragment, Observer { podcast ->
+                    podcast?.let {
+                        when (isInDatabase.value) {
+                            false -> showSubscribeDialog(it)
+                            true -> unsubscribeFromPodcast(it)
+                        }
+                    }
                 })
 
                 // network updates
@@ -238,6 +237,29 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
             return true
         }
         return super.onBackPressed()
+    }
+
+    fun showSubscribeDialog(podcast: Podcast) {
+        val options = requireContext().resources?.getStringArray(R.array.subscribe_options)
+        val builder = AlertDialog.Builder(requireContext())
+                //alt_bld.setIcon(R.drawable.icon);
+                .setTitle("Select a Group Name")
+                .setSingleChoiceItems(
+                        R.array.subscribe_options,
+                        -1
+                ) { dialog, item ->
+                    Toast.makeText(requireContext(),
+                            "Group Name = " + options!![item], Toast.LENGTH_SHORT).show()
+                    when (item) {
+                        0 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.INBOX)
+                        1 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_NEXT)
+                        2 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_LAST)
+                        3 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.ARCHIVE)
+                    }
+                    dialog.dismiss()// dismiss the alertbox after chose option
+                }
+        val alert = builder.create()
+        alert.show()
     }
 
     companion object {

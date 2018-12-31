@@ -9,12 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailFilterBinding
 import com.caldeirasoft.basicapp.ui.adapter.ChipAdapter
-import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailViewModel
-import com.caldeirasoft.basicapp.viewModelProviders
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.google.android.material.chip.Chip
 import com.squareup.picasso.Picasso
 

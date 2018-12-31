@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition app:constraintSetStart="@layout/fragment_podcastinfo"
+                app:constraintSetEnd="@layout/fragment_podcastinfo_end"
+                app:duration="500"
+                motion:interpolator="linear">
+        <OnSwipe
+            app:touchAnchorId="@id/recyclerView_podcastinfo"
+            app:dragDirection="dragUp"
+            app:touchAnchorSide="top"/>
+
+        <KeyFrameSet>
+            <KeyAttribute
+                motion:target="@id/layout_header_podcastinfo"
+                motion:framePosition="45"
+                android:alpha="0"/>
+
+            <KeyAttribute
+                motion:target="@id/button_subscribe"
+                motion:framePosition="45"
+                android:alpha="0"/>
+
+            <KeyAttribute
+                motion:target="@id/toolbar_title"
+                motion:framePosition="45"
+                android:alpha="0"/>
+        </KeyFrameSet>
+
+    </Transition>
+</MotionScene>

@@ -2,7 +2,6 @@ package com.caldeirasoft.basicapp.ui.podcastdetail.filter
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,14 +12,11 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.enum.SectionState
-import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailFilterBinding
 import com.caldeirasoft.basicapp.ui.adapter.ChipAdapter
 import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
-import com.caldeirasoft.basicapp.ui.adapter.RecyclerArrayAdapter
 import com.caldeirasoft.basicapp.ui.filter.MenuFilterFragment
 import com.caldeirasoft.basicapp.ui.podcastdetail.PodcastDetailViewModel
-import com.caldeirasoft.basicapp.viewModelProviders
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_COLLAPSED
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_HIDDEN
