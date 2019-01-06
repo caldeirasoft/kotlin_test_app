@@ -78,6 +78,18 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), ItemV
         observePodcast()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.apply {
+            updateEpisodeEvent.removeObservers(this@PodcastInfoFragment)
+            episodes.removeObservers(this@PodcastInfoFragment)
+            section.removeObservers(this@PodcastInfoFragment)
+            subscribePodcastEvent.removeObservers(this@PodcastInfoFragment)
+            loadingState.removeObservers(this@PodcastInfoFragment)
+        }
+    }
+
+
     private fun setToolbar() {
         (activity as AppCompatActivity).apply {
             supportActionBar?.apply {

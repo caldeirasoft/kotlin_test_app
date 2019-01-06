@@ -16,69 +16,59 @@
       app:applyMotionScene="true"
       app:layoutDescription="@xml/motionscene_podcastinfo">
 
-      <View
-          android:id="@+id/toolbar_divider"
-          android:layout_width="0dp"
-          android:layout_height="1dp"
-          android:background="@color/light_gray"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintHorizontal_bias="0.0"
-          app:layout_constraintStart_toStartOf="parent" />
-
-      <LinearLayout
-          android:id="@+id/layout_header_podcastinfo"
+      <ImageView
+          android:id="@+id/imageview_backdrop"
           android:layout_width="0dp"
           android:layout_height="0dp"
-          android:layout_marginTop="?attr/actionBarSize"
-          android:orientation="vertical"
-          app:layout_constraintTop_toTopOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintBottom_toTopOf="@id/toolbar_divider">
+          android:scaleType="centerCrop"
+          app:blurUrl="@{viewModel.podcast.imageUrl}"
+          app:attachedScrimView="@{viewBackdropScrim}"
+          />
 
-          <com.makeramen.roundedimageview.RoundedImageView
-              android:id="@+id/imageview_thumbnail"
-              android:layout_width="160dp"
-              android:layout_height="160dp"
-              android:layout_marginBottom="@dimen/dp_10"
-              android:contentDescription="@null"
-              android:adjustViewBounds="true"
-              android:layout_gravity="center_horizontal"
-              android:elevation="5dp"
-              app:imageUrl="@{viewModel.podcast.imageUrl}"
-              android:src="@drawable/thumb_1_0"
-              app:riv_border_color="@color/light_gray"
-              app:riv_border_width="1dp"
-              app:riv_corner_radius="5dp"
-              />
+      <View
+          android:id="@+id/view_backdrop_scrim"
+          android:layout_width="0dp"
+          android:layout_height="0dp"
+          android:background="@color/dark_transparent"
+          />
 
-          <TextView
-              android:id="@+id/textview_title"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center_horizontal"
-              android:gravity="center"
-              android:ellipsize="marquee"
-              android:scrollHorizontally="true"
-              android:marqueeRepeatLimit="marquee_forever"
-              android:text="@{viewModel.podcast.title, default=`Default Title`}"
-              android:singleLine="true"
-              android:layout_marginTop="@dimen/dp_5"
-              android:layout_marginBottom="@dimen/dp_5"
-              android:paddingStart="@dimen/element_margin_small"
-              android:paddingEnd="@dimen/element_margin_small"
-              style = "@style/TextAppearance.MaterialComponents.Headline6"/>
+      <com.makeramen.roundedimageview.RoundedImageView
+          android:id="@+id/imageview_artwork"
+          android:layout_width="0dp"
+          android:layout_height="0dp"
+          android:contentDescription="@null"
+          android:scaleType="centerCrop"
+          android:elevation="4dp"
+          app:imageUrl="@{viewModel.podcast.imageUrl}"
+          android:src="@drawable/thumb_1_0"
+          app:riv_border_color="@color/light_gray"
+          app:riv_border_width="1dp"
+          app:riv_corner_radius="5dp"
+          android:paddingLeft="@dimen/element_margin_medium"
+          android:paddingRight="@dimen/element_margin_medium"
+          android:paddingBottom="@dimen/element_margin_medium"
+          />
+
+      <View
+          android:id="@+id/details_appbar_background"
+          android:layout_width="0dp"
+          android:layout_height="0dp"
+          android:background="?android:attr/colorBackground" />
+
+      <LinearLayout
+          android:id="@+id/layout_buttons"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="end|center_vertical">
 
           <com.marozzi.roundbutton.RoundButton
               android:id="@+id/button_subscribe"
               style="@style/TextStyle194"
               android:layout_width="wrap_content"
-              android:layout_height="25dp"
-              android:layout_gravity="center"
+              android:layout_height="35dp"
               android:paddingStart="8dp"
               android:paddingEnd="8dp"
-              android:paddingTop="4dp"
-              android:paddingBottom="4dp"
+              android:layout_margin="@dimen/element_margin_small"
               android:text="@{viewModel.isInDatabase ? @string/button_unsubscribe : @string/button_subscribe}"
               app:rb_animation_alpha="false"
               app:rb_animation_progress_color="@color/colorAccent"
@@ -96,23 +86,40 @@
               app:rb_corner_width="1dp"
               app:rb_text_color="@color/colorPrimary"
               app:rb_text_color_pressed="@android:color/white"
-              android:textSize="@dimen/text_tinier"
               android:textStyle="bold"
               android:onClick="@{() -> viewModel.onPodcastSubscribe()}"
               />
 
-          <TextView android:id="@+id/textview_artist"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center_horizontal"
-              android:gravity="center"
-              android:singleLine="true"
-              android:text="@{viewModel.podcast.authors, default=`Default Author`}"
-              android:paddingStart="@dimen/element_margin_small"
-              android:paddingEnd="@dimen/element_margin_small"
-              style="@style/TextAppearance.MaterialComponents.Caption"/>
-
       </LinearLayout>
+
+      <TextView
+          android:id="@+id/textview_title"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="start"
+          android:gravity="start"
+          android:ellipsize="end"
+          android:scrollHorizontally="true"
+          android:marqueeRepeatLimit="marquee_forever"
+          android:elevation="5dp"
+          android:text="@{viewModel.podcast.title, default=`Default Title`}"
+          android:maxLines="2"
+          android:layout_marginTop="@dimen/dp_5"
+          android:layout_marginBottom="@dimen/dp_5"
+          android:paddingStart="@dimen/element_margin_small"
+          android:paddingEnd="@dimen/element_margin_small"
+          style = "@style/TextAppearance.MaterialComponents.Headline6"/>
+
+      <TextView android:id="@+id/textview_artist"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="start"
+          android:gravity="start"
+          android:singleLine="true"
+          android:text="@{viewModel.podcast.authors, default=`Default Author`}"
+          android:paddingStart="@dimen/element_margin_small"
+          android:paddingEnd="@dimen/element_margin_small"
+          style="@style/TextAppearance.MaterialComponents.Body2"/>
 
       <ImageView
           android:id="@+id/imageview_backbutton"
@@ -128,22 +135,6 @@
           app:layout_constraintTop_toTopOf="parent"
           app:srcCompat="@drawable/ic_arrow_back_24dp" />
 
-      <TextView
-          android:id="@+id/toolbar_title"
-          android:layout_width="0dp"
-          android:layout_height="wrap_content"
-          android:gravity="center"
-          android:paddingTop="@dimen/dp_15"
-          android:singleLine="true"
-          android:text="@{viewModel.podcast.title, default=`Default Title`}"
-          android:textColor="@color/black"
-          android:textSize="19sp"
-          android:textStyle="bold"
-          android:visibility="visible"
-          app:layout_constraintTop_toTopOf="parent"
-          app:layout_constraintStart_toEndOf="@id/imageview_backbutton"
-          app:layout_constraintEnd_toEndOf="parent"/>
-
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/recyclerView_podcastinfo"
           android:layout_width="0dp"
@@ -151,8 +142,14 @@
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintTop_toBottomOf="@id/toolbar_divider"
+          app:layout_constraintTop_toBottomOf="@id/textview_artist"
           />
+
+      <View
+          android:id="@+id/details_status_bar_anchor"
+          android:layout_width="match_parent"
+          android:layout_height="1dp"
+          android:background="@color/dark_transparent" />
 
 
   </androidx.constraintlayout.motion.widget.MotionLayout>

@@ -1,11 +1,18 @@
 package com.caldeirasoft.basicapp.ui.adapters
 
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
+import androidx.palette.graphics.Palette
+import com.caldeirasoft.basicapp.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import jp.wasabeef.picasso.transformations.BlurTransformation
 import org.jetbrains.anko.imageBitmap
@@ -24,10 +31,19 @@ fun ImageView.imageUrl(url: String?, error: Drawable) {
 fun ImageView.blurUrl(url: String?) {
     Picasso.with(this.context)
             .load(url)
+            .placeholder(R.color.gray)
             .transform(BlurTransformation(this.context))
             .into(this)
 }
 
+@BindingAdapter("blurUrl", "attachedScrimView")
+fun ImageView.blurUrl(url: String?, attachScrimView: View?) {
+    Picasso.with(this.context)
+            .load(url)
+            .placeholder(R.color.gray)
+            .transform(BlurTransformation(this.context))
+            .into(this, setImageCallback(this, attachScrimView))
+}
 
 @BindingAdapter("android:src")
 fun ImageView.imageDrawable(drawable: Drawable) {
@@ -47,4 +63,24 @@ fun FloatingActionButton.imageDrawable(drawable: Drawable) {
 @BindingAdapter("android:src")
 fun ImageButton.imageDrawable(drawable: Drawable) {
     this.setImageDrawable(drawable)
+}
+
+
+private fun setImageCallback(imageView: ImageView, scrimView: View?): Callback {
+    return object : Callback {
+        override fun onSuccess() {
+            val bitmap = (imageView.getDrawable() as BitmapDrawable).bitmap
+            Palette.from(bitmap).generate(object : Palette.PaletteAsyncListener {
+                override fun onGenerated(palette: Palette?) {
+                    val defaultColor = imageView.resources.getColor(R.color.black)
+                    val vibrantColor = palette?.getDarkVibrantColor(defaultColor)?.let {
+                        scrimView?.setBackgroundColor(it)
+                    }
+                }
+            })
+        }
+
+        override fun onError() {
+        }
+    }
 }
