@@ -13,8 +13,7 @@ import java.util.*
  * Created by Edmond on 09/02/2018.
  */
 @Parcelize
-class PodcastArtwork : Parcelable {
-    var podcast: Podcast? = null
+class PodcastArtwork(var podcast: Podcast) : Parcelable {
     var artworkUrl: String = ""
     var bgColor: Int = 0
     var textColor: Int = 0

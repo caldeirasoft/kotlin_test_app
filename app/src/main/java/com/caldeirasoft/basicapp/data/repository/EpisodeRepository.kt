@@ -22,7 +22,7 @@ import org.jetbrains.anko.doAsyncResult
  */
 class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
 
-    private var continuation:String = ""
+    private var continuation: String = ""
     private var isAllDataLoaded = false
 
     override val kodein = LazyKodein { App.context!!.kodein }
@@ -31,7 +31,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
 
     override fun getEpisodeDataSourceFromFeedly(feed: Podcast): EpisodeFeedlyDataSourceFactory = EpisodeFeedlyDataSourceFactory(feed, feedlyAPI, database.episodeDao())
 
-    override fun getEpisodeDbDataSource(section:Int, feedUrl: String?): EpisodeDbDataSourceFactory = EpisodeDbDataSourceFactory(database.episodeDao(), section, feedUrl)
+    override fun getEpisodeDbDataSource(section: Int, feedUrl: String?): EpisodeDbDataSourceFactory = EpisodeDbDataSourceFactory(database.episodeDao(), section, feedUrl)
 
     override fun getEpisodeDataSourceFromFake(feed: Podcast): EpisodeFakeDataSourceFactory = EpisodeFakeDataSourceFactory(feed, feedlyAPI, database.episodeDao())
 
@@ -55,7 +55,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
 
     override fun getEpisodeById(episodeId: String): Episode? = database.episodeDao().getEpisodeById(episodeId)
 
-    override fun getEpisodeByUrl(feedUrl: String, mediaUrl:String): Episode? = database.episodeDao().getEpisodeByUrl(feedUrl, mediaUrl)
+    override fun getEpisodeByUrl(feedUrl: String, mediaUrl: String): Episode? = database.episodeDao().getEpisodeByUrl(feedUrl, mediaUrl)
 
     override fun insertEpisode(episode: Episode) {
         doAsync {
@@ -96,8 +96,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Archive episode
      */
-    override fun archiveEpisode(episode: Episode)
-    {
+    override fun archiveEpisode(episode: Episode) {
         val lastSection = episode.section
         episode.section = SectionState.ARCHIVE.value
         updateEpisode(episode)
@@ -109,8 +108,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Toggle episode favorite status
      */
-    override fun toggleEpisodeFavorite(episode: Episode)
-    {
+    override fun toggleEpisodeFavorite(episode: Episode) {
         episode.isFavorite = !episode.isFavorite
         upsertEpisode(episode)
     }
@@ -118,8 +116,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Queue episode first
      */
-    override fun queueEpisodeFirst(episode: Episode)
-    {
+    override fun queueEpisodeFirst(episode: Episode) {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().let {
             when (it.isEmpty()) {
@@ -138,8 +135,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Queue episode last
      */
-    override fun queueEpisodeLast(episode: Episode)
-    {
+    override fun queueEpisodeLast(episode: Episode) {
         // get queue size
         val queueSize = getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().size
         episode.section = SectionState.QUEUE.value
@@ -150,8 +146,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Queue episode last
      */
-    override fun playEpisode(episode: Episode)
-    {
+    override fun playEpisode(episode: Episode) {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().let {
             it.forEachIndexed { i, episode -> episode.queuePosition = i + 1 }
@@ -167,8 +162,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Queue episode first
      */
-    override fun reorderQueue()
-    {
+    override fun reorderQueue() {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value?.let {
             it.forEachIndexed { i, episode -> episode.queuePosition = i }
@@ -179,8 +173,7 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     /**
      * Insert episode if not exists
      */
-    override fun upsertEpisode(episode: Episode)
-    {
+    override fun upsertEpisode(episode: Episode) {
         doAsyncResult { getEpisodeByUrl(episode.feedUrl, episode.mediaUrl) }.get().let {
             if (it != null)
                 updateEpisode(episode)

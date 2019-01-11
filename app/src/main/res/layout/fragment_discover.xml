@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:fitsSystemWindows="true"
-        app:layoutDescription="@xml/motionscene_collapse_title">
+        app:layoutDescription="@xml/scene_discover">
 
         <com.github.florent37.shapeofview.shapes.CircleView
             android:id="@+id/imageview_thumbnail"
@@ -44,43 +44,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageview_thumbnail"/>
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView"
+        <com.airbnb.epoxy.EpoxyRecyclerView
+            android:id="@+id/recyclerView"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/searchView"
-            app:layout_constraintBottom_toBottomOf="parent">
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <!-- trending -->
-                <com.asksira.loopingviewpager.LoopingViewPager
-                    android:id="@+id/viewpager_slider"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:minHeight="110dp"
-                    app:isInfinite="true"
-                    app:autoScroll="true"
-                    app:viewpagerAspectRatio="2.2"
-                    />
-
-                <!-- catalog sections -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerView"
-                    android:scrollbars="none"
-                    android:nestedScrollingEnabled="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-
-            </LinearLayout>
-
-        </androidx.core.widget.NestedScrollView>
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

@@ -8,6 +8,9 @@
       <variable
           name="viewModel"
           type="com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoViewModel"/>
+      <variable
+          name="onSubscribe"
+          type="android.view.View.OnClickListener"/>
   </data>
   <androidx.constraintlayout.motion.widget.MotionLayout
       android:orientation="vertical"
@@ -87,7 +90,7 @@
               app:rb_text_color="@color/colorPrimary"
               app:rb_text_color_pressed="@android:color/white"
               android:textStyle="bold"
-              android:onClick="@{() -> viewModel.onPodcastSubscribe()}"
+              android:onClick="@{onSubscribe}"
               />
 
       </LinearLayout>
@@ -135,8 +138,8 @@
           app:layout_constraintTop_toTopOf="parent"
           app:srcCompat="@drawable/ic_arrow_back_24dp" />
 
-      <androidx.recyclerview.widget.RecyclerView
-          android:id="@+id/recyclerView_podcastinfo"
+      <com.airbnb.epoxy.EpoxyRecyclerView
+          android:id="@+id/recyclerView"
           android:layout_width="0dp"
           android:layout_height="0dp"
           app:layout_constraintBottom_toBottomOf="parent"

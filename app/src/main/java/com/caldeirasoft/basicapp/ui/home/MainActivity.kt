@@ -3,13 +3,13 @@ package com.caldeirasoft.basicapp.ui.home
 import android.os.Bundle
 import android.os.PersistableBundle
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.ui.extensions.printActivityFragmentList
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
+import com.caldeirasoft.basicapp.ui.extensions.printActivityFragmentList
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.inbox.InboxFragment
 import com.caldeirasoft.basicapp.ui.podcast.PodcastFragment
 import com.caldeirasoft.basicapp.ui.queue.QueueFragment
-import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -56,7 +56,7 @@ class MainActivity : MediaPlayerBaseActivity()
         super.onCreate(savedInstanceState)
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
 
-        supportFragmentManager?.printActivityFragmentList()
+        supportFragmentManager.printActivityFragmentList()
 
         if (savedInstanceState == null) {
             super.addFragment(QueueFragment(), "queue", false)

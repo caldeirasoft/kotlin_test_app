@@ -21,15 +21,15 @@ class ItunesStoreSourceFactory(
     companion object {
         val PODCAST_TOKEN = "audioPodcasts"
     }
-    var trendingPodcasts = MutableLiveData<List<PodcastArtwork>>()
-    var itunesSections = MutableLiveData<List<ItunesSection>>()
 
-    private var mPodcastsLookup = HashMap<String, Podcast>()
-    private var mTrendingPodcasts = ArrayList<PodcastArtwork>()
-    private var mItunesSection = ArrayList<ItunesSection>()
+    var itunesStore = MutableLiveData<ItunesStore>()
 
     fun request() {
-        var requestItems = itunesApi.viewGrouping(storeFront)
+        val mPodcastsLookup = HashMap<String, Podcast>()
+        val mTrendingPodcasts = ArrayList<PodcastArtwork>()
+        val mItunesSection = ArrayList<ItunesSection>()
+
+        val requestItems = itunesApi.viewGrouping(storeFront)
         requestItems.enqueue(retrofitCallback(
                 { response ->
                     if (response.isSuccessful) {
@@ -42,7 +42,7 @@ class ItunesStoreSourceFactory(
 
                                 podcast.trackId = kvp.key.toInt()
                                 kvp.value.apply {
-                                    if (!feedUrl.isNullOrEmpty()) {
+                                    if (!feedUrl.isEmpty()) {
                                         podcast.feedUrl = feedUrl
                                         podcast.authors = artistName
                                         podcast.title = name
@@ -58,14 +58,13 @@ class ItunesStoreSourceFactory(
 
                             // set trending header
                             //var header = storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first()
-                            var headerEntries =
+                            val headerEntries =
                                     storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }.children.first().children.first().children
                             headerEntries.forEach { kvp ->
                                 if (kvp.link.type == "content") {
                                     val id = kvp.link.contentId
                                     mPodcastsLookup[id]?.let { cast ->
-                                        PodcastArtwork().apply {
-                                            podcast = cast
+                                        PodcastArtwork(cast).apply {
                                             artworkUrl = kvp.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
                                             bgColor = Color.parseColor("#" + kvp.artwork.bgColor).withAlpha(210)
                                             textColor = Color.parseColor("#" + kvp.artwork.textColor1)
@@ -77,7 +76,7 @@ class ItunesStoreSourceFactory(
 
                             // do on background
                             // set content
-                            var contentGroup =
+                            val contentGroup =
                                     storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }.children.first().children.filter { v -> v.fcKind == 271 }
                             contentGroup.forEach { kvp ->
 
@@ -91,9 +90,9 @@ class ItunesStoreSourceFactory(
                                     mItunesSection.add(section)
                                 }
                             }
-                            trendingPodcasts.postValue(mTrendingPodcasts)
-                            itunesSections.postValue(mItunesSection)
 
+                            val store = ItunesStore(mTrendingPodcasts, mItunesSection)
+                            itunesStore.postValue(store)
                         }
                     }
                 },

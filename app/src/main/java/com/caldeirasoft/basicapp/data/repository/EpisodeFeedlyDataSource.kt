@@ -1,7 +1,5 @@
 package com.caldeirasoft.basicapp.data.repository
 
-import android.media.MediaMetadataRetriever
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
 import com.avast.android.githubbrowser.extensions.retrofitCallback
@@ -13,10 +11,7 @@ import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.onComplete
-import java.lang.RuntimeException
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -31,15 +26,21 @@ class EpisodeFeedlyDataSource(
 
     var ids:List<String> = arrayListOf<String>()
     var podcasts = arrayListOf<Podcast>()
+    val backingStoreEpisodes: ArrayList<Episode> = arrayListOf()
     val loadingState = MutableLiveData<LoadingState>()
     val durationEvent = SingleLiveEvent<Episode>()
     var continuation = ""
+    var backingStoreContinuation = ""
     var isFull: Boolean = false
 
-    private fun loadInternal(pageSize:Int, callback: (List<Episode>) -> Unit, alreadyRetrievedEpisodes: List<Episode> = ArrayList())
+    private fun fetchEpisodes(
+            pageSize:Int,
+            alreadyRetrievedEpisodes: List<Episode> = ArrayList(),
+            continuation: String = "",
+            callback: (List<Episode>) -> Unit
+            )
     {
-        if (isFull)
-        {
+        if (isFull) {
             callback.invoke(Collections.emptyList())
             return
         }
@@ -47,80 +48,42 @@ class EpisodeFeedlyDataSource(
         feedlyAPI.getStreamEntries(feed.feedId, pageSize, continuation)
                 .enqueue(retrofitCallback(
                         { response ->
-                            response.body()?.let {
-                                continuation = it.continuation ?: ""
-                                it.items
-                                        .filter { entry ->
-                                            entry.enclosure.firstOrNull()?.href != null
-                                        }
-                                        .map { entry ->
-                                            Episode(entry.id
-                                                    , feed.feedUrl
-                                                    , entry.title
-                                                    , entry.published ?: 0)
-                                                    .apply {
-                                                        description = entry.summary?.content
-                                                        mediaUrl = entry.enclosure.get(0).href
-                                                        mediaType = entry.enclosure.get(0).type
-                                                        mediaLength = entry.enclosure.get(0).length
-                                                        link = entry.origin.htmlUrl
-                                                    }
-                                        }
-                                        .let {
-                                            doAsync {
-                                                it.forEach { episode ->
-                                                    // get episode in db
-                                                    val episodeInDb = episodeDao.getEpisodeById(episode.episodeId)
-                                                    episodeInDb.apply {
-                                                        this?.apply {
-                                                            // get value from db
-                                                            episode.section = this.section
-                                                            episode.isFavorite = this.isFavorite
-                                                            episode.duration = this.duration
-                                                            episode.playbackPosition = this.playbackPosition
-                                                            episode.queuePosition = this.queuePosition
-                                                        }
-                                                    } ?: run {
-                                                        // if the episode is new / not in db : get from podcast
-                                                        // get value from podcast
-                                                        episode.section = SectionState.ARCHIVE.value
-                                                        episode.imageUrl = feed.imageUrl
-                                                        episode.bigImageUrl = feed.bigImageUrl
-                                                        episode.podcastTitle = feed.title
+                            response.body()?.let { responseEntries ->
+                                backingStoreContinuation = responseEntries.continuation ?: ""
 
-                                                        /*
-                                                        doAsync {
-                                                            try {
-                                                                val mmr = MediaMetadataRetriever()
-                                                                mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
-                                                                episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
-                                                                onComplete { durationEvent.postValue(episode) }
+                                val episodesList =
+                                        responseEntries.items
+                                                .filter { entry -> entry.enclosure.firstOrNull()?.href != null }
+                                                .map { entry ->
+                                                    Episode(entry.id
+                                                            , feed.feedUrl
+                                                            , entry.title
+                                                            , entry.published ?: 0)
+                                                            .apply {
+                                                                description = entry.summary?.content
+                                                                mediaUrl = entry.enclosure.get(0).href
+                                                                mediaType = entry.enclosure.get(0).type
+                                                                mediaLength = entry.enclosure.get(0).length
+                                                                link = entry.origin.htmlUrl
                                                             }
-                                                            catch(e:Exception)
-                                                            {
-                                                                Log.e("EpisodeFeedlyDataSource", "retrieve media metadata", e)
-                                                            }
-                                                        }
-                                                        */
-                                                    }
-                                                    //if (episodeInDb == null)
-                                                    //   episodeDao.insertEpisode(it)
                                                 }
-                                            }
 
-                                            val merge = alreadyRetrievedEpisodes.plus(it)
-                                            if (!continuation.isEmpty()) {
-                                                if (it.size == (pageSize - alreadyRetrievedEpisodes.size))
-                                                    callback.invoke(merge)
-                                                else {
-                                                    loadInternal(pageSize, callback, merge)
-                                                }
-                                            }
-                                            else {
-                                                callback.invoke(merge)
-                                                isFull = true
-                                            }
-                                        }
+                                doAsync {
+                                    episodesList.forEach { episode -> retrieveEpisodeDataFromDb(episode, feed) }
+                                }
+
+                                val merge = alreadyRetrievedEpisodes.plus(episodesList)
+                                backingStoreEpisodes.addAll(episodesList)
+                                if (!backingStoreContinuation.isEmpty()) {
+                                    if (episodesList.size == (pageSize - alreadyRetrievedEpisodes.size))
+                                        callback.invoke(merge)
+                                    else {
+                                        fetchEpisodes(pageSize, merge, backingStoreContinuation, callback)
+                                    }
+                                } else {
+                                    callback.invoke(merge)
+                                    isFull = true
+                                }
                             }
 
                             // if podcast isnt crawled, update crawled + updated
@@ -137,13 +100,13 @@ class EpisodeFeedlyDataSource(
         val loadSize = PositionalDataSource.computeInitialLoadSize(params, startPosition, totalCount)
 
         // fetch episodes
-        loadInternal(loadSize, {ep:List<Episode> ->
-
-            val state = if (ep.isEmpty()) LoadingState.EMPTY else LoadingState.OK
-            loadingState.postValue(state)
-            callback.onResult(ep, startPosition)
-            Log.d("loadInitial", "startPosition:" + startPosition.toString())
-        })
+        fetchEpisodes(
+                pageSize = loadSize,
+                alreadyRetrievedEpisodes = backingStoreEpisodes,
+                continuation = backingStoreContinuation
+        ) { eplist ->
+            fetchEpisodesCallback(eplist, callback, startPosition)
+        }
     }
 
     override fun loadRange(params: LoadRangeParams , callback: LoadRangeCallback<Episode>)
@@ -152,10 +115,83 @@ class EpisodeFeedlyDataSource(
         val pageSize = params.loadSize
         loadingState.postValue(LoadingState.LOADING_MORE)
 
-        loadInternal(pageSize, {ep:List<Episode> ->
+        fetchEpisodes(
+                pageSize = pageSize,
+                continuation = backingStoreContinuation
+        ) { epList ->
             val state = LoadingState.LOAD_MORE_COMPLETE
-            callback.onResult(ep)
-            Log.d("loadRange", "startPosition:" + startPosition.toString())
-        })
+            callback.onResult(epList)
+        }
+    }
+
+    fun forceInvalidate() {
+        backingStoreEpisodes.clear()
+        backingStoreContinuation = ""
+        super.invalidate()
+    }
+
+    fun updateEpisodeAndInvalidate(episode: Episode) {
+        backingStoreEpisodes
+                .indexOfFirst { ep -> ep.episodeId == episode.episodeId }
+                .let { result ->
+                    when (result != -1) {
+                        true -> {
+                            backingStoreEpisodes[result] = episode
+                            invalidate()
+                        }
+                    }
+                }
+    }
+
+    private fun fetchEpisodesCallback(ep:List<Episode>, callback: LoadInitialCallback<Episode>, startPosition: Int) {
+        val state = if (ep.isEmpty()) LoadingState.EMPTY else LoadingState.OK
+        loadingState.postValue(state)
+        callback.onResult(ep, startPosition)
+    }
+
+    private fun fetchEpisodesCallback(ep:List<Episode>, callback: LoadRangeCallback<Episode>) {
+        val state = LoadingState.LOAD_MORE_COMPLETE
+        callback.onResult(ep)
+    }
+
+    private fun retrieveEpisodeDataFromDb(episode: Episode, feed: Podcast) {
+        // get episode in db
+        val episodeInDb = episodeDao.getEpisodeById(episode.episodeId)
+        episodeInDb.apply {
+            this?.apply {
+                // get value from db
+                episode.section = this.section
+                episode.isFavorite = this.isFavorite
+                episode.duration = this.duration
+                episode.playbackPosition = this.playbackPosition
+                episode.queuePosition = this.queuePosition
+            }
+        } ?: run {
+            // if the episode is new / not in db : get from podcast
+            // get value from podcast
+            episode.section = SectionState.ARCHIVE.value
+            episode.imageUrl = feed.imageUrl
+            episode.bigImageUrl = feed.bigImageUrl
+            episode.podcastTitle = feed.title
+
+            retrieveEpisodeDuration(episode)
+        }
+    }
+
+    private fun retrieveEpisodeDuration(episode: Episode) {
+        /*
+            doAsync {
+                try {
+                    val mmr = MediaMetadataRetriever()
+                    mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
+                    episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+                    onComplete { durationEvent.postValue(episode) }
+                }
+                catch(e:Exception)
+                {
+                    Log.e("EpisodeFeedlyDataSource", "retrieve media metadata", e)
+                }
+            }
+            */
     }
 }

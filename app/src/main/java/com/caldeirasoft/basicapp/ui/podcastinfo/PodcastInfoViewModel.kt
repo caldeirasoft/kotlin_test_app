@@ -32,10 +32,8 @@ class PodcastInfoViewModel() : ViewModel() {
 
     lateinit var loadingState: LiveData<LoadingState>
     lateinit var durationEvent: LiveData<Episode>
-
     lateinit var podcastInDb : LiveData<Podcast>
     lateinit var episodes: LiveData<PagedList<Episode>>
-    lateinit var episodesFromDb: LiveData<List<Episode>>
     lateinit var episodeCountBySection: LiveData<SectionWithCount>
 
     var podcastRepository: PodcastRepository

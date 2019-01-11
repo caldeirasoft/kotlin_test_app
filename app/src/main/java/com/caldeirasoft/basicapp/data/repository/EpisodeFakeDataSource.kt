@@ -23,7 +23,7 @@ class EpisodeFakeDataSource(
 {
     //lateinit var episodes: LiveData<List<Episode>>
 
-    var ids:List<String> = arrayListOf<String>()
+    var ids:List<String> = arrayListOf()
     var podcasts = arrayListOf<Podcast>()
     val loadingState = MutableLiveData<LoadingState>()
     val durationEvent = SingleLiveEvent<Episode>()

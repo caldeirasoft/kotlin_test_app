@@ -15,17 +15,13 @@ class DiscoverViewModel : ViewModel() {
     lateinit private var mainThreadExecutor: Executor
     private var ioExecutor: ExecutorService
     private var isDiscoverLoaded = false
-
-    var catalogCategory = MutableLiveData<Int>()
-    var podcastRepository: PodcastRepository
-    var itunesStore: ItunesStoreSourceFactory
-    lateinit var sourceFactory: PodcastItunesDataSourceFactory
+    private var podcastRepository: PodcastRepository
+    private var sourceFactory: ItunesStoreSourceFactory
 
     var descriptionLoadingState
             = MutableLiveData<Boolean>().apply { value = false }
 
-    var trendingPodcasts: LiveData<List<PodcastArtwork>>
-    var podcastGroups: LiveData<List<ItunesSection>>
+    var itunesStore: LiveData<ItunesStore>
     lateinit var loadingState : LiveData<LoadingState>
 
     /**
@@ -35,19 +31,14 @@ class DiscoverViewModel : ViewModel() {
         podcastRepository = PodcastRepository()
         ioExecutor = Executors.newFixedThreadPool(5)
 
-        itunesStore = podcastRepository.getItunesStoreSourceFactory("143442-3,31")
-        trendingPodcasts = map(itunesStore.trendingPodcasts) { it }
-        podcastGroups = map(itunesStore.itunesSections) { it }
+        sourceFactory = podcastRepository.getItunesStoreSourceFactory("143442-3,31")
+        itunesStore = map(sourceFactory.itunesStore) { it }
     }
 
     fun request() {
         if (!isDiscoverLoaded) {
-            itunesStore.request()
+            sourceFactory.request()
             isDiscoverLoaded = true
         }
-    }
-
-    companion object {
-        val PAGE_SIZE = 15
     }
 }

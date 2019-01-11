@@ -8,7 +8,7 @@
                 app:duration="500"
                 motion:interpolator="linear">
         <OnSwipe
-            app:touchAnchorId="@id/scrollView"
+            app:touchAnchorId="@id/recyclerView"
             app:dragDirection="dragUp"
             app:touchAnchorSide="top"/>
     </Transition>

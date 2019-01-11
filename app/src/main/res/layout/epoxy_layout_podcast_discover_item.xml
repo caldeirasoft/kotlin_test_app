@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="title"
+            type="String"/>
+        <variable
+            name="authors"
+            type="String"/>
+        <variable
+            name="imageUrl"
+            type="String"/>
+        <variable
+            name="onPodcastClick"
+            type="android.view.View.OnClickListener"/>
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <LinearLayout
+            android:id="@+id/ll_item_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:onClick="@{onPodcastClick}">
+
+            <ImageView
+                android:layout_width="@dimen/dp_100"
+                android:layout_height="@dimen/dp_100"
+                android:id="@+id/img_row"
+                android:contentDescription="Thumbnail"
+                app:imageUrl="@{imageUrl}" />
+
+            <TextView
+                android:id="@+id/textview_podcast"
+                android:layout_width="@dimen/dp_100"
+                android:layout_height="wrap_content"
+                android:text="@{title}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                android:textSize="@dimen/text_tiny"
+                android:ellipsize="end"
+                android:maxLines="2"/>
+
+            <TextView
+                android:id="@+id/textView_artist"
+                android:layout_width="@dimen/dp_100"
+                android:layout_height="wrap_content"
+                android:text="@{authors}"
+                android:textSize="@dimen/text_tinier"
+                android:textColor="#616161"
+                android:ellipsize="end"
+                android:maxLines="1"/>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

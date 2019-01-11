@@ -1,13 +1,11 @@
 package com.caldeirasoft.basicapp.ui.extensions
 
-import android.app.Activity
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
-import com.caldeirasoft.basicapp.ui.common.BaseActivity
 
 
 inline fun <reified T : ViewModel> Fragment.viewModelProviders(): T =

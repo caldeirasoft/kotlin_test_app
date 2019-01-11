@@ -17,14 +17,10 @@
         app:layout_scrollFlags="scroll|enterAlways"/>
   </com.google.android.material.appbar.AppBarLayout>
 
-  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/podcasts_swipeRefreshLayout"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    <androidx.recyclerview.widget.RecyclerView
+    <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/podcasts_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

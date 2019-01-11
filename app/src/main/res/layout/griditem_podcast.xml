@@ -15,8 +15,7 @@
         android:layout_height="match_parent"
         android:background="@color/white"
         android:orientation="horizontal"
-        android:padding="3dp"
-        android:onClick="@{() -> handler.onPodcastClick(podcast)}">
+        android:padding="3dp">
 
         <ImageView
             android:layout_width="match_parent"

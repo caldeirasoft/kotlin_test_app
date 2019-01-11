@@ -1,91 +1,50 @@
 package com.caldeirasoft.basicapp.ui.podcast
 
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.databinding.library.baseAdapters.BR
+import com.caldeirasoft.basicapp.Mockup
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.databinding.ListitemPodcastBinding
 import com.caldeirasoft.basicapp.extensions.withArgs
-import com.caldeirasoft.basicapp.ui.adapter.ItemViewClickListener
-import com.caldeirasoft.basicapp.ui.adapter.SimpleDataBindingAdapter
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
+import com.caldeirasoft.basicapp.ui.extensions.addFragment
+import com.caldeirasoft.basicapp.ui.extensions.observeK
+import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoFragment
-import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
-
 import kotlinx.android.synthetic.main.fragment_podcasts.*
 
-class PodcastFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Podcast> {
+class PodcastFragment : BaseFragment(), IMainFragment, PodcastController.Callbacks {
 
     private val viewModel by lazy { viewModelProviders<PodcastViewModel>() }
-    private val podcastAdapter by lazy {
-        SimpleDataBindingAdapter<Podcast, ListitemPodcastBinding>(
-                layoutId = R.layout.listitem_podcast,
-                variableId = BR.podcast,
-                itemViewClickListener = this,
-                lifecycleOwner = this,
-                clickAwareViewIds = *intArrayOf(R.id.linearLayout_podcast))
-    }
+    private val controller = PodcastController(this)
 
     override fun getLayout() = R.layout.fragment_podcasts
 
     override fun getMenuItem() = R.id.navigation_podcasts
 
     override fun onCreate() {
-
-        setupRecyclerView()
-        setHasOptionsMenu(true)
-        observePodcast()
+        initObservers()
+        initUi()
     }
 
-    /*
-    fun onCreateOptionsLayout(item: MenuItem?)
-    {
-        activity?.apply {
-            when (UserPref.podcastLayout) {
-                EnumPodcastLayout.LIST.value -> // set grid icon
-                    item?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_grid_large_24dp))
-                EnumPodcastLayout.GRID.value -> // set small grid icon
-                    item?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_grid_24dp))
-                EnumPodcastLayout.GRID_SMALL.value -> //set list icon
-                    item?.setIcon(ContextCompat.getDrawable(this, R.drawable.ic_list_24dp))
-            }
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.podcasts.removeObservers(this)
     }
-    */
 
-
-    private fun setupRecyclerView() {
-        with(podcasts_recyclerView) {
-            layoutManager = LinearLayoutManager(activity)
-            addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-            //addItemDecoration(ItemDividerDecoration(context, 15, 2))
-            adapter = podcastAdapter
+    private fun initObservers() {
+        viewModel.podcasts.observeK(this) {
+            controller.setData(it)
         }
     }
 
-    private fun observePodcast()
-    {
-        viewModel.apply {
-            podcastAdapter.submitList(this.podcasts.value)
-            // collection
-            podcasts.observe(this@PodcastFragment, Observer { podcasts ->
-                podcastAdapter.submitList(podcasts.toList())
-            })
-        }
+    private fun initUi() {
+        podcasts_recyclerView.setController(controller)
+        podcasts_recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
-    override fun onItemClick(item: Podcast?, position: Int, viewId: Int) {
-        item?.let {
-            openPodcastDetail(item)
-        }
-    }
-
-    private fun openPodcastDetail(podcast: Podcast)
-    {
+    override fun onPodcastClick(podcast: Podcast) {
         PodcastInfoFragment().let {
             it.withArgs(EXTRA_FEED_ID to podcast, COLLAPSED to true)
             this.activity?.addFragment(it, "podcastdetail" + podcast.feedUrl, true)

@@ -16,4 +16,11 @@ abstract class BindingFragment<B : ViewDataBinding> : Fragment()
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return this.onCreateView(inflater, container)
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        onCreate()
+    }
+
+    protected open fun onCreate() {}
 }
