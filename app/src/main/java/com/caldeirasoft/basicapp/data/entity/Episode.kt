@@ -1,9 +1,11 @@
 package com.caldeirasoft.basicapp.data.entity
 
 import android.annotation.SuppressLint
+import android.os.Parcelable
 import androidx.room.*
 import com.caldeirasoft.basicapp.data.db.DbTypeConverter
 import com.caldeirasoft.basicapp.data.enum.SectionState
+import kotlinx.android.parcel.Parcelize
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneOffset
 import java.text.SimpleDateFormat
@@ -20,12 +22,13 @@ import java.util.*
                                          onDelete = CASCADE))*/
 )
 @TypeConverters(DbTypeConverter::class)
+@Parcelize
 data class Episode @JvmOverloads constructor(
         @PrimaryKey var episodeId: String,
         var feedUrl: String = "",
         var title: String = "",
         var published: Long
-)
+) : Parcelable
 {
     var description: String? = null
     var duration: Long? = null

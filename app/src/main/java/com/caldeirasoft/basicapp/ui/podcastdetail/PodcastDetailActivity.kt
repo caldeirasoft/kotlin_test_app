@@ -4,7 +4,6 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.databinding.ActivityPodcastdetailBinding
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
-import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_podcastdetail.*
 import android.graphics.drawable.BitmapDrawable
@@ -27,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.databinding.library.baseAdapters.BR
 import com.caldeirasoft.basicapp.data.enum.SubscribeAction
 import com.caldeirasoft.basicapp.ui.adapters.setContentBinding
+import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 
 

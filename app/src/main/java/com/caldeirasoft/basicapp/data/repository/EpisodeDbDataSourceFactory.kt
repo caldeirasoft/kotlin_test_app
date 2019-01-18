@@ -19,7 +19,7 @@ import java.util.concurrent.Executor
 class EpisodeDbDataSourceFactory(
         val episodeDao: EpisodeDao,
         protected var section: Int,
-        protected var filter: String?
+        protected var filter: String? = null
 ) : DataSource.Factory<Int, Episode>()
 {
     override fun create(): DataSource<Int, Episode> {

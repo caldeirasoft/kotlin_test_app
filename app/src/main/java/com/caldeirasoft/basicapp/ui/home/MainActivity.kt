@@ -81,7 +81,7 @@ class MainActivity : MediaPlayerBaseActivity()
                     /*findFragmentByTag(it)?.apply {
                         addFragment(this, it, false)
                     }*/
-                    popBackStackImmediate()
+                    popBackStack()
                 }
 
                 when (backStackEntryCount) {

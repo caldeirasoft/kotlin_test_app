@@ -23,11 +23,8 @@ class PodcastInfoViewModel() : ViewModel() {
     lateinit private var mainThreadExecutor: Executor
     private var ioExecutor: Executor
 
-    private var mPodcast: Podcast = Podcast.DEFAULT_PODCAST
-    private var mSection:Int? = null
-
-    var podcast = MutableLiveData<Podcast>()
-    var section = MutableLiveData<Int>()
+    var podcastData = MutableLiveData<Podcast>()
+    var sectionData = MutableLiveData<Int>()
     var isInDatabase = MutableLiveData<Boolean>()
 
     lateinit var loadingState: LiveData<LoadingState>
@@ -38,8 +35,9 @@ class PodcastInfoViewModel() : ViewModel() {
 
     var podcastRepository: PodcastRepository
     var episodeRepository : EpisodeRepository
-    var episodeDbDataSourceFactory: EpisodeDbDataSourceFactory? = null
-    var episodeFeedlyDataSourceFactory: EpisodeFeedlyDataSourceFactory? = null
+    var episodeDbDataSourceFactory: EpisodeDbDataSourceFactory
+    var episodeFeedlyDataSourceFactory: EpisodeFeedlyDataSourceFactory
+
     lateinit var sourceFactory:  DataSource.Factory<Int, Episode>
     lateinit var pagedListConfig: PagedList.Config
 
@@ -52,69 +50,27 @@ class PodcastInfoViewModel() : ViewModel() {
         podcastRepository = PodcastRepository()
         episodeRepository = EpisodeRepository()
         ioExecutor = Executors.newFixedThreadPool(5)
-    }
 
-    companion object {
-        val PAGE_SIZE = 15
-    }
+        // init data source factory
+        episodeDbDataSourceFactory = episodeRepository.getEpisodeDbDataSource(0)
 
-    fun setDataSource(pod:Podcast) =
-            setDataSource(pod, null)
+        // feedly data source factory
+        episodeFeedlyDataSourceFactory = episodeRepository.getEpisodeDataSourceFromFeedly().apply {
+            sourceLiveData.let {
+                // loading state mapping
+                loadingState = Transformations.switchMap(it) { it.loadingState }
 
-    /**
-     * Set section and podcast for current viewModel
-     */
-    fun setDataSource(pod:Podcast, sec: Int?)
-    {
-        // set section
-        mSection = sec
-        section.postValue(sec)
-
-        // set podcast
-        mPodcast = pod
-        podcast.postValue(pod)
-
-        // refresh list
-        setEpisodesList(pod, sec)
-
-        // set episodes count by section
-        episodeCountBySection = episodeRepository.fetchEpisodeCountBySection(pod.feedUrl)
-
-        // get podcast from db
-        podcastInDb = podcastRepository.getPodcastById(pod.feedUrl)
-        podcastInDb.observeForever { pcst ->
-            isInDatabase.postValue((pcst != null))
-            when (pcst == null) {
-                true -> {
-                    podcastRepository.updatePodcastFromFeedlyApi(pod)
-                    mPodcast = pod
-                }
-            }
-        }
-    }
-
-    private fun setEpisodesList(pod:Podcast, sec: Int?)
-    {
-        // data source factory
-        episodeDbDataSourceFactory = episodeRepository.getEpisodeDbDataSource(0, pod.feedUrl)
-        episodeFeedlyDataSourceFactory = episodeRepository.getEpisodeDataSourceFromFeedly(pod)
-
-        episodeFeedlyDataSourceFactory?.sourceLiveData!!.let {
-            // loading state mapping
-            loadingState = Transformations.switchMap(it) { it.loadingState }
-
-            //episode duration update mapping
-            durationEvent = Transformations.switchMap(it) { it.durationEvent }
-
-            durationEvent.observeForever { episode ->
-                updateEpisodeEvent.postValue(episode)
+                //episode duration update mapping
+                durationEvent = Transformations.switchMap(it) { it.durationEvent }
+                durationEvent.observeForever { episode -> updateEpisodeEvent.postValue(episode) }
             }
         }
 
+        // source factory
         sourceFactory = object : DataSource.Factory<Int, Episode>() {
             override fun create(): DataSource<Int, Episode> =
-                    when (mSection) {
-                        null -> episodeFeedlyDataSourceFactory!!.create()
+                    when (sectionData.value) {
+                        null -> episodeFeedlyDataSourceFactory.create()
                         else -> episodeDbDataSourceFactory!!.create()
                     }
         }
@@ -130,27 +86,52 @@ class PodcastInfoViewModel() : ViewModel() {
                 .build()
     }
 
+    companion object {
+        val PAGE_SIZE = 15
+    }
+
+    fun setDataSource(pod:Podcast) {
+        if (pod != podcastData.value)
+            setDataSource(pod, null)
+    }
+
+    /**
+     * Set section and podcast for current viewModel
+     */
+    fun setDataSource(pod:Podcast, sec: Int?) {
+        // set section & podcast
+        sectionData.postValue(sec)
+        podcastData.postValue(pod)
+
+        // apply podcast filter
+        episodeFeedlyDataSourceFactory.applyPodcast(pod)
+        episodeDbDataSourceFactory.applyFilter(pod.feedUrl)
+
+        // get podcast from db
+        getPodcastInfo(pod)
+    }
+
+    /**
+     * Set podcast info from DB
+     */
+    fun getPodcastInfo(pod: Podcast) {
+        // get podcast from db
+        podcastInDb = podcastRepository.getPodcastById(pod.feedUrl)
+        podcastInDb.observeForever { pcst ->
+            val inDb = (pcst != null)
+            isInDatabase.postValue(inDb)
+            if (!inDb)
+                podcastRepository.updatePodcastFromFeedlyApi(pod)
+        }
+    }
+
     // get episodes count by section
     fun fetchEpisodeCountBySection(pod: Podcast) =
             episodeRepository.fetchEpisodeCountBySection(pod.feedUrl)
 
-    fun loadMore() {
-        pagedListConfig = PagedList.Config.Builder()
-                .setPageSize(PAGE_SIZE)
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .build()
-
-        episodes = LivePagedListBuilder(sourceFactory, pagedListConfig)
-                .setFetchExecutor(ioExecutor)
-                .build()
-    }
-
     // change episode filter (by section)
     fun setSection(sec: Int?) {
-        val oldSec = mSection
-        mSection = sec
-        section.postValue(sec)
+        sectionData.postValue(sec)
 
         if (sec != null) {
             // changement de section
@@ -167,9 +148,6 @@ class PodcastInfoViewModel() : ViewModel() {
     fun openEpisodeDetail(episode:Episode) {
         openEpisodeEvent.value = episode
     }
-
-    fun onPodcastSubscribe() =
-            subscribePodcastEvent.postValue(mPodcast)
 
     fun subscribeToPodcast(podcast:Podcast, action: SubscribeAction)
     {

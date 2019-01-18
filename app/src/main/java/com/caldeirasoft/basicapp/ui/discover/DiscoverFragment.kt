@@ -7,6 +7,7 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.extensions.withArgs
 import com.caldeirasoft.basicapp.ui.common.BaseFragment
+import com.caldeirasoft.basicapp.ui.common.RecyclerHeaderHelper
 import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.ui.extensions.observeK
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders

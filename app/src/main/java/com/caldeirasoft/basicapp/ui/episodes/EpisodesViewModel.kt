@@ -30,7 +30,7 @@ abstract class EpisodesViewModel(protected val sectionState: SectionState) : Vie
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
         episodeRepository = EpisodeRepository()
-        sourceFactory = episodeRepository.getEpisodeDbDataSource(sectionState.value, null)
+        sourceFactory = episodeRepository.getEpisodeDbDataSource(sectionState.value)
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)

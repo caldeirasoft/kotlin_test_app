@@ -98,8 +98,8 @@ class PodcastDetailViewModel() : ViewModel() {
     private fun setEpisodesList(pod:Podcast, sec: Int?)
     {
         // data source factory
-        episodeDbDataSourceFactory = episodeRepository.getEpisodeDbDataSource(0, mPodcast.feedUrl)
-        episodeFeedlyDataSourceFactory = episodeRepository.getEpisodeDataSourceFromFeedly(mPodcast)
+        episodeDbDataSourceFactory = episodeRepository.getEpisodeDbDataSource(0)
+        episodeFeedlyDataSourceFactory = episodeRepository.getEpisodeDataSourceFromFeedly()
 
         episodeFeedlyDataSourceFactory?.sourceLiveData!!.let {
             // loading state mapping

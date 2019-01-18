@@ -1,12 +1,9 @@
 package com.caldeirasoft.basicapp.ui.discover
 
 import com.airbnb.epoxy.TypedEpoxyController
-import com.caldeirasoft.basicapp.PodcastDiscoverItemBindingModel_
-import com.caldeirasoft.basicapp.PodcastTrendingItemBindingModel_
+import com.caldeirasoft.basicapp.*
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.repository.ItunesStore
-import com.caldeirasoft.basicapp.podcastDiscoverHeader
-import com.caldeirasoft.basicapp.podcastItem
 import com.caldeirasoft.basicapp.ui.common.BaseBindingViewModel
 import com.caldeirasoft.basicapp.ui.epoxy.carousel
 import com.caldeirasoft.basicapp.ui.epoxy.withModelsFrom
@@ -41,10 +38,14 @@ class DiscoverController(private val callbacks: Callbacks) : TypedEpoxyControlle
                     text("Favorites")
                 }
              */
+            headerTrending {
+                id("trending_header")
+                text("")
+            }
             carousel {
                 id("trending_content")
                 withModelsFrom(store.trending) {
-                    PodcastTrendingItemBindingModel_()
+                    ItemPodcastTrendingBindingModel_()
                             .id("trending" + it.artworkUrl)
                             .imageUrl(it.artworkUrl)
                             .onPodcastClick { _ ->
@@ -60,14 +61,14 @@ class DiscoverController(private val callbacks: Callbacks) : TypedEpoxyControlle
                     text("Favorites")
                 }
                 */
-                podcastDiscoverHeader {
+                headerDiscoverSection {
                     id(section.name+"_header")
                     text(section.name)
                 }
                 carousel {
                     id(section.name+"_content")
                     withModelsFrom(section.podcasts) {
-                        PodcastDiscoverItemBindingModel_()
+                       ItemPodcastDiscoverBindingModel_()
                                 .id("section" + it.feedUrl)
                                 .title(it.title)
                                 .imageUrl(it.imageUrl)
@@ -79,6 +80,5 @@ class DiscoverController(private val callbacks: Callbacks) : TypedEpoxyControlle
                 }
             }
         }
-
     }
 }

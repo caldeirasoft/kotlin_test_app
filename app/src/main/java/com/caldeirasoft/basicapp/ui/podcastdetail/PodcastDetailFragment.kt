@@ -19,9 +19,9 @@ import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemOffsetDecoration
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderLeftDecoration
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
-import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
 import com.caldeirasoft.basicapp.ui.adapters.fabVisibility
+import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_COLLAPSED

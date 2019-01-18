@@ -77,12 +77,12 @@ interface EpisodeDataSource {
     /**
      * fetch episodes from Feedly
      */
-    fun getEpisodeDataSourceFromFeedly(feed: Podcast): EpisodeFeedlyDataSourceFactory
+    fun getEpisodeDataSourceFromFeedly(): EpisodeFeedlyDataSourceFactory
 
     /**
      * fetch inbox episodes data source factory
      */
-    fun getEpisodeDbDataSource(section:Int, feedUrl: String?): EpisodeDbDataSourceFactory
+    fun getEpisodeDbDataSource(section:Int): EpisodeDbDataSourceFactory
 
     /**
      * fetch episodes from fake datasource

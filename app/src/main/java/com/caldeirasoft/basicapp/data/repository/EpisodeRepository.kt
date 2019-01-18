@@ -29,9 +29,9 @@ class EpisodeRepository : EpisodeDataSource, LazyKodeinAware {
     private val database: AppDatabase by kodein.instance()
     private val feedlyAPI: FeedlyAPI by kodein.instance()
 
-    override fun getEpisodeDataSourceFromFeedly(feed: Podcast): EpisodeFeedlyDataSourceFactory = EpisodeFeedlyDataSourceFactory(feed, feedlyAPI, database.episodeDao())
+    override fun getEpisodeDataSourceFromFeedly(): EpisodeFeedlyDataSourceFactory = EpisodeFeedlyDataSourceFactory(feedlyAPI, database.episodeDao())
 
-    override fun getEpisodeDbDataSource(section: Int, feedUrl: String?): EpisodeDbDataSourceFactory = EpisodeDbDataSourceFactory(database.episodeDao(), section, feedUrl)
+    override fun getEpisodeDbDataSource(section: Int): EpisodeDbDataSourceFactory = EpisodeDbDataSourceFactory(database.episodeDao(), section)
 
     override fun getEpisodeDataSourceFromFake(feed: Podcast): EpisodeFakeDataSourceFactory = EpisodeFakeDataSourceFactory(feed, feedlyAPI, database.episodeDao())
 

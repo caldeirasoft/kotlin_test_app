@@ -19,7 +19,10 @@ import org.jetbrains.anko.imageBitmap
 
 @BindingAdapter("imageUrl")
 fun ImageView.imageUrl(url: String?) {
-    Picasso.with(this.context).load(url).into(this)
+    Picasso.with(this.context)
+            .load(url)
+            .placeholder(R.color.gray)
+            .into(this)
 }
 
 @BindingAdapter("imageUrl", "error")

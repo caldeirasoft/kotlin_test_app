@@ -11,6 +11,11 @@ fun <T : ViewDataBinding> BaseActivity.setContentBinding(layoutId: Int): T {
     return DataBindingUtil.setContentView(this, layoutId)
 }
 
+@BindingAdapter("isVisible")
+fun View.setIsVisible(isVisible: Boolean) {
+    visibility = if (isVisible) View.VISIBLE else View.GONE
+}
+
 @BindingAdapter("invisibleUnless")
 fun invisibleUnless(view: View, visible: Boolean) {
     view.visibility = if (visible) View.VISIBLE else View.INVISIBLE

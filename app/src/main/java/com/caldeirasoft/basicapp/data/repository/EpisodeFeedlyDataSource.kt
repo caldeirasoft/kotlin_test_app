@@ -1,5 +1,7 @@
 package com.caldeirasoft.basicapp.data.repository
 
+import android.media.MediaMetadataRetriever
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.*
 import com.avast.android.githubbrowser.extensions.retrofitCallback
@@ -11,6 +13,7 @@ import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.onComplete
 import java.util.*
 
 /**
@@ -19,18 +22,17 @@ import java.util.*
 class EpisodeFeedlyDataSource(
         val feed: Podcast,
         val feedlyAPI: FeedlyAPI,
-        val episodeDao: EpisodeDao
+        val episodeDao: EpisodeDao,
+        val dataProvider: EpisodeFeedlyDataProvider
 ) : PositionalDataSource<Episode>()
 {
     //lateinit var episodes: LiveData<List<Episode>>
 
     var ids:List<String> = arrayListOf<String>()
     var podcasts = arrayListOf<Podcast>()
-    val backingStoreEpisodes: ArrayList<Episode> = arrayListOf()
     val loadingState = MutableLiveData<LoadingState>()
     val durationEvent = SingleLiveEvent<Episode>()
     var continuation = ""
-    var backingStoreContinuation = ""
     var isFull: Boolean = false
 
     private fun fetchEpisodes(
@@ -49,7 +51,7 @@ class EpisodeFeedlyDataSource(
                 .enqueue(retrofitCallback(
                         { response ->
                             response.body()?.let { responseEntries ->
-                                backingStoreContinuation = responseEntries.continuation ?: ""
+                                dataProvider.backingStoreContinuation = responseEntries.continuation ?: ""
 
                                 val episodesList =
                                         responseEntries.items
@@ -73,12 +75,13 @@ class EpisodeFeedlyDataSource(
                                 }
 
                                 val merge = alreadyRetrievedEpisodes.plus(episodesList)
-                                backingStoreEpisodes.addAll(episodesList)
-                                if (!backingStoreContinuation.isEmpty()) {
-                                    if (episodesList.size == (pageSize - alreadyRetrievedEpisodes.size))
+                                if (!dataProvider.backingStoreContinuation.isEmpty()) {
+                                    if (episodesList.size == (pageSize - alreadyRetrievedEpisodes.size)) {
                                         callback.invoke(merge)
+                                        dataProvider.backingStoreEpisodes.addAll(merge)
+                                    }
                                     else {
-                                        fetchEpisodes(pageSize, merge, backingStoreContinuation, callback)
+                                        fetchEpisodes(pageSize, merge, dataProvider.backingStoreContinuation, callback)
                                     }
                                 } else {
                                     callback.invoke(merge)
@@ -102,8 +105,8 @@ class EpisodeFeedlyDataSource(
         // fetch episodes
         fetchEpisodes(
                 pageSize = loadSize,
-                alreadyRetrievedEpisodes = backingStoreEpisodes,
-                continuation = backingStoreContinuation
+                alreadyRetrievedEpisodes = dataProvider.backingStoreEpisodes,
+                continuation = dataProvider.backingStoreContinuation
         ) { eplist ->
             fetchEpisodesCallback(eplist, callback, startPosition)
         }
@@ -117,7 +120,7 @@ class EpisodeFeedlyDataSource(
 
         fetchEpisodes(
                 pageSize = pageSize,
-                continuation = backingStoreContinuation
+                continuation = dataProvider.backingStoreContinuation
         ) { epList ->
             val state = LoadingState.LOAD_MORE_COMPLETE
             callback.onResult(epList)
@@ -125,18 +128,18 @@ class EpisodeFeedlyDataSource(
     }
 
     fun forceInvalidate() {
-        backingStoreEpisodes.clear()
-        backingStoreContinuation = ""
+        dataProvider.clear()
         super.invalidate()
     }
 
     fun updateEpisodeAndInvalidate(episode: Episode) {
-        backingStoreEpisodes
+        dataProvider
+                .backingStoreEpisodes
                 .indexOfFirst { ep -> ep.episodeId == episode.episodeId }
                 .let { result ->
                     when (result != -1) {
                         true -> {
-                            backingStoreEpisodes[result] = episode
+                            dataProvider.backingStoreEpisodes[result] = episode
                             invalidate()
                         }
                     }
@@ -174,24 +177,23 @@ class EpisodeFeedlyDataSource(
             episode.bigImageUrl = feed.bigImageUrl
             episode.podcastTitle = feed.title
 
-            retrieveEpisodeDuration(episode)
+            //retrieveEpisodeDuration(episode)
         }
     }
 
     private fun retrieveEpisodeDuration(episode: Episode) {
-        /*
-            doAsync {
-                try {
-                    val mmr = MediaMetadataRetriever()
-                    mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
-                    episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
-                    onComplete { durationEvent.postValue(episode) }
+        doAsync {
+            try {
+                val mmr = MediaMetadataRetriever()
+                mmr.setDataSource(episode.mediaUrl, HashMap<String, String>())
+                episode.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toLong()
+                onComplete {
+                    durationEvent.postValue(episode)
+                    updateEpisodeAndInvalidate(episode)
                 }
-                catch(e:Exception)
-                {
-                    Log.e("EpisodeFeedlyDataSource", "retrieve media metadata", e)
-                }
+            } catch (e: Exception) {
+                Log.e("EpisodeFeedlyDataSource", "retrieve media metadata", e)
             }
-            */
+        }
     }
 }

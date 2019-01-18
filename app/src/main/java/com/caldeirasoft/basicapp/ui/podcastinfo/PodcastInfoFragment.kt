@@ -1,19 +1,29 @@
 package com.caldeirasoft.basicapp.ui.podcastinfo
 
+import android.app.AlertDialog
+import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.data.enum.SectionState
+import com.caldeirasoft.basicapp.data.enum.SubscribeAction
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
 import com.caldeirasoft.basicapp.extensions.lazyArg
+import com.caldeirasoft.basicapp.extensions.withArgs
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
-import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
+import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
+import com.caldeirasoft.basicapp.ui.episodeinfo.EpisodeInfoFragment
+import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.ui.extensions.observeK
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
@@ -24,8 +34,11 @@ import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_HIDD
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_podcastinfo.*
 
-class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), PodcastInfoController.Callbacks, MainNavigationFragment {
-
+class PodcastInfoFragment :
+        BindingFragment<FragmentPodcastinfoBinding>(),
+        PodcastInfoController.Callbacks,
+        MainNavigationFragment
+{
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
@@ -33,27 +46,37 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), Podca
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var filtersFab: FloatingActionButton
 
-    private val podcastViewModel by lazy { viewModelProviders<PodcastInfoViewModel>() }
+    private val mViewModel by lazy { viewModelProviders<PodcastInfoViewModel>() }
     private val controller = PodcastInfoController(this)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
         mBinding = FragmentPodcastinfoBinding.inflate(inflater, container, false)
                 .apply {
                     setLifecycleOwner(this@PodcastInfoFragment)
-                    viewModel = podcastViewModel
+                    viewModel = mViewModel
+                    onSubscribe = object:View.OnClickListener {
+                        override fun onClick(v: View?) {
+                            showSubscribeDialog(podcast)
+                        }
+                    }
                 }
         return mBinding.root
     }
 
-    override fun onCreate() {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         initObservers()
         initUi()
     }
 
     private fun initObservers() {
-        podcastViewModel.setDataSource(podcast)
-        podcastViewModel.episodes.observeK(this) {
+        // set loading
+        mViewModel.setDataSource(podcast)
+        mViewModel.episodes.observeK(this) {
             controller.submitList(it)
+        }
+        mViewModel.updateEpisodeEvent.observeK(this) {
+            //controller.
         }
     }
 
@@ -64,11 +87,12 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), Podca
 
     override fun onDestroyView() {
         super.onDestroyView()
-        podcastViewModel.updateEpisodeEvent.removeObservers(this@PodcastInfoFragment)
-        podcastViewModel.episodes.removeObservers(this@PodcastInfoFragment)
-        podcastViewModel.section.removeObservers(this@PodcastInfoFragment)
-        podcastViewModel.subscribePodcastEvent.removeObservers(this@PodcastInfoFragment)
-        podcastViewModel.loadingState.removeObservers(this@PodcastInfoFragment)
+        /*
+        mViewModel.updateEpisodeEvent.removeObservers(this)
+        mViewModel.episodes.removeObservers(this)
+        mViewModel.subscribePodcastEvent.removeObservers(this)
+        mViewModel.loadingState.removeObservers(this)
+        */
     }
 
     /*
@@ -134,10 +158,9 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), Podca
     */
 
     override fun onEpisodeClick(episode: Episode) {
-        EpisodeDetailDialog().let {
-            it.episode = episode
-            it.podcast = podcast
-            it.show(this.childFragmentManager, "episode")
+        EpisodeInfoFragment().let {
+            it.withArgs(DiscoverFragment.EXTRA_FEED_ID to episode)
+            this.activity?.addFragment(it, "episodeinfo" + episode.episodeId, true)
         }
     }
 
@@ -189,7 +212,16 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), Podca
         return super.onBackPressed()
     }
 
-    /*
+    fun subscribeToPodcast()
+    {
+        podcast.let {
+            when (mViewModel.isInDatabase.value) {
+                false -> showSubscribeDialog(it)
+                true -> mViewModel.unsubscribeFromPodcast(it)
+            }
+        }
+    }
+
     fun showSubscribeDialog(podcast: Podcast) {
         val options = requireContext().resources?.getStringArray(R.array.subscribe_options)
         val builder = AlertDialog.Builder(requireContext())
@@ -202,17 +234,16 @@ class PodcastInfoFragment : BindingFragment<FragmentPodcastinfoBinding>(), Podca
                     Toast.makeText(requireContext(),
                             "Group Name = " + options!![item], Toast.LENGTH_SHORT).show()
                     when (item) {
-                        0 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.INBOX)
-                        1 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_NEXT)
-                        2 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_LAST)
-                        3 -> viewModel.subscribeToPodcast(podcast, SubscribeAction.ARCHIVE)
+                        0 -> mViewModel.subscribeToPodcast(podcast, SubscribeAction.INBOX)
+                        1 -> mViewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_NEXT)
+                        2 -> mViewModel.subscribeToPodcast(podcast, SubscribeAction.QUEUE_LAST)
+                        3 -> mViewModel.subscribeToPodcast(podcast, SubscribeAction.ARCHIVE)
                     }
                     dialog.dismiss()// dismiss the alertbox after chose option
                 }
         val alert = builder.create()
         alert.show()
     }
-    */
 
     companion object {
         const val EXTRA_FEED_ID = "FEED_ID"

@@ -31,10 +31,14 @@
     <dimen name="element_margin_smallest">1dp</dimen>
     <dimen name="element_margin_tinier">3dp</dimen>
     <dimen name="element_margin_tiny">5dp</dimen>
+    <dimen name="element_margin_xsmall">7dp</dimen>
     <dimen name="element_margin_small">10dp</dimen>
     <dimen name="element_margin_medium">15dp</dimen>
+    <dimen name="element_margin_mediumlarge">18dp</dimen>
     <dimen name="element_margin_large">20dp</dimen>
-    <dimen name="element_margin_huge">25dp</dimen>
+    <dimen name="element_margin_xlarge">25dp</dimen>
+    <dimen name="element_margin_xxlarge">30dp</dimen>
+    <dimen name="element_margin_huge">35dp</dimen>
 
     <!-- font definitions -->
     <dimen name="text_tinier">11sp</dimen>

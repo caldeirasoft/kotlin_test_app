@@ -1,4 +1,4 @@
-@EpoxyDataBindingPattern(rClass = R.class, layoutPrefix = "epoxy_layout")
+@EpoxyDataBindingPattern(rClass = R.class, layoutPrefix = "epoxy")
 package com.caldeirasoft.basicapp.ui.epoxy;
 
 /*
