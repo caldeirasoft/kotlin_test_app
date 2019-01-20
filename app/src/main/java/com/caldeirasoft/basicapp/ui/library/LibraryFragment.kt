@@ -16,7 +16,7 @@ class LibraryFragment : BaseFragment(), IMainFragment {
 
     override fun getLayout() = R.layout.fragment_library
 
-    override fun getMenuItem() = R.id.navigation_podcasts
+    override fun getMenuItem() = R.id.podcastFragment
 
     override fun onCreate() {
         // toolbar

@@ -47,6 +47,17 @@ dependencies {
     implementation 'com.android.support:coordinatorlayout:28.0.0'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.palette:palette:1.0.0"
+    // Android-Room
+    implementation "android.arch.persistence.room:runtime:1.1.1"
+    kapt "android.arch.persistence.room:compiler:1.1.1"
+    // Android-LiveData
+    implementation "android.arch.lifecycle:livedata-core:1.1.1"
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    // Android-Paging
+    implementation "android.arch.paging:runtime:1.0.1"
+    // Android-Navigation
+    implementation 'android.arch.navigation:navigation-fragment:1.0.0-alpha09'
+    implementation 'android.arch.navigation:navigation-ui:1.0.0-alpha09'
 
     // Anko
     implementation "org.jetbrains.anko:anko:0.10.5"
@@ -73,10 +84,6 @@ dependencies {
     // GravitySnapHelper
     implementation 'com.github.rubensousa:gravitysnaphelper:2.0'
 
-    // Infinite viewpager
-    implementation 'com.github.santalu:auto-viewpager:1.0.8'
-    implementation 'com.asksira.android:loopingviewpager:1.1.4'
-
     // Internationalisation
     implementation 'com.neovisionaries:nv-i18n:1.22'
 
@@ -100,9 +107,6 @@ dependencies {
     // Picasso blur
     implementation 'jp.wasabeef:picasso-transformations:2.2.1'
 
-    // Pager adapter
-    implementation 'eu.inloop:pageradapter:0.1.0'
-
     // KotPref
     implementation 'com.chibatching.kotpref:kotpref:2.5.0'
     implementation 'com.chibatching.kotpref:enum-support:2.5.0'
@@ -121,15 +125,15 @@ dependencies {
     // Round button
     implementation 'com.marozzi.roundbutton:round-button:1.0.7'
 
-    // Search View
-    implementation 'com.lapism:searchview:27.1.1.0.0'
-
     // Shape of view
     implementation 'com.github.florent37:shapeofview:1.4.6'
 
     // Skeleton
     implementation 'com.ethanhua:skeleton:1.1.1'
     implementation 'io.supercharge:shimmerlayout:2.1.0'
+
+    // Skeleton Layout
+    implementation 'com.faltenreich:skeletonlayout:1.0.1'
 
     // Sticky header decoration
     implementation 'com.github.qdxxxx:StickyHeaderDecoration:1.0.1'
@@ -139,16 +143,6 @@ dependencies {
 
     // Gson
     implementation 'com.google.code.gson:gson:2.8.2'
-
-    // Room
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    kapt "android.arch.persistence.room:compiler:1.1.1"
-    implementation "android.arch.persistence.room:rxjava2:1.1.1"
-    implementation "android.arch.lifecycle:livedata-core:1.1.1"
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-
-    // Paging
-    implementation "android.arch.paging:runtime:1.0.1"
 }
 
 def createSyncAdapterRes(variant) {

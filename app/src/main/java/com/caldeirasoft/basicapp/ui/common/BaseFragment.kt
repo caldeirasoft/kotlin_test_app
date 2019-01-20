@@ -26,7 +26,7 @@ abstract class BaseFragment : Fragment() {
     fun addFragment(fragment: Fragment, tag: String,
                     addToBackSTack: Boolean) {
         val fragmentTransaction = childFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.container_fragment, fragment, tag)
+        fragmentTransaction.replace(R.id.nav_host_fragment, fragment, tag)
         if (addToBackSTack) fragmentTransaction.addToBackStack(tag)
         fragmentTransaction.commit()
     }

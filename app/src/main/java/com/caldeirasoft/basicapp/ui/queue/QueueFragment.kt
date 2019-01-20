@@ -39,7 +39,7 @@ class QueueFragment : BaseFragment(), IMainFragment, ItemViewClickListener<Episo
 
     override fun getLayout() = R.layout.fragment_queue
 
-    override fun getMenuItem() = R.id.navigation_inbox
+    override fun getMenuItem() = R.id.queueFragment
 
     override fun onCreate() {
         // toolbar

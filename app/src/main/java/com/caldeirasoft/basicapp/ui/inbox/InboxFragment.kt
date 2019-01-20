@@ -11,14 +11,12 @@ import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import kotlinx.android.synthetic.main.fragment_inbox.*
 
-class InboxFragment : EpisodesBaseFragment(), IMainFragment {
+class InboxFragment : EpisodesBaseFragment() {
 
     override val viewModel by lazy { viewModelProviders<InboxViewModel>() }
     private var menu: Menu? = null
 
     override fun getLayout() = R.layout.fragment_inbox
-
-    override fun getMenuItem() = R.id.navigation_inbox
 
     override fun onCreate() {
         // toolbar
@@ -35,7 +33,7 @@ class InboxFragment : EpisodesBaseFragment(), IMainFragment {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         this.menu = menu
-        inflater?.inflate(R.menu.main_menu, menu)
+        inflater.inflate(R.menu.main_menu, menu)
         // change "podcast layout" icon
         super.onDestroyOptionsMenu()
         super.onCreateOptionsMenu(menu, inflater)

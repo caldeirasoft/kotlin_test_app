@@ -16,7 +16,7 @@ abstract class BaseActivity : AppCompatActivity() {
     fun addFragment(fragment: Fragment, tag: String,
                     addToBackSTack: Boolean) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.container_fragment, fragment, tag)
+        fragmentTransaction.replace(R.id.nav_host_fragment, fragment, tag)
         if (addToBackSTack) fragmentTransaction.addToBackStack(tag)
         fragmentTransaction.commit()
     }

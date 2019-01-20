@@ -12,14 +12,18 @@
     app:alignContent="stretch"
     tools:context="com.caldeirasoft.basicapp.ui.home.MainActivity">
 
-    <FrameLayout android:id="@+id/container_fragment"
-                 android:layout_width="match_parent"
-                 android:layout_height="0dp"
-                 android:layout_centerInParent="true"
-                 app:layout_order="0"
-                 app:layout_flexGrow="1"
-                 app:layout_flexShrink="1"
-                 />
+    <fragment
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:id="@+id/nav_host_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_centerInParent="true"
+        app:navGraph="@navigation/nav_graph"
+        app:defaultNavHost="true"
+        app:layout_order="0"
+        app:layout_flexGrow="1"
+        app:layout_flexShrink="1"
+        />
 
     <fragment
         android:name="com.caldeirasoft.basicapp.ui.mediaplayback.MediaPlaybackControlsFragment"

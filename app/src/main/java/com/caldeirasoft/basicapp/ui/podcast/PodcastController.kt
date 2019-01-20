@@ -1,5 +1,6 @@
 package com.caldeirasoft.basicapp.ui.podcast
 
+import android.view.View
 import com.airbnb.epoxy.TypedEpoxyController
 import com.caldeirasoft.basicapp.data.entity.Podcast
 import com.caldeirasoft.basicapp.itemPodcast
@@ -7,7 +8,7 @@ import com.caldeirasoft.basicapp.itemPodcast
 class PodcastController(private val callbacks: Callbacks) : TypedEpoxyController<List<Podcast>>()
 {
     interface Callbacks {
-        fun onPodcastClick(podcast: Podcast)
+        fun onPodcastClick(view: View, podcast: Podcast)
     }
 
     override fun buildModels(data: List<Podcast>?) {
@@ -17,7 +18,9 @@ class PodcastController(private val callbacks: Callbacks) : TypedEpoxyController
                 id(content.feedUrl)
                 title(content.title)
                 imageUrl(content.imageUrl)
-                onPodcastClick { _ -> callbacks.onPodcastClick(content) }
+                onPodcastClick { model, parentView, clickedView, position ->
+                    callbacks.onPodcastClick(clickedView, content)
+                }
             }
         }
     }

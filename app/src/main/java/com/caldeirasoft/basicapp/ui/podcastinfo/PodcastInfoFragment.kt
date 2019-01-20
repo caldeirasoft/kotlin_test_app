@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.caldeirasoft.basicapp.R
@@ -96,53 +97,6 @@ class PodcastInfoFragment :
     }
 
     /*
-    private fun observePodcast() {
-        podcast.let {
-            viewModel.apply {
-
-                // data binding
-                this.setDataSource(it)
-
-                // update episode event
-                updateEpisodeEvent.observe(this@PodcastInfoFragment, Observer { episode ->
-                    episode?.let { ep ->
-                        episodesAdapter.apply {
-                            updateItem(ep)
-                        }
-                    }
-                })
-                // collection without section
-                episodes.observe(this@PodcastInfoFragment, Observer { episodes ->
-                    episodes?.let { list ->
-                        episodesAdapter.submitList(list)
-                    }
-                })
-
-                // update section
-                section.observe(this@PodcastInfoFragment, Observer { section ->
-                    updateFilterUI(section)
-                })
-
-                // subscribe event
-                subscribePodcastEvent.observe(this@PodcastInfoFragment, Observer { podcast ->
-                    podcast?.let {
-                        when (isInDatabase.value) {
-                            false -> showSubscribeDialog(it)
-                            true -> unsubscribeFromPodcast(it)
-                        }
-                    }
-                })
-
-                // network updates
-                loadingState.observe(this@PodcastInfoFragment, Observer { state ->
-                    state?.let { st ->
-                        //episodesAdapter.setState(st)
-                    }
-                })
-            }
-        }
-    }
-
     override fun onItemClick(item: Episode?, position: Int, viewId: Int) {
         item?.let {
             when (viewId) {
@@ -158,58 +112,9 @@ class PodcastInfoFragment :
     */
 
     override fun onEpisodeClick(episode: Episode) {
-        EpisodeInfoFragment().let {
-            it.withArgs(DiscoverFragment.EXTRA_FEED_ID to episode)
-            this.activity?.addFragment(it, "episodeinfo" + episode.episodeId, true)
-        }
-    }
-
-    private fun updateFilterUI(section: Int?) {
-        val showFab = section == null
-        val hideable = section == null
-
-        //fabVisibility(filtersFab, showFab)
-        if (::mBottomSheetBehavior.isInitialized) {
-            mBottomSheetBehavior.isHideable = hideable
-            mBottomSheetBehavior.skipCollapsed = hideable
-            if (hideable && mBottomSheetBehavior.state == STATE_COLLAPSED) {
-                mBottomSheetBehavior.state = STATE_HIDDEN
-            }
-        }
-    }
-
-    private fun updateBottomSheetFragmentSelectedIndex(section: Int?) {
-        val fm = childFragmentManager
-        var bottomSheetFragment = fm.findFragmentByTag("bottomSheetFragment") as PodcastFilterFragment?
-        bottomSheetFragment?.let {
-            when (section) {
-                null -> it.setSelectedIndex(0)
-                SectionState.QUEUE.value -> it.setSelectedIndex(1)
-                SectionState.INBOX.value -> it.setSelectedIndex(2)
-                SectionState.FAVORITE.value -> it.setSelectedIndex(3)
-                SectionState.HISTORY.value -> it.setSelectedIndex(4)
-                else -> {}
-            }
-        }
-    }
-
-    private fun setupFabClick() {
-        filtersFab.setOnClickListener {
-            mBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        }
-    }
-
-    override fun onBackPressed(): Boolean {
-        if (::mBottomSheetBehavior.isInitialized && mBottomSheetBehavior.state == STATE_EXPANDED) {
-            // collapse or hide the sheet
-            if (mBottomSheetBehavior.isHideable && mBottomSheetBehavior.skipCollapsed) {
-                mBottomSheetBehavior.state = STATE_HIDDEN
-            } else {
-                mBottomSheetBehavior.state = STATE_COLLAPSED
-            }
-            return true
-        }
-        return super.onBackPressed()
+        val bundle = Bundle()
+        bundle.putParcelable(EXTRA_FEED_ID, episode)
+        findNavController(view!!).navigate(R.id.action_podcastInfoFragment_to_episodeInfoFragment, bundle)
     }
 
     fun subscribeToPodcast()

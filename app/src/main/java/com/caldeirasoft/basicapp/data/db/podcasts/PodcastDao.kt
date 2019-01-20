@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
 import com.caldeirasoft.basicapp.data.entity.Podcast;
-import io.reactivex.Flowable
 
 /**
  * Created by Edmond on 15/02/2018.

@@ -2,6 +2,9 @@ package com.caldeirasoft.basicapp.ui.home
 
 import android.os.Bundle
 import android.os.PersistableBundle
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
@@ -17,127 +20,33 @@ class MainActivity : MediaPlayerBaseActivity()
 {
     //private val mFirestore: FirebaseFirestore? = null
     //private static final int RC_SIGN_IN = 9001
+    lateinit var navController: NavController
     private val viewModel by lazy { viewModelProviders<MainActivityViewModel>() }
 
     override fun getLayout(): Int = R.layout.activity_main
 
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_queue -> {
-                super.addFragment(QueueFragment(), "queue", false)
-                setTitle("queue")
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_inbox -> {
-                super.addFragment(InboxFragment(), "inbox", true)
-                setTitle("inbox")
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_podcasts -> {
-                super.addFragment(PodcastFragment(), "podcasts", true)
-                setTitle("podcasts")
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_catalog -> {
-                super.addFragment(DiscoverFragment(), "catalog", true)
-                setTitle("catalog")
-                return@OnNavigationItemSelectedListener true
-            }
-            /*R.id.navigation_menu -> {
-                super.addFragment(SettingsFr(), "catalog", true)
-                setTitle("catalog")
-                return@OnNavigationItemSelectedListener true
-            }*/
-        }
-        false
+    private fun initializeBottomNav(navController: NavController) {
+        NavigationUI.setupWithNavController(navigation, navController)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        val navHost: NavHostFragment = nav_host_fragment as NavHostFragment? ?: return
+        navController = navHost.navController
 
-        supportFragmentManager.printActivityFragmentList()
-
-        if (savedInstanceState == null) {
-            super.addFragment(QueueFragment(), "queue", false)
-            setTitle("queue")
-        }
-
-        // Enable Firestore logging
-        //FirebaseFirestore.setLoggingEnabled(true)
-
-        // Initialize Firestore and the main RecyclerView
-        //initFirestore()
+        initializeBottomNav(navController)
     }
 
-    override fun onStart() {
-        super.onStart()
-    }
 
     override fun onBackPressed() {
-        supportFragmentManager.apply {
-            if (backStackEntryCount > 0) {
-                getBackStackEntryAt(backStackEntryCount - 1).name?.let {
-                    /*findFragmentByTag(it)?.apply {
-                        addFragment(this, it, false)
-                    }*/
-                    popBackStack()
-                }
-
-                when (backStackEntryCount) {
-                    0 -> this@MainActivity.navigation.menu.findItem(R.id.navigation_inbox)?.setChecked(true)
-
-                    else ->
-                        getBackStackEntryAt(backStackEntryCount - 1).name?.let {
-                            findFragmentByTag(it)?.let {
-                                if (it is IMainFragment) {
-                                    (it as IMainFragment).let {
-                                        this@MainActivity.navigation.menu.findItem(it.getMenuItem())?.setChecked(true)
-                                    }
-                                }
-                            }
-                        }
-                }
-            } else {
-                super.onBackPressed()
+        val currentDestination = NavHostFragment.findNavController(nav_host_fragment).currentDestination
+        when (currentDestination?.id) {
+            R.id.queueFragment -> {
+                finish()
+                return
             }
         }
+        super.onBackPressed()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?, outPersistentState: PersistableBundle?) {
-        super.onSaveInstanceState(outState, outPersistentState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-    }
-
-    /*
-    private fun initFirestore() {
-        //TODO
-    }
-
-    private fun shouldStartSignIn(): Boolean =
-        !viewModel.getIsSigningIn() && FirebaseAuth.getInstance().currentUser == null
-
-
-    private fun startSignIn()
-    {
-        var providers = Arrays.asList(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build())
-
-        val intent = AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(providers)
-                .setIsSmartLockEnabled(false)
-                .build()
-
-        startActivityForResult(intent, 9001)
-        viewModel.setIsSigningIn(true)
-    }
-    */
 }
