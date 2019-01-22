@@ -71,7 +71,7 @@ class PodcastInfoViewModel() : ViewModel() {
             override fun create(): DataSource<Int, Episode> =
                     when (sectionData.value) {
                         null -> episodeFeedlyDataSourceFactory.create()
-                        else -> episodeDbDataSourceFactory!!.create()
+                        else -> episodeDbDataSourceFactory.create()
                     }
         }
 

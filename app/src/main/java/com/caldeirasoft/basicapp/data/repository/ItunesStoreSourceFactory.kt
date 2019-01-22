@@ -6,6 +6,7 @@ import com.avast.android.githubbrowser.extensions.retrofitCallback
 import com.caldeirasoft.basicapp.api.itunes.retrofit.ITunesAPI
 import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDao
 import com.caldeirasoft.basicapp.data.entity.Podcast
+import com.caldeirasoft.basicapp.util.LoadingState
 import org.jetbrains.anko.withAlpha
 import java.util.*
 import kotlin.collections.ArrayList
@@ -23,12 +24,14 @@ class ItunesStoreSourceFactory(
     }
 
     var itunesStore = MutableLiveData<ItunesStore>()
+    val isLoading = MutableLiveData<Boolean>()
 
     fun request() {
         val mPodcastsLookup = HashMap<String, Podcast>()
         val mTrendingPodcasts = ArrayList<PodcastArtwork>()
         val mItunesSection = ArrayList<ItunesSection>()
 
+        isLoading.postValue(true)
         val requestItems = itunesApi.viewGrouping(storeFront)
         requestItems.enqueue(retrofitCallback(
                 { response ->
@@ -95,9 +98,10 @@ class ItunesStoreSourceFactory(
                             itunesStore.postValue(store)
                         }
                     }
+                    isLoading.postValue(false)
                 },
                 { throwable ->
-                    //loadingState.postValue(LoadingState.LOAD_ERR)
+                    isLoading.postValue(false)
                     /*networkState.postValue(NetworkState.error(throwable.message
                             ?: "unknown error"))*/
                 }))

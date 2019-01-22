@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations.map
 import androidx.lifecycle.ViewModel
 import com.caldeirasoft.basicapp.data.repository.*
-import com.caldeirasoft.basicapp.util.LoadingState
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -22,7 +21,7 @@ class DiscoverViewModel : ViewModel() {
             = MutableLiveData<Boolean>().apply { value = false }
 
     var itunesStore: LiveData<ItunesStore>
-    lateinit var loadingState : LiveData<LoadingState>
+    val isLoading: LiveData<Boolean>
 
     /**
      * Default constructor
@@ -33,6 +32,7 @@ class DiscoverViewModel : ViewModel() {
 
         sourceFactory = podcastRepository.getItunesStoreSourceFactory("143442-3,31")
         itunesStore = map(sourceFactory.itunesStore) { it }
+        isLoading = map(sourceFactory.isLoading) { it }
     }
 
     fun request() {
