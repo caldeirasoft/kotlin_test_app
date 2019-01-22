@@ -1,5 +1,6 @@
 package com.caldeirasoft.basicapp.ui.podcastinfo
 
+import android.animation.LayoutTransition
 import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
@@ -8,6 +9,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -43,7 +45,9 @@ class PodcastInfoFragment :
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
+
     private var menu: Menu? = null
+    private var showHeader:Boolean = true
     private lateinit var mBottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var filtersFab: FloatingActionButton
 
@@ -64,8 +68,16 @@ class PodcastInfoFragment :
         return mBinding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (showHeader == false) {
+            motionLayout_root.transitionToEnd()
+        }
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        initMotionLayout()
         initObservers()
         initUi()
     }
@@ -79,6 +91,17 @@ class PodcastInfoFragment :
         mViewModel.updateEpisodeEvent.observeK(this) {
             //controller.
         }
+    }
+
+    private fun initMotionLayout() {
+        motionLayout_root.setTransitionListener(object : MotionLayout.TransitionListener {
+            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
+            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
+            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
+            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                showHeader = p1 != R.id.podcastinfo_end
+            }
+        })
     }
 
     private fun initUi() {
