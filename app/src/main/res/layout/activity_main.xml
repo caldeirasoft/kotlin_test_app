@@ -46,7 +46,7 @@
         app:layout_flexGrow="0"
         app:layout_flexShrink="1"
         app:itemHorizontalTranslationEnabled="false"
-        app:labelVisibilityMode="labeled"
+        app:labelVisibilityMode="unlabeled"
         app:menu="@menu/navigation" />
 
 </com.google.android.flexbox.FlexboxLayout>

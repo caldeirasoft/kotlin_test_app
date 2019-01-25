@@ -21,14 +21,16 @@
             android:id="@+id/imageview_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:onClick="@{onPodcastClick}"
+            android:contentDescription="@null"
+            app:imageUrl="@{imageUrl}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            app:imageUrl="@{imageUrl}"
-            android:onClick="@{onPodcastClick}"/>
+            app:layout_constraintDimensionRatio="W,3:1"/>
 
     </androidx.cardview.widget.CardView>
 </layout>

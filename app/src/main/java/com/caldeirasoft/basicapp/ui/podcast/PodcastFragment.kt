@@ -2,6 +2,7 @@ package com.caldeirasoft.basicapp.ui.podcast
 
 import android.os.Bundle
 import android.view.View
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,12 +21,14 @@ import kotlinx.android.synthetic.main.fragment_podcasts.*
 
 class PodcastFragment : BaseFragment(), PodcastController.Callbacks {
 
+    private var showHeader:Boolean = true
     private val viewModel by lazy { viewModelProviders<PodcastViewModel>() }
     private val controller = PodcastController(this)
 
     override fun getLayout() = R.layout.fragment_podcasts
 
     override fun onCreate() {
+        initMotionLayout()
         initObservers()
         initUi()
     }
@@ -35,6 +38,23 @@ class PodcastFragment : BaseFragment(), PodcastController.Callbacks {
         viewModel.podcasts.removeObservers(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!showHeader)
+            motionLayout_root.transitionToEnd()
+    }
+
+    private fun initMotionLayout() {
+        motionLayout_root.setTransitionListener(object: MotionLayout.TransitionListener {
+            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
+            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
+            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
+            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                showHeader = (p1 != R.id.end)
+            }
+        })
+    }
+
     private fun initObservers() {
         viewModel.podcasts.observeK(this) {
             controller.setData(it)
@@ -42,8 +62,8 @@ class PodcastFragment : BaseFragment(), PodcastController.Callbacks {
     }
 
     private fun initUi() {
-        podcasts_recyclerView.setController(controller)
-        podcasts_recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
+        recyclerView.setController(controller)
+        recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
     override fun onPodcastClick(view: View, podcast: Podcast) {

@@ -1,39 +1,27 @@
 package com.caldeirasoft.basicapp.ui.podcastinfo
 
-import android.animation.LayoutTransition
 import android.app.AlertDialog
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.data.enum.SubscribeAction
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
 import com.caldeirasoft.basicapp.extensions.lazyArg
-import com.caldeirasoft.basicapp.extensions.withArgs
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
-import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
-import com.caldeirasoft.basicapp.ui.episodeinfo.EpisodeInfoFragment
-import com.caldeirasoft.basicapp.ui.extensions.addFragment
 import com.caldeirasoft.basicapp.ui.extensions.observeK
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
-import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
 import com.caldeirasoft.basicapp.widget.BottomSheetBehavior
-import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_COLLAPSED
-import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_EXPANDED
-import com.caldeirasoft.basicapp.widget.BottomSheetBehavior.Companion.STATE_HIDDEN
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.fragment_podcastinfo.*
 
@@ -44,7 +32,6 @@ class PodcastInfoFragment :
 {
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
-
 
     private var menu: Menu? = null
     private var showHeader:Boolean = true
@@ -68,18 +55,17 @@ class PodcastInfoFragment :
         return mBinding.root
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (showHeader == false) {
-            motionLayout_root.transitionToEnd()
-        }
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         initMotionLayout()
         initObservers()
         initUi()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!showHeader)
+            motionLayout_root.progress = 1f
     }
 
     private fun initObservers() {

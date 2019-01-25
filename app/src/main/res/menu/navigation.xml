@@ -4,20 +4,20 @@
     <item
         android:id="@id/queueFragment"
         android:icon="@drawable/ic_queue_24dp"
-        android:title="@string/queue" />
+        android:title="@null" />
 
     <item
         android:id="@id/inboxFragment"
         android:icon="@drawable/ic_inbox_24dp"
-        android:title="@string/inbox" />
+        android:title="@null" />
 
     <item
         android:id="@id/podcastFragment"
         android:icon="@drawable/ic_archive_24dp"
-        android:title="@string/podcasts" />
+        android:title="@null" />
 
     <item
         android:id="@id/discoverFragment"
         android:icon="@drawable/ic_database_search_24dp"
-        android:title="@string/catalog" />
+        android:title="@null" />
 </menu>

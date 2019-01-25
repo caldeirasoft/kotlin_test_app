@@ -17,9 +17,6 @@ class DiscoverViewModel : ViewModel() {
     private var podcastRepository: PodcastRepository
     private var sourceFactory: ItunesStoreSourceFactory
 
-    var descriptionLoadingState
-            = MutableLiveData<Boolean>().apply { value = false }
-
     var itunesStore: LiveData<ItunesStore>
     val isLoading: LiveData<Boolean>
 

@@ -9,6 +9,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/googlesans_regular</item>
+        <item name="android:colorBackground">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
@@ -21,18 +22,18 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
     <!-- Text styles -->
-    <style name="Text" parent="TextAppearance.AppCompat"></style>
-    <style name="Text.Caption" parent="TextAppearance.AppCompat.Caption"></style>
-    <style name="Text.Small" parent="TextAppearance.AppCompat.Small"></style>
-    <style name="Text.Body1" parent="TextAppearance.AppCompat.Body1"></style>
-    <style name="Text.Body2" parent="TextAppearance.AppCompat.Body2"></style>
-    <style name="Text.Medium" parent="TextAppearance.AppCompat.Medium"></style>
-    <style name="Text.Large" parent="TextAppearance.AppCompat.Large"></style>
-    <style name="Text.Headline" parent="TextAppearance.AppCompat.Headline"></style>
-    <style name="Text.Title" parent="TextAppearance.AppCompat.Title"></style>
-    <style name="Text.Display1" parent="TextAppearance.AppCompat.Display1"></style>
-    <style name="Text.Subhead" parent="TextAppearance.AppCompat.Subhead"></style>
-    <style name="Text.Button" parent="TextAppearance.AppCompat.Button"></style>
+    <style name="Text" parent="TextAppearance.AppCompat" />
+    <style name="Text.Caption" parent="TextAppearance.AppCompat.Caption" />
+    <style name="Text.Small" parent="TextAppearance.AppCompat.Small" />
+    <style name="Text.Body1" parent="TextAppearance.AppCompat.Body1" />
+    <style name="Text.Body2" parent="TextAppearance.AppCompat.Body2"/>
+    <style name="Text.Medium" parent="TextAppearance.AppCompat.Medium"/>
+    <style name="Text.Large" parent="TextAppearance.AppCompat.Large"/>
+    <style name="Text.Headline" parent="TextAppearance.AppCompat.Headline"/>
+    <style name="Text.Title" parent="TextAppearance.AppCompat.Title"/>
+    <style name="Text.Display1" parent="TextAppearance.AppCompat.Display1"/>
+    <style name="Text.Subhead" parent="TextAppearance.AppCompat.Subhead"/>
+    <style name="Text.Button" parent="TextAppearance.AppCompat.Button"/>
 
     <style name="Button" parent="Widget.AppCompat.Button">
         <item name="android:textAllCaps">false</item>

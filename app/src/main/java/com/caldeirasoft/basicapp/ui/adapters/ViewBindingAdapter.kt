@@ -35,3 +35,8 @@ fun goneUnless(view: View, visible: Boolean) {
 fun fabVisibility(fab: FloatingActionButton, visible: Boolean) {
     if (visible) fab.show() else fab.hide()
 }
+
+var View.isVisible
+    get(): Boolean = if (this.visibility == View.VISIBLE) true else false
+    set(value) = this.setVisibility(value)
+

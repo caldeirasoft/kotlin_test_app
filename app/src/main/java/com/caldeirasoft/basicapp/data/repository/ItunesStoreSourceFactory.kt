@@ -6,7 +6,6 @@ import com.avast.android.githubbrowser.extensions.retrofitCallback
 import com.caldeirasoft.basicapp.api.itunes.retrofit.ITunesAPI
 import com.caldeirasoft.basicapp.data.db.podcasts.PodcastDao
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.util.LoadingState
 import org.jetbrains.anko.withAlpha
 import java.util.*
 import kotlin.collections.ArrayList

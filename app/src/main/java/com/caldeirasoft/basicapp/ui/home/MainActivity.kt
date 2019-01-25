@@ -1,13 +1,17 @@
 package com.caldeirasoft.basicapp.ui.home
 
+import android.net.Uri
 import android.os.Bundle
 import android.os.PersistableBundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.caldeirasoft.basicapp.R
+import com.caldeirasoft.basicapp.ui.adapters.isVisible
+import com.caldeirasoft.basicapp.ui.adapters.setIsVisible
 import com.caldeirasoft.basicapp.ui.common.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.ui.discover.DiscoverFragment
+import com.caldeirasoft.basicapp.ui.episodeinfo.EpisodeInfoFragment
 import com.caldeirasoft.basicapp.ui.extensions.printActivityFragmentList
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.inbox.InboxFragment
@@ -16,7 +20,8 @@ import com.caldeirasoft.basicapp.ui.queue.QueueFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : MediaPlayerBaseActivity()
+class MainActivity : MediaPlayerBaseActivity(),
+        EpisodeInfoFragment.OnFragmentInteractionListener
 {
     //private val mFirestore: FirebaseFirestore? = null
     //private static final int RC_SIGN_IN = 9001
@@ -49,4 +54,13 @@ class MainActivity : MediaPlayerBaseActivity()
         super.onBackPressed()
     }
 
+    override fun onFragmentInteraction(uri: Uri) {
+        var lastPathSegment = uri.lastPathSegment
+        if (lastPathSegment == "hideBottomNavigationView=1") {
+            navigation.isVisible = !navigation.isVisible
+        }
+        else if (lastPathSegment == "showBottomNavigationView=1") {
+            navigation.isVisible = true
+        }
+    }
 }

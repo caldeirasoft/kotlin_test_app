@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.android.support:coordinatorlayout:28.0.0'
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.palette:palette:1.0.0"
+
     // Android-Room
     implementation "android.arch.persistence.room:runtime:1.1.1"
     kapt "android.arch.persistence.room:compiler:1.1.1"
@@ -126,7 +127,7 @@ dependencies {
     implementation 'com.marozzi.roundbutton:round-button:1.0.7'
 
     // Shape of view
-    implementation 'com.github.florent37:shapeofview:1.4.6'
+    // implementation 'com.github.florent37:shapeofview:1.4.6'
 
     // Skeleton
     implementation 'com.ethanhua:skeleton:1.1.1'

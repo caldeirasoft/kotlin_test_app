@@ -1,6 +1,8 @@
 package com.caldeirasoft.basicapp.ui.episodeinfo
 
 import android.app.AlertDialog
+import android.content.Context
+import android.net.Uri
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.Menu
@@ -34,6 +36,7 @@ import kotlinx.android.synthetic.main.fragment_podcastinfo.*
 class EpisodeInfoFragment : BindingFragment<FragmentEpisodeBinding>() {
 
     val episode by lazyArg<Episode>(EXTRA_FEED_ID)
+    private var listener: OnFragmentInteractionListener? = null
 
     private var menu: Menu? = null
     private val mViewModel by lazy { viewModelProviders<EpisodeInfoViewModel>() }
@@ -52,12 +55,33 @@ class EpisodeInfoFragment : BindingFragment<FragmentEpisodeBinding>() {
         initUi()
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnFragmentInteractionListener) {
+            listener = context
+        } else {
+            throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener?.onFragmentInteraction(Uri.parse("showBottomNavigationView=1"))
+        listener = null
+    }
+
+    interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        fun onFragmentInteraction(uri: Uri)
+    }
+
     private fun initObservers() {
         // set loading
         mViewModel.setEpisode(episode)
     }
 
     private fun initUi() {
+        listener?.onFragmentInteraction(Uri.parse("hideBottomNavigationView=1"))
     }
 
     override fun onDestroyView() {

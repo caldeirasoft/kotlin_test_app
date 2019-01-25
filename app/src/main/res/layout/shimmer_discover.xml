@@ -4,28 +4,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/shimmerLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     app:shimmer_auto_start="true"
     app:shimmer_color="@android:color/white">
 
     <!-- placeholder -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/recyclerView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
-        <include layout="@layout/shimmer_item_episode_podcast"/>
+        <!-- header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_10">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_50"/>
+
+            <View
+                android:id="@+id/textview_title"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:background="@color/shimmer_color"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </LinearLayout>
+
+        <!-- trending -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_10"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            app:cardElevation="@dimen/dp_5"
+            app:cardCornerRadius="@dimen/dp_5">
+
+            <ImageView
+                android:id="@+id/imageview_background"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                android:contentDescription="@null"
+                android:background="@color/shimmer_color"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- section -->
+        <include layout="@layout/shimmer_item_section_discover"/>
+        <include layout="@layout/shimmer_item_section_discover"/>
+        <include layout="@layout/shimmer_item_section_discover"/>
+        <include layout="@layout/shimmer_item_section_discover"/>
+
     </LinearLayout>
 
 </io.supercharge.shimmerlayout.ShimmerLayout>
