@@ -8,6 +8,7 @@ import com.caldeirasoft.basicapp.data.entity.Podcast;
 import com.caldeirasoft.basicapp.data.repository.ItunesLookupDataSourceFactory
 import com.caldeirasoft.basicapp.data.repository.ItunesStoreSourceFactory
 import com.caldeirasoft.basicapp.data.repository.PodcastItunesDataSourceFactory
+import kotlinx.coroutines.Deferred
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -28,7 +29,7 @@ interface PodcastDataSource {
     /**
      * Get podcast from Feedly ID
      */
-    fun getPodcastFromFeedlyApi(feedUrl: String): Podcast?
+    fun getPodcastFromFeedlyApi(feedUrl: String): Deferred<Podcast?>
 
     /**
      * Select all podcasts from catalog
@@ -58,7 +59,7 @@ interface PodcastDataSource {
     /**
      * Get last episode from podcast
      */
-    fun getLastEpisode(podcast: Podcast, action: (episode: Episode?) -> Unit)
+    fun getLastEpisode(podcast: Podcast): Deferred<Episode?>
 
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it
@@ -78,5 +79,5 @@ interface PodcastDataSource {
     /**
      * Update podcast
      */
-    fun updatePodcastFromFeedlyApi(podcast: Podcast)
+    fun updatePodcastFromFeedlyApi(podcast: Podcast): Deferred<Boolean>
 }

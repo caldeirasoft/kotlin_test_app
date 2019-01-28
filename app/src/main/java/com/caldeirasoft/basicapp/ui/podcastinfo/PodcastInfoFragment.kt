@@ -35,24 +35,18 @@ class PodcastInfoFragment :
 
     private var menu: Menu? = null
     private var showHeader:Boolean = true
-    private lateinit var mBottomSheetBehavior: BottomSheetBehavior<*>
     private lateinit var filtersFab: FloatingActionButton
 
     private val mViewModel by lazy { viewModelProviders<PodcastInfoViewModel>() }
-    private val controller = PodcastInfoController(this)
+    private val controller by lazy { PodcastInfoController(this, mViewModel) }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
         mBinding = FragmentPodcastinfoBinding.inflate(inflater, container, false)
-                .apply {
-                    setLifecycleOwner(this@PodcastInfoFragment)
-                    viewModel = mViewModel
-                    onSubscribe = object:View.OnClickListener {
-                        override fun onClick(v: View?) {
-                            showSubscribeDialog(podcast)
-                        }
-                    }
-                }
-        return mBinding.root
+        mBinding.let {
+            it.setLifecycleOwner(this)
+            it.viewModel = mViewModel
+            return it.root
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -109,11 +103,11 @@ class PodcastInfoFragment :
     override fun onItemClick(item: Episode?, position: Int, viewId: Int) {
         item?.let {
             when (viewId) {
-                R.id.button_favorite -> viewModel.toggleEpisodeFavorite(it)
-                R.id.button_archive -> viewModel.archiveEpisode(it)
-                R.id.button_queuelast -> viewModel.queueEpisodeLast(it)
-                R.id.button_queuenext -> viewModel.queueEpisodeFirst(it)
-                R.id.button_play -> viewModel.playEpisode(it)
+                R.id.button_favorite -> mViewModel.toggleEpisodeFavorite(it)
+                R.id.button_archive -> mViewModel.archiveEpisode(it)
+                R.id.button_queuelast -> mViewModel.queueEpisodeLast(it)
+                R.id.button_queuenext -> mViewModel.queueEpisodeFirst(it)
+                R.id.button_play -> mViewModel.playEpisode(it)
                 else -> openEpisodeDetail(it)
             }
         }

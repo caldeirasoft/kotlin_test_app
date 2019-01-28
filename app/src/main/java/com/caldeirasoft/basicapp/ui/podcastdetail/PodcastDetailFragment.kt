@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
 import com.caldeirasoft.basicapp.databinding.ListitemEpisodespodcastBinding
 import com.caldeirasoft.basicapp.extensions.lazyArg
@@ -19,7 +18,6 @@ import com.caldeirasoft.basicapp.ui.adapter.decorations.ItemOffsetDecoration
 import com.caldeirasoft.basicapp.ui.adapter.decorations.StickyHeaderLeftDecoration
 import com.caldeirasoft.basicapp.ui.common.BindingFragment
 import com.caldeirasoft.basicapp.ui.common.MainNavigationFragment
-import com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment
 import com.caldeirasoft.basicapp.ui.adapters.fabVisibility
 import com.caldeirasoft.basicapp.ui.episodedetail.EpisodeDetailDialog
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
@@ -68,13 +66,6 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         setupSwipeRefreshLayout()
         //setHasOptionsMenu(true)
 
-        mBottomSheetBehavior = BottomSheetBehavior.from(view.findViewById(R.id.fragment_filter_sheet))
-
-        val fm = childFragmentManager
-        var bottomSheetFragment = fm.findFragmentById(R.id.fragment_filter_sheet) as PodcastFilterFragment?
-        bottomSheetFragment?.let {
-            it.viewModel = viewModel
-        }
 
         setupFabClick()
         //-setupBottomSheet()
@@ -209,20 +200,6 @@ class PodcastDetailFragment : BindingFragment<FragmentPodcastdetailBinding>(), I
         }
     }
 
-    private fun updateBottomSheetFragmentSelectedIndex(section: Int?) {
-        val fm = childFragmentManager
-        var bottomSheetFragment = fm.findFragmentByTag("bottomSheetFragment") as PodcastFilterFragment?
-        bottomSheetFragment?.let {
-            when (section) {
-                null -> it.setSelectedIndex(0)
-                SectionState.QUEUE.value -> it.setSelectedIndex(1)
-                SectionState.INBOX.value -> it.setSelectedIndex(2)
-                SectionState.FAVORITE.value -> it.setSelectedIndex(3)
-                SectionState.HISTORY.value -> it.setSelectedIndex(4)
-                else -> {}
-            }
-        }
-    }
 
     private fun setupFabClick() {
         filtersFab.setOnClickListener {

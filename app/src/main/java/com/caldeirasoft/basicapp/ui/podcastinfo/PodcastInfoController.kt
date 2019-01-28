@@ -7,11 +7,14 @@ import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
+import com.caldeirasoft.basicapp.itemPodcastDescription
 import com.caldeirasoft.basicapp.ui.adapter.defaultItemDiffCallback
 import com.caldeirasoft.basicapp.ui.epoxy.BasePagedController
 
-class PodcastInfoController(private val callbacks: Callbacks) :
-        BasePagedController<Episode>()
+class PodcastInfoController(
+        private val callbacks: Callbacks,
+        private val viewModel: PodcastInfoViewModel)
+    : BasePagedController<Episode>()
 {
     //val loadingState = InfiniteLoadingBindingModel_()
 

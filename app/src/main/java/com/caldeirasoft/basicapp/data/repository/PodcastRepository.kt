@@ -15,6 +15,7 @@ import com.caldeirasoft.basicapp.data.entity.Episode
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.instance
+import kotlinx.coroutines.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.doAsyncResult
 
@@ -41,33 +42,18 @@ class PodcastRepository : PodcastDataSource, LazyKodeinAware
     /**
      * Select a podcast by id
      */
-    override fun getPodcastFromFeedlyApi(feedUrl: String): Podcast?
-    {
+    override fun getPodcastFromFeedlyApi(feedUrl: String): Deferred<Podcast?> =
         // request Ids
-        try {
-            doAsyncResult {
-                val feedId = "feed/" + feedUrl
-                var request = feedlyAPI.getFeed(feedId);
-                val response = request.execute()
-                response?.body()?.let {
-                    val podcast = Podcast()
-                    //podcast.imageUrl = feed.artwork
-                    podcast.feedUrl = feedUrl
-                    podcast.updated = it.updated
-                    podcast.description = it.description
-                    podcast
-                }
-            }.let {
-                it.get().let {
-                    return it
-                }
-            }
+        GlobalScope.async {
+            val feedId = "feed/" + feedUrl
+            var feed = feedlyAPI.getFeed(feedId).await();
+            val podcast = Podcast()
+            //podcast.imageUrl = feed.artwork
+            podcast.feedUrl = feedUrl
+            podcast.updated = feed.updated
+            podcast.description = feed.description
+            podcast
         }
-        catch (e:Exception) {
-            Log.d(TAG, e.message)
-        }
-        return null
-    }
 
     /**
      * Select all podcasts from catalog
@@ -141,49 +127,41 @@ class PodcastRepository : PodcastDataSource, LazyKodeinAware
         }
     }
 
-    override fun getLastEpisode(podcast: Podcast, action: (episode: Episode?) -> Unit)
-    {
-        feedlyAPI.getStreamEntries(podcast.feedId, 5, "")
-                .enqueue(retrofitCallback(
-                        { response ->
-                            response?.body()?.let {
-                                it.items
-                                    ?.filter { entry ->
-                                        entry.enclosure?.firstOrNull()?.href != null
-                                    }
-                                    ?.map { entry ->
-                                        Episode(entry.id
-                                                , entry.originId ?: ""
-                                                , entry.title
-                                                , entry.published ?: 0)
-                                            .apply {
-                                                description = entry.summary?.content
-                                                mediaUrl = entry.enclosure.get(0).href
-                                                mediaType = entry.enclosure.get(0).type
-                                                mediaLength = entry.enclosure.get(0).length
-                                                link = entry.origin.htmlUrl
-                                            }
-                                    }
-                                    .let {
-                                        val firstEpisode = it.firstOrNull()
-                                        action(firstEpisode)
-                                    }
-                            }
-                        },
-                        { throwable -> {} }
-                ))
+    override fun getLastEpisode(podcast: Podcast): Deferred<Episode?> =
+        GlobalScope.async {
+            val streamEntries = feedlyAPI.getStreamEntries(podcast.feedId, 1, "").await()
+            streamEntries.items
+                    .filter { entry ->
+                        entry.enclosure.firstOrNull()?.href != null
+                    }
+                    .map { entry ->
+                        Episode(entry.id
+                                , entry.originId ?: ""
+                                , entry.title
+                                , entry.published ?: 0)
+                                .apply {
+                                    description = entry.summary?.content
+                                    mediaUrl = entry.enclosure.get(0).href
+                                    mediaType = entry.enclosure.get(0).type
+                                    mediaLength = entry.enclosure.get(0).length
+                                    link = entry.origin.htmlUrl
+                                }
+                    }
+                    .firstOrNull()
 
-    }
+        }
 
     /**
      * Update podcast
      */
-    override fun updatePodcastFromFeedlyApi(podcast: Podcast)
-    {
-        getPodcastFromFeedlyApi(podcast.feedUrl)?.let {
-            podcast.updated = it.updated
-            podcast.description = it.description
+    override fun updatePodcastFromFeedlyApi(podcast: Podcast): Deferred<Boolean> =
+        GlobalScope.async {
+            val result = getPodcastFromFeedlyApi(podcast.feedUrl).await()
+            result?.let {
+                podcast.updated = it.updated
+                podcast.description = it.description
+                true
+            } ?: false
         }
-    }
 
 }

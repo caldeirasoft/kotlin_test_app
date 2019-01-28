@@ -94,7 +94,7 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>(), IMainFragment
 
     private fun observeCatalog() {
         category.let { it ->
-            //viewModel
+            //mViewModel
             viewModel.apply {
 
                 //set category
@@ -133,18 +133,18 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>(), IMainFragment
                 setOnClickListener(listener = object : ItemViewClickListener<String> {
                     override fun onItemClick(item: String?, position: Int, viewId: Int) {
                         when (position) {
-                            0 -> viewModel.setCategory(26)
-                            1 -> viewModel.setSection(SectionState.QUEUE.value)
-                            2 -> viewModel.setSection(SectionState.INBOX.value)
-                            3 -> viewModel.setSection(SectionState.FAVORITE.value)
-                            4 -> viewModel.setSection(SectionState.HISTORY.value)
+                            0 -> mViewModel.setCategory(26)
+                            1 -> mViewModel.setSection(SectionState.QUEUE.value)
+                            2 -> mViewModel.setSection(SectionState.INBOX.value)
+                            3 -> mViewModel.setSection(SectionState.FAVORITE.value)
+                            4 -> mViewModel.setSection(SectionState.HISTORY.value)
                             else -> { }
                         }
                     }
                 })
                 setCloseListener(listener = object : View.OnClickListener {
                     override fun onClick(p0: View?) {
-                        viewModel.setCategory(26)
+                        mViewModel.setCategory(26)
                     }
                 })
             }

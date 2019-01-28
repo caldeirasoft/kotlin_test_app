@@ -136,6 +136,13 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Constraint
+            android:id="@id/linearLayout_description"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/textview_artist"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Constraint
             android:id="@id/appbar_title"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/imageview_backbutton"
@@ -202,6 +209,13 @@
 
         <Constraint
             android:id="@id/textview_artist"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@id/linearLayout_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Constraint
+            android:id="@id/linearLayout_description"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/details_appbar"
             app:layout_constraintStart_toStartOf="parent"

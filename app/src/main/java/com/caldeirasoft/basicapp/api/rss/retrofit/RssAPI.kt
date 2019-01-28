@@ -4,6 +4,7 @@ import com.caldeirasoft.basicapp.api.rss.data.Feed
 import com.caldeirasoft.basicapp.api.rss.data.RssChannel
 import com.caldeirasoft.basicapp.data.entity.Episode
 import com.caldeirasoft.basicapp.data.entity.Podcast
+import kotlinx.coroutines.Deferred
 import org.jdom2.input.SAXBuilder
 import org.jonnyzzz.kotlin.xml.bind.jdom.JDOM
 import retrofit2.Call
@@ -16,5 +17,5 @@ import java.net.URL
  */
 interface RssAPI {
     @GET
-    fun getItems(@Url url:String): Call<String>;
+    fun getItems(@Url url:String): Deferred<String>;
 }

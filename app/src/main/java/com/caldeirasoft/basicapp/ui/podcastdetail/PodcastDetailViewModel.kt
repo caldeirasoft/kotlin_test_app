@@ -64,7 +64,7 @@ class PodcastDetailViewModel() : ViewModel() {
         setDataSource(pod, null)
 
     /**
-     * Set section and podcast for current viewModel
+     * Set section and podcast for current mViewModel
      */
     fun setDataSource(pod:Podcast, sec: Int?)
     {

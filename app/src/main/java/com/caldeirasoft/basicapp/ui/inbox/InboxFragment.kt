@@ -1,52 +1,27 @@
 package com.caldeirasoft.basicapp.ui.inbox
 
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import com.caldeirasoft.basicapp.R
+import com.caldeirasoft.basicapp.databinding.FragmentEpisodelistBinding
 import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
+import com.caldeirasoft.basicapp.ui.episodelist.EpisodeListFragment
 import com.caldeirasoft.basicapp.ui.episodes.EpisodesBaseFragment
 import com.caldeirasoft.basicapp.ui.extensions.viewModelProviders
 import com.caldeirasoft.basicapp.ui.home.IMainFragment
 import kotlinx.android.synthetic.main.fragment_inbox.*
 
-class InboxFragment : EpisodesBaseFragment() {
+class InboxFragment : EpisodeListFragment() {
 
-    override val viewModel by lazy { viewModelProviders<InboxViewModel>() }
-    private var menu: Menu? = null
+    override val mViewModel by lazy { viewModelProviders<InboxViewModel>() }
 
-    override fun getLayout() = R.layout.fragment_inbox
-
-    override fun onCreate() {
-        // toolbar
-        setToolbar();
-
-        setupRecyclerView(rw_inbox_episodes)
-        setHasOptionsMenu(true)
-        observeEpisodes()
-    }
-
-    private fun setToolbar() {
-        (activity as AppCompatActivity).setSupportActionBar(toolbar);
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        this.menu = menu
-        inflater.inflate(R.menu.main_menu, menu)
-        // change "podcast layout" icon
-        super.onDestroyOptionsMenu()
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item?.itemId) {
-            R.id.menu_refresh -> {
-                val syncAdapterManager = SyncAdapterManager(activity!!)
-                syncAdapterManager.syncImmediately()
-            }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
+        mBinding = FragmentEpisodelistBinding.inflate(inflater, container, false)
+        mBinding.let {
+            it.setLifecycleOwner(this)
+            it.title = context?.getString(R.string.inbox)
+            return it.root
         }
-        return super.onOptionsItemSelected(item)
     }
 
     companion object {

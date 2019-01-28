@@ -26,6 +26,7 @@ class PodcastInfoViewModel() : ViewModel() {
     var podcastData = MutableLiveData<Podcast>()
     var sectionData = MutableLiveData<Int>()
     var isInDatabase = MutableLiveData<Boolean>()
+    var descriptionData = MutableLiveData<String>()
 
     lateinit var loadingState: LiveData<LoadingState>
     lateinit var durationEvent: LiveData<Episode>
@@ -96,7 +97,7 @@ class PodcastInfoViewModel() : ViewModel() {
     }
 
     /**
-     * Set section and podcast for current viewModel
+     * Set section and podcast for current mViewModel
      */
     fun setDataSource(pod:Podcast, sec: Int?) {
         // set section & podcast
@@ -120,8 +121,12 @@ class PodcastInfoViewModel() : ViewModel() {
         podcastInDb.observeForever { pcst ->
             val inDb = (pcst != null)
             isInDatabase.postValue(inDb)
-            if (!inDb)
+            if (!inDb) {
                 podcastRepository.updatePodcastFromFeedlyApi(pod)
+                podcastRepository.getPodcastFromFeedlyApi(pod.feedUrl)?.let {
+                    descriptionData.postValue(it.description)
+                }
+            }
         }
     }
 

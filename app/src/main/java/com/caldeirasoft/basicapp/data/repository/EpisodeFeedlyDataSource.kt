@@ -12,6 +12,9 @@ import com.caldeirasoft.basicapp.api.feedly.retrofit.FeedlyAPI
 import com.caldeirasoft.basicapp.data.enum.SectionState
 import com.caldeirasoft.basicapp.ui.common.SingleLiveEvent
 import com.caldeirasoft.basicapp.util.LoadingState
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.onComplete
 import java.util.*
@@ -38,13 +41,13 @@ class EpisodeFeedlyDataSource(
     private fun fetchEpisodes(
             pageSize:Int,
             alreadyRetrievedEpisodes: List<Episode> = ArrayList(),
-            continuation: String = "",
-            callback: (List<Episode>) -> Unit
-            )
+            continuation: String = ""
+            ): Deferred<List<Episode>>
     {
+        GlobalScope.async {
         if (isFull) {
-            callback.invoke(Collections.emptyList())
-            return
+            Collections.emptyList<Episode>()
+
         }
 
         feedlyAPI.getStreamEntries(feed.feedId, pageSize, continuation)

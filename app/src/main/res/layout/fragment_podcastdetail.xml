@@ -43,6 +43,7 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <!--
         <fragment
             android:id="@+id/fragment_filter_sheet"
             android:name="com.caldeirasoft.basicapp.ui.podcastdetail.filter.PodcastFilterFragment"
@@ -55,6 +56,7 @@
             app:behavior_peekHeight="0dp"
             app:behavior_skipCollapsed="true"
             tools:layout="@layout/fragment_podcastdetail_filter"/>
+            -->
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

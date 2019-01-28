@@ -12,7 +12,7 @@ class PodcastFilterFragment : AAH_FabulousFragment() {
 
     val podcast by lazyArg<Podcast>(EXTRA_FEED_ID)
 
-    //private val viewModel by lazy { viewModelProviders<PodcastDetailViewModel>() }
+    //private val mViewModel by lazy { viewModelProviders<PodcastDetailViewModel>() }
     //private lateinit var podcastDetailFragmentAdapter : PodcastDetailFragmentAdapter
 
     fun getLayout() = R.layout.fragment_podcastfilter
