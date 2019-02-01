@@ -49,6 +49,10 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="BluePrimaryButton" parent="Theme.AppCompat.Light">
+        <item name="android:colorBackground">@android:color/black</item>
+    </style>
+
     <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/transparent</item>
         <item name="android:textSize">0sp</item>

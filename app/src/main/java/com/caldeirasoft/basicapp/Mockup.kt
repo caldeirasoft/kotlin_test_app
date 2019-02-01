@@ -1,17 +1,7 @@
 package com.caldeirasoft.basicapp
 
-import android.app.Application
-import com.caldeirasoft.basicapp.data.entity.Episode
-import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.caldeirasoft.basicapp.injection.module.ApiModule
-import com.caldeirasoft.basicapp.injection.module.AppModule
-import com.caldeirasoft.basicapp.injection.module.MediaModule
-import com.caldeirasoft.basicapp.injection.module.RoomDbModule
-import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
-import com.caldeirasoft.basicapp.service.sync.SyncHelper
-import com.chibatching.kotpref.Kotpref
-import com.github.salomonbrys.kodein.*
-import com.jakewharton.threetenabp.AndroidThreeTen
+import com.caldeirasoft.basicapp.domain.entity.Episode
+import com.caldeirasoft.basicapp.domain.entity.Podcast
 
 class Mockup {
 
@@ -47,7 +37,7 @@ class Mockup {
                 })
                 add(Episode("LHkCuXbSrh/tc7ZyuUAHz9G202AqF1FArkYRJaDEqwY=_1675093da65:16ab48c:93a62bfd",
                         "http://www.2hdp.fr/culture/culture.xml",
-                        "Les Pirates",1543226400000
+                        "Les Pirates", 1543226400000
                 ).apply {
                     podcastTitle = "Culture 2000"
                     imageUrl = "https://is3-ssl.mzstatic.com/image/thumb/Music118/v4/86/02/06/860206ff-1ec6-ae75-85b9-4b61efae4641/source/100x100bb.jpg"
@@ -56,7 +46,7 @@ class Mockup {
                 })
                 add(Episode("LHkCuXbSrh/tc7ZyuUAHz9G202AqF1FArkYRJaDEqwY=_1675093da65:16ab48c:93a62bfd",
                         "http://www.2hdp.fr/culture/culture.xml",
-                        "Le procès Eichmann",1542621600000
+                        "Le procès Eichmann", 1542621600000
                 ).apply {
                     podcastTitle = "Culture 2000"
                     imageUrl = "https://is3-ssl.mzstatic.com/image/thumb/Music118/v4/86/02/06/860206ff-1ec6-ae75-85b9-4b61efae4641/source/100x100bb.jpg"
@@ -83,7 +73,7 @@ class Mockup {
                 })
                 add(Episode("UQU2rEydZ6TXU3n3rWHp9Y0UL9OW3VZ7C11JnJWSqHU=_1673afb1082:5b6ac11:88373a59",
                         "http://cdn-europe1.new2.ladmedia.fr/var/exports/podcasts/sound/revue-de-presque.xml",
-                        "Jean Lassalle s'engage auprès des \\\"gilets jaunes\\\" à l'Assemblée nationale : \\\"Je suis le Jean Moulin des marcassins !\\\" (Canteloup)",1542872520000
+                        "Jean Lassalle s'engage auprès des \\\"gilets jaunes\\\" à l'Assemblée nationale : \\\"Je suis le Jean Moulin des marcassins !\\\" (Canteloup)", 1542872520000
                 ).apply {
                     podcastTitle = "Nicolas Canteloup - la revue de presque sur Europe 1"
                     imageUrl = "https://is4-ssl.mzstatic.com/image/thumb/Music128/v4/2d/22/fc/2d22fc0d-8eae-63a6-8619-8e604c20b885/source/100x100bb.jpg"
@@ -101,7 +91,7 @@ class Mockup {
                 })
                 add(Episode("UQU2rEydZ6TXU3n3rWHp9Y0UL9OW3VZ7C11JnJWSqHU=_1674021893a:64d96d1:d42b93be",
                         "http://cdn-europe1.new2.ladmedia.fr/var/exports/podcasts/sound/revue-de-presque.xml",
-                        "BEST OF - C'est presque l'affaire Carlos Ghosn",1542958920000
+                        "BEST OF - C'est presque l'affaire Carlos Ghosn", 1542958920000
                 ).apply {
                     podcastTitle = "Nicolas Canteloup - la revue de presque sur Europe 1"
                     imageUrl = "https://is4-ssl.mzstatic.com/image/thumb/Music128/v4/2d/22/fc/2d22fc0d-8eae-63a6-8619-8e604c20b885/source/100x100bb.jpg"
@@ -119,7 +109,7 @@ class Mockup {
                 })
                 add(Episode("MnHo2hZG0JlOw0Zx68pSx6AsXLfJAV0y2cJgSRM499c=_167501ade0b:762bd0d:d42b93be",
                         "http://www.rireetchansons.fr/rss/podcasts/feed-marceau-refait-l-info.xml",
-                        "Gilets Jaunes aux Champs Elysées, Compile Coupe Davis d'adieu de Yannick Noah - Marceau refait l'info - 26 novembre 2018",1543210200000
+                        "Gilets Jaunes aux Champs Elysées, Compile Coupe Davis d'adieu de Yannick Noah - Marceau refait l'info - 26 novembre 2018", 1543210200000
                 ).apply {
                     podcastTitle = "Marceau refait l'info"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c9/7c/a4/c97ca411-ce05-4fd8-3d23-a726a104b74c/source/100x100bb.jpg"
@@ -128,7 +118,7 @@ class Mockup {
                 })
                 add(Episode("MnHo2hZG0JlOw0Zx68pSx6AsXLfJAV0y2cJgSRM499c=_167410cd40f:62fded7:88373a59",
                         "http://www.rireetchansons.fr/rss/podcasts/feed-marceau-refait-l-info.xml",
-                        "Finale de la Coupe Davies - Marceau refait l'info - 23 novembre 2018",1542949200000
+                        "Finale de la Coupe Davies - Marceau refait l'info - 23 novembre 2018", 1542949200000
                 ).apply {
                     podcastTitle = "Marceau refait l'info"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c9/7c/a4/c97ca411-ce05-4fd8-3d23-a726a104b74c/source/100x100bb.jpg"
@@ -137,7 +127,7 @@ class Mockup {
                 })
                 add(Episode("MnHo2hZG0JlOw0Zx68pSx6AsXLfJAV0y2cJgSRM499c=_1673b761d4b:5ef88f6:d42b93be",
                         "http://www.rireetchansons.fr/rss/podcasts/feed-marceau-refait-l-info.xml",
-                        "Lauryn Hill huée, Jean Lassale en gilet jaune, dons de selles à l'hôpital - Marceau refait l'info - 22 novembre 2018",1542862800000
+                        "Lauryn Hill huée, Jean Lassale en gilet jaune, dons de selles à l'hôpital - Marceau refait l'info - 22 novembre 2018", 1542862800000
                 ).apply {
                     podcastTitle = "Marceau refait l'info"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c9/7c/a4/c97ca411-ce05-4fd8-3d23-a726a104b74c/source/100x100bb.jpg"
@@ -146,7 +136,7 @@ class Mockup {
                 })
                 add(Episode("MnHo2hZG0JlOw0Zx68pSx6AsXLfJAV0y2cJgSRM499c=_16736bab540:57644d1:9dda0303",
                         "http://www.rireetchansons.fr/rss/podcasts/feed-marceau-refait-l-info.xml",
-                        "Black Friday, la chatte à Deschamps, Gainsbourg chante les Gilets Jaunes - Marceau refait l'info - 21 novembre 2018",1542776400000
+                        "Black Friday, la chatte à Deschamps, Gainsbourg chante les Gilets Jaunes - Marceau refait l'info - 21 novembre 2018", 1542776400000
                 ).apply {
                     podcastTitle = "Marceau refait l'info"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/c9/7c/a4/c97ca411-ce05-4fd8-3d23-a726a104b74c/source/100x100bb.jpg"
@@ -155,7 +145,7 @@ class Mockup {
                 })
                 add(Episode("QV3vXo2zf9X2iBYw66T9wyvLGmSF9fvoTM/TGa9g/Js=_1673b631203:5d9faf4:9dda0303",
                         "http://radiofrance-podcast.net/podcast09/rss_18348.xml",
-                        "Le succès de l'emoji caca...",1542882780000
+                        "Le succès de l'emoji caca...", 1542882780000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Marina Rollman"
                     imageUrl = "https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/b4/fc/77/b4fc7775-ca46-2413-93b9-0608c944254f/source/100x100bb.jpg"
@@ -164,7 +154,7 @@ class Mockup {
                 })
                 add(Episode("QV3vXo2zf9X2iBYw66T9wyvLGmSF9fvoTM/TGa9g/Js=_16717aaaf82:2fca6dc:88373a59",
                         "http://radiofrance-podcast.net/podcast09/rss_18348.xml",
-                        "On ne meurt plus beaucoup d’amour...",1542277980000
+                        "On ne meurt plus beaucoup d’amour...", 1542277980000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Marina Rollman"
                     imageUrl = "https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/b4/fc/77/b4fc7775-ca46-2413-93b9-0608c944254f/source/100x100bb.jpg"
@@ -173,7 +163,7 @@ class Mockup {
                 })
                 add(Episode("QV3vXo2zf9X2iBYw66T9wyvLGmSF9fvoTM/TGa9g/Js=_166f38bd8e0:324186:88373a59",
                         "http://radiofrance-podcast.net/podcast09/rss_18348.xml",
-                        "On peut arrêter de chercher, on connaît l’homme le plus sexy du monde",1541673180000
+                        "On peut arrêter de chercher, on connaît l’homme le plus sexy du monde", 1541673180000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Marina Rollman"
                     imageUrl = "https://is2-ssl.mzstatic.com/image/thumb/Music128/v4/b4/fc/77/b4fc7775-ca46-2413-93b9-0608c944254f/source/100x100bb.jpg"
@@ -191,7 +181,7 @@ class Mockup {
                 })
                 add(Episode("pr/btuvAQgH44/oKRxHWJdhAjYYMu4yuMm6QhlRdiqw=_167363344a3:54e8e0a:88373a59",
                         "http://radiofrance-podcast.net/podcast09/rss_16609.xml",
-                        "Je suis ce que la science appelle un homme d’alcool",1542796380000
+                        "Je suis ce que la science appelle un homme d’alcool", 1542796380000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Guillermo Guiz"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/35/70/b8/3570b8c2-faef-39e8-fd9a-90e86f08b4f9/source/100x100bb.jpg"
@@ -200,7 +190,7 @@ class Mockup {
                 })
                 add(Episode("pr/btuvAQgH44/oKRxHWJdhAjYYMu4yuMm6QhlRdiqw=_1671c65f733:377a38f:d42b93be",
                         "http://radiofrance-podcast.net/podcast09/rss_16609.xml",
-                        "Une application pour calculer le nombre d'heures à regarder les séries TV",1542367440000
+                        "Une application pour calculer le nombre d'heures à regarder les séries TV", 1542367440000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Guillermo Guiz"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/35/70/b8/3570b8c2-faef-39e8-fd9a-90e86f08b4f9/source/100x100bb.jpg"
@@ -209,7 +199,7 @@ class Mockup {
                 })
                 add(Episode("pr/btuvAQgH44/oKRxHWJdhAjYYMu4yuMm6QhlRdiqw=_166ee608af3:1eac4c2:d42b93be",
                         "http://radiofrance-podcast.net/podcast09/rss_16609.xml",
-                        "La guerre, ça va, merci, je connais",1541586780000
+                        "La guerre, ça va, merci, je connais", 1541586780000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Guillermo Guiz"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/35/70/b8/3570b8c2-faef-39e8-fd9a-90e86f08b4f9/source/100x100bb.jpg"
@@ -218,7 +208,7 @@ class Mockup {
                 })
                 add(Episode("pr/btuvAQgH44/oKRxHWJdhAjYYMu4yuMm6QhlRdiqw=_166871350c5:af20c3:9dda0303",
                         "http://radiofrance-podcast.net/podcast09/rss_16609.xml",
-                        "Beaucoup d’homophobie à Paris ce moment",1539854520000
+                        "Beaucoup d’homophobie à Paris ce moment", 1539854520000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Guillermo Guiz"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/35/70/b8/3570b8c2-faef-39e8-fd9a-90e86f08b4f9/source/100x100bb.jpg"
@@ -227,7 +217,7 @@ class Mockup {
                 })
                 add(Episode("pr/btuvAQgH44/oKRxHWJdhAjYYMu4yuMm6QhlRdiqw=_16639a17793:315afae:19b4cc1a",
                         "http://radiofrance-podcast.net/podcast09/rss_16609.xml",
-                        "Guillermo à lu le Point !",1538558520000
+                        "Guillermo à lu le Point !", 1538558520000
                 ).apply {
                     podcastTitle = "La Drôle d'Humeur de Guillermo Guiz"
                     imageUrl = "https://is1-ssl.mzstatic.com/image/thumb/Music71/v4/35/70/b8/3570b8c2-faef-39e8-fd9a-90e86f08b4f9/source/100x100bb.jpg"

@@ -8,7 +8,7 @@
       <import type="androidx.lifecycle.MutableLiveData"/>
       <variable
           name="viewModel"
-          type="com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoViewModel"/>
+          type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel"/>
       <variable
           name="onSubscribe"
           type="android.view.View.OnClickListener"/>
@@ -111,7 +111,7 @@
               android:paddingStart="8dp"
               android:paddingEnd="8dp"
               android:layout_margin="@dimen/element_margin_small"
-              android:text="@{viewModel.isInDatabase ? @string/button_unsubscribe : @string/button_subscribe}"
+              android:text="@string/button_subscribe"
               app:rb_animation_alpha="false"
               app:rb_animation_progress_color="@color/colorAccent"
               app:rb_animation_progress_padding="8dp"
@@ -129,7 +129,7 @@
               app:rb_text_color="@color/colorPrimary"
               app:rb_text_color_pressed="@android:color/white"
               android:textStyle="bold"
-              android:onClick="@{onSubscribe}"
+              android:onClick="@{() -> !viewModel.isInDatabase() ? viewModel.subscribe() : viewModel.unsubscribe()}"
               />
 
       </LinearLayout>
@@ -204,15 +204,19 @@
           app:srcCompat="@drawable/ic_arrow_back_24dp" />
 
       <!-- placeholder -->
-      <include
+      <FrameLayout
+          android:id="@+id/shimmerLayout"
           android:layout_width="0dp"
           android:layout_height="0dp"
           app:layout_constraintTop_toTopOf="@id/recyclerView"
           app:layout_constraintBottom_toBottomOf="parent"
           app:layout_constraintStart_toStartOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:isVisible="@{viewModel.loadingState.isLoading()}"
-          layout="@layout/shimmer_podcastinfo"/>
+          app:layout_constraintEnd_toEndOf="parent">
+          <!-- android:visibility="@{viewModel.isLoading}"-->
+
+          <include layout="@layout/shimmer_podcastinfo"/>
+
+      </FrameLayout>
 
       <!-- list -->
       <com.airbnb.epoxy.EpoxyRecyclerView
@@ -223,7 +227,6 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintStart_toStartOf="parent"
           app:layout_constraintTop_toBottomOf="@id/linearLayout_description"
-          app:invisibleUnless="@{viewModel.loadingState.isShowContent()}"
           />
 
   </androidx.constraintlayout.motion.widget.MotionLayout>

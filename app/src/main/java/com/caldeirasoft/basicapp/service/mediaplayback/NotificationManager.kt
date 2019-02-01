@@ -24,7 +24,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.service.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
-import com.caldeirasoft.basicapp.ui.mediaplayback.MediaPlaybackFullScreenActivity
+import com.caldeirasoft.basicapp.presentation.ui.mediaplayback.MediaPlaybackFullScreenActivity
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 

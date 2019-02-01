@@ -4,7 +4,7 @@
     <data>
         <variable
             name="podcast"
-            type="com.caldeirasoft.basicapp.data.entity.Podcast"/>
+            type="com.caldeirasoft.basicapp.domain.entity.Podcast"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

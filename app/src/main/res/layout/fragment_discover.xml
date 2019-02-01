@@ -6,7 +6,7 @@
         <import type="android.view.View" />
         <variable
             name="viewModel"
-            type="com.caldeirasoft.basicapp.ui.discover.DiscoverViewModel"/>
+            type="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverViewModel"/>
     </data>
 
     <androidx.constraintlayout.motion.widget.MotionLayout
@@ -62,6 +62,7 @@
                     android:focusable="true"
                     android:tint="@color/grey_10"
                     android:src="@drawable/ic_search_24dp"
+                    android:contentDescription="@null"
                     android:background="@android:color/transparent"/>
 
                 <EditText

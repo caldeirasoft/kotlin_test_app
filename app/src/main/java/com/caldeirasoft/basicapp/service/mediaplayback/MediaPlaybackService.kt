@@ -1,6 +1,5 @@
 package com.caldeirasoft.basicapp.service.mediaplayback
 
-import android.app.Application
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
@@ -15,27 +14,25 @@ import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import com.caldeirasoft.basicapp.App
-import com.caldeirasoft.basicapp.data.db.AppDatabase
+import com.caldeirasoft.basicapp.data.datasources.local.DatabaseApi
 import com.github.salomonbrys.kodein.LazyKodein
 import com.github.salomonbrys.kodein.LazyKodeinAware
 import com.github.salomonbrys.kodein.instance
-import java.util.*
+import org.koin.android.ext.android.inject
 
 
 class MediaPlaybackService: MediaBrowserServiceCompat(),
         MetaDataUpdateListener,
-        PlaybackStateListener,
-        LazyKodeinAware {
+        PlaybackStateListener {
 
     private val TAG = MediaPlaybackService::class.java.simpleName
-
-    override val kodein = LazyKodein { (applicationContext as App).kodein }
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var notificationManager: NotificationManager
     private lateinit var playbackManager: PlaybackManager
     private lateinit var audioManager: AudioManager
-    private val database: AppDatabase by kodein.instance()
+    private val database: DatabaseApi by inject()
+    //TODO: see https://github.com/vpaliy/android-music-app/
 
     //private var queueManager: IQueueManager by instance()
     private lateinit var queueManager:QueueManager

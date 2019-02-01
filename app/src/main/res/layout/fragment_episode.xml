@@ -14,103 +14,127 @@
         <variable name="description" type="String"/>
         <variable
             name="viewModel"
-            type="com.caldeirasoft.basicapp.ui.episodeinfo.EpisodeInfoViewModel"/>
+            type="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoViewModel"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textview_title"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:fontFamily="@font/googlesans_bold"
-            android:text="@{viewModel.episodeData.title}"
-            android:textColor="#132629"
-            android:textSize="@dimen/text_very_huge"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+            android:layout_height="wrap_content">
 
-        <ImageButton
-            android:id="@+id/imagebutton_collapse"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:src="@drawable/ic_arrow_down_24dp"
-            android:tint="#516771"
-            app:layout_constraintTop_toTopOf="@id/textview_title"
-            app:layout_constraintEnd_toEndOf="parent"
+            <TextView
+                android:id="@+id/textview_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:fontFamily="@font/googlesans_bold"
+                android:text="@{viewModel.episodeData.title}"
+                android:textColor="#132629"
+                android:textSize="@dimen/text_very_huge"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+
+            <ImageButton
+                android:id="@+id/imagebutton_collapse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_down_24dp"
+                android:tint="#516771"
+                app:layout_constraintTop_toTopOf="@id/textview_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+
+            <com.makeramen.roundedimageview.RoundedImageView
+                android:id="@+id/imageview_thumbnail"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                android:contentDescription="@null"
+                app:imageUrl="@{viewModel.episodeData.imageUrl}"
+                android:src="@drawable/thumb_1_0"
+                app:riv_border_color="@color/light_gray"
+                app:riv_border_width="1dp"
+                app:riv_corner_radius="5dp"
+                app:layout_constraintStart_toStartOf="@id/imagebutton_collapse"
+                app:layout_constraintTop_toBottomOf="@id/textview_title"
+                app:layout_constraintBottom_toBottomOf="@id/textview_pubDate"
+                app:layout_constraintDimensionRatio="W,1:1"/>
+
+            <TextView
+                android:id="@+id/textview_podcast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/googlesans_regular"
+                android:text="@{viewModel.episodeData.podcastTitle}"
+                android:textColor="#414344"
+                android:gravity="start"
+                android:singleLine="true"
+                android:ellipsize="end"
+                app:layout_constraintTop_toBottomOf="@id/textview_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageview_thumbnail"/>
+
+            <TextView
+                android:id="@+id/textview_pubDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/googlesans_regular"
+                android:text="@{viewModel.episodeData.publishedFormat()}"
+                android:textColor="#414344"
+                android:gravity="start"
+                android:singleLine="true"
+                app:layout_constraintTop_toBottomOf="@id/textview_podcast"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/imageview_thumbnail"/>
+
+            <TextView
+                android:id="@+id/textview_description"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/googlesans_regular"
+                android:text="@{viewModel.episodeData.description}"
+                android:textSize="@dimen/text_medium"
+                android:lineSpacingExtra="8dp"
+                android:textColor="#3C4242"
+                android:gravity="start"
+                app:layout_constraintTop_toBottomOf="@id/textview_pubDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottom_app_bar_episode_info"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:layout_gravity="bottom"
+            android:elevation="@dimen/dp_5"
+            app:contentInsetStart="@dimen/element_margin_small"
+            app:fabAlignmentMode="end"
             />
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/imageview_thumbnail"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginTop="4dp"
-            android:contentDescription="@null"
-            app:imageUrl="@{viewModel.episodeData.imageUrl}"
-            android:src="@drawable/thumb_1_0"
-            app:riv_border_color="@color/light_gray"
-            app:riv_border_width="1dp"
-            app:riv_corner_radius="5dp"
-            app:layout_constraintStart_toStartOf="@id/imagebutton_collapse"
-            app:layout_constraintTop_toBottomOf="@id/textview_title"
-            app:layout_constraintDimensionRatio="W,1:1"/>
-
-        <TextView
-            android:id="@+id/textview_podcast"
-            android:layout_width="match_parent"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_episode_info"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="4dp"
-            android:fontFamily="@font/googlesans_regular"
-            android:text="@{viewModel.episodeData.podcastTitle}"
-            android:textColor="#414344"
-            android:gravity="start"
-            android:singleLine="true"
-            android:ellipsize="end"
-            app:layout_constraintTop_toBottomOf="@id/textview_title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/imageview_thumbnail"/>
+            android:src="@drawable/ic_play_24dp"
+            app:layout_anchor="@id/bottom_app_bar_episode_info"/>
 
-        <TextView
-            android:id="@+id/textview_pubDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="4dp"
-            android:fontFamily="@font/googlesans_regular"
-            android:text="@{viewModel.episodeData.publishedFormat()}"
-            android:textColor="#414344"
-            android:gravity="start"
-            android:singleLine="true"
-            app:layout_constraintTop_toBottomOf="@id/textview_podcast"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/imageview_thumbnail"/>
-
-        <TextView
-            android:id="@+id/textview_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="24dp"
-            android:fontFamily="@font/googlesans_regular"
-            android:text="@{viewModel.episodeData.description}"
-            android:textSize="@dimen/text_medium"
-            android:lineSpacingExtra="8dp"
-            android:textColor="#3C4242"
-            android:gravity="start"
-            app:layout_constraintTop_toBottomOf="@id/textview_pubDate"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

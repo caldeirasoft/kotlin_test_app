@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
-            name="viewModel"
-            type="com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoViewModel"/>
+            name="description"
+            type="androidx.lifecycle.MutableLiveData&lt;String>"/>
     </data>
 
     <LinearLayout
@@ -18,7 +18,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.descriptionData == null}">
+            android:visibility="@{description == null}">
             <include layout="@layout/shimmer_item_podcast_description"/>
         </FrameLayout>
 
@@ -26,12 +26,12 @@
             android:id="@+id/podcastDescription"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="@{viewModel.descriptionData}"
+            android:text="@{description}"
             android:layout_gravity="center_horizontal"
             android:textColor="#616161"
             android:textSize="@dimen/text_medium"
             android:fontFamily="sans-serif-light"
-            android:visibility="@{viewModel.descriptionData != null}"
+            android:visibility="@{description != null}"
             />
     </LinearLayout>
 </layout>

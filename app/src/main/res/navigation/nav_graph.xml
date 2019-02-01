@@ -6,15 +6,15 @@
     app:startDestination="@id/queueFragment">
     <fragment
         android:id="@+id/queueFragment"
-        android:name="com.caldeirasoft.basicapp.ui.queue.QueueFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.queue.QueueFragment"
         android:label="QueueFragment" />
     <fragment
         android:id="@+id/inboxFragment"
-        android:name="com.caldeirasoft.basicapp.ui.inbox.InboxFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.inbox.InboxFragment"
         android:label="InboxFragment" />
     <fragment
         android:id="@+id/podcastFragment"
-        android:name="com.caldeirasoft.basicapp.ui.podcast.PodcastFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragment"
         android:label="PodcastFragment" >
         <action
             android:id="@+id/action_podcastFragment_to_podcastInfoFragment"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/podcastInfoFragment"
-        android:name="com.caldeirasoft.basicapp.ui.podcastinfo.PodcastInfoFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoFragment"
         android:label="PodcastInfoFragment" >
         <action
             android:id="@+id/action_podcastInfoFragment_to_episodeInfoFragment"
@@ -30,11 +30,11 @@
     </fragment>
     <fragment
         android:id="@+id/episodeInfoFragment"
-        android:name="com.caldeirasoft.basicapp.ui.episodeinfo.EpisodeInfoFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoFragment"
         android:label="EpisodeInfoFragment" />
     <fragment
         android:id="@+id/discoverFragment"
-        android:name="com.caldeirasoft.basicapp.ui.discover.DiscoverFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverFragment"
         android:label="DiscoverFragment" >
         <action
             android:id="@+id/action_discoverFragment_to_podcastInfoFragment"

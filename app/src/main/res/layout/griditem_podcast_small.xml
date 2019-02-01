@@ -4,10 +4,7 @@
     <data>
         <variable
             name="podcast"
-            type="com.caldeirasoft.basicapp.data.entity.Podcast"/>
-        <variable
-            name="handler"
-            type="com.caldeirasoft.basicapp.ui.podcast.PodcastViewModel"/>
+            type="com.caldeirasoft.basicapp.domain.entity.Podcast"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

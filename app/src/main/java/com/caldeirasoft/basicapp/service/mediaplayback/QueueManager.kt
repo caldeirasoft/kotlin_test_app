@@ -6,15 +6,10 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
-import com.caldeirasoft.basicapp.App
-import com.caldeirasoft.basicapp.data.db.episodes.EpisodeDao
-import com.caldeirasoft.basicapp.data.entity.Episode
-import com.caldeirasoft.basicapp.data.entity.Podcast
-import com.github.salomonbrys.kodein.LazyKodein
-import com.github.salomonbrys.kodein.LazyKodeinAware
-import org.jetbrains.anko.doAsync
+import com.caldeirasoft.basicapp.data.datasources.local.dao.EpisodeDao
+import com.caldeirasoft.basicapp.domain.entity.Episode
+import com.caldeirasoft.basicapp.domain.entity.Podcast
 import org.jetbrains.anko.doAsyncResult
-import org.jetbrains.anko.onComplete
 import java.util.ArrayList
 
 /**

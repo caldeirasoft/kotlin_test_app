@@ -10,7 +10,7 @@
     app:flexDirection="column"
     app:alignItems="stretch"
     app:alignContent="stretch"
-    tools:context="com.caldeirasoft.basicapp.ui.home.MainActivity">
+    tools:context="com.caldeirasoft.basicapp.presentation.ui.MainActivity">
 
     <fragment
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -26,7 +26,7 @@
         />
 
     <fragment
-        android:name="com.caldeirasoft.basicapp.ui.mediaplayback.MediaPlaybackControlsFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.mediaplayback.MediaPlaybackControlsFragment"
         android:id="@+id/fragment_playback_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
