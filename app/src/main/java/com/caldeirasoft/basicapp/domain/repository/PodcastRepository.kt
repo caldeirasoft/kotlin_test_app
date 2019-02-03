@@ -22,15 +22,15 @@ interface PodcastRepository {
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it
      */
-    fun insertPodcast(podcast: Podcast)
+    suspend fun insertPodcast(podcast: Podcast)
 
     /**
      * Update a podcast
      */
-    fun updatePodcast(podcast: Podcast)
+    suspend fun updatePodcast(podcast: Podcast)
 
     /**
      * Delete a podcast
      */
-    fun deletePodcast(podcast: Podcast)
+    suspend fun deletePodcast(podcast: Podcast)
 }

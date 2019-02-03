@@ -1,31 +1,26 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
-import android.app.AlertDialog
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.content.ContextCompat
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.airbnb.epoxy.EpoxyTouchHelper
+import com.airbnb.epoxy.EpoxyTouchHelperExtended
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.domain.entity.SubscribeAction
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
 import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.domain.entity.Podcast
 import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
 import com.caldeirasoft.basicapp.presentation.extensions.color
-import com.caldeirasoft.basicapp.presentation.extensions.drawableToBitmap
 import com.caldeirasoft.basicapp.presentation.extensions.lazyArg
-import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.utils.SwipeAwayCallbacks
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.marozzi.roundbutton.RoundButton
@@ -81,7 +76,7 @@ class PodcastInfoFragment :
         }
 
         mViewModel.isLoading.observeK(this) {
-            mBinding.shimmerLayout.isVisible = (it ?: false)
+            mBinding.shimmerLayout.isVisible = (it ?: true)
         }
 
         // set button subscribe
@@ -142,7 +137,16 @@ class PodcastInfoFragment :
         mBinding.apply {
             // recycler view
             recyclerView.setController(controller)
-            recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
+            recyclerView.addItemDecoration(
+                    DividerItemDecoration(activity, LinearLayoutManager.VERTICAL)
+                            .also {
+                                ContextCompat
+                                        .getDrawable(requireContext(), R.drawable.shp_list_divider)
+                                        ?.let { drawable ->
+                                            it.setDrawable(drawable)
+                                        }
+                            }
+            )
         }
     }
 
@@ -195,7 +199,7 @@ class PodcastInfoFragment :
                 //mViewModel.removeFavoriteAlbum(model.id())
             }
 
-            override fun onSwipeStarted(model: ItemEpisodePodcastBindingModel_, itemView: View?, adapterPosition: Int) {
+            override fun onSwipeStarted(model: ItemEpisodePodcastBindingModel_, itemView: View, adapterPosition: Int) {
                 super.onSwipeStarted(model, itemView, adapterPosition)
                 mBinding.recyclerView.let { recyclerView ->
                     /*
@@ -222,7 +226,7 @@ class PodcastInfoFragment :
             }
 
 
-            override fun onSwipeReleased(model: ItemEpisodePodcastBindingModel_?, itemView: View?) {
+            override fun onSwipeReleased(model: ItemEpisodePodcastBindingModel_, itemView: View) {
                 super.onSwipeReleased(model, itemView)
                 /*
                 removableItemDecoration?.second?.let { itemDecoration ->
@@ -237,11 +241,10 @@ class PodcastInfoFragment :
 
         }
 
-        EpoxyTouchHelper.initSwiping(mBinding.recyclerView)
+        EpoxyTouchHelperExtended.initSwiping(mBinding.recyclerView)
                 .let { if (view?.layoutDirection == View.LAYOUT_DIRECTION_RTL) it.right() else it.left() }
                 .withTarget(ItemEpisodePodcastBindingModel_::class.java)
                 .andCallbacks(swipeCallback)
-
 
     }
 

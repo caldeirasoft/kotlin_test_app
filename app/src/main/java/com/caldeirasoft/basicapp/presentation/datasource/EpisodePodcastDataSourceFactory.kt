@@ -20,26 +20,30 @@ class EpisodePodcastDataSourceFactory (
         val getEpisodesFromFeedlyUseCase: GetEpisodesFromFeedlyUseCase
         ) : DataSource.Factory<Int, Episode>()
 {
-    var isLoading: LiveData<Boolean> = MutableLiveData()
-    val sourceLiveData = MutableLiveData<DataSource<Int, Episode>>()
+    var isLoading: LiveData<Boolean>
+    val sourceLiveData = MutableLiveData<EpisodeFeedlyDataSource>()
     val dataProvider = EpisodeFeedlyDataProvider()
+
+    init {
+        isLoading = Transformations.switchMap(sourceLiveData) { it.isLoading }
+    }
 
     override fun create(): DataSource<Int, Episode> {
         val source: DataSource<Int, Episode> =
                 when (section) {
                     null -> {
-                        val e = EpisodeFeedlyDataSource(
+                        EpisodeFeedlyDataSource(
                                 feed = feed,
                                 getEpisodesFromFeedlyUseCase = getEpisodesFromFeedlyUseCase,
                                 dataProvider = dataProvider)
-                        isLoading = Transformations.map(e.isLoading) { it }
-                        e
+                                .also {
+                                    sourceLiveData.postValue(it)
+                                }
                     }
                     else -> {
                         episodeRepository.fetchEpisodesBySection(section!!).create()
                     }
                 }
-        sourceLiveData.postValue(source)
         return source
     }
 

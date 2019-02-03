@@ -73,65 +73,65 @@ interface EpisodeRepository {
     /**
      * Insert an episode in the database. If the podcast already exists, replace it
      */
-    fun insertEpisode(episode: Episode)
+    suspend fun insertEpisode(episode: Episode)
 
     /**
      * Update a podcast
      */
-    fun updatePodcast(podcast: Podcast)
+    suspend fun updatePodcast(podcast: Podcast)
 
     /**
      * Update an episode
      */
-    fun updateEpisode(episode: Episode)
+    suspend fun updateEpisode(episode: Episode)
 
     /**
      * Update a list of episodes
      */
-    fun updateEpisodes(episodes: List<Episode>)
+    suspend fun updateEpisodes(episodes: List<Episode>)
 
     /**
      * Delete an episode
      */
-    fun deleteEpisode(episode: Episode)
+    suspend fun deleteEpisode(episode: Episode)
 
     /**
      * Delete episodes of a podcast by its feedId
      */
-    fun deleteEpisodes(feedUrl: String)
+    suspend fun deleteEpisodes(feedUrl: String)
 
     /**
      * Archive episode
      */
-    fun archiveEpisode(episode: Episode)
+    suspend fun archiveEpisode(episode: Episode)
 
     /**
      * Toggle episode favorite status
      */
-    fun toggleEpisodeFavorite(episode: Episode)
+    suspend fun toggleEpisodeFavorite(episode: Episode)
 
     /**
      * Queue episode first
      */
-    fun queueEpisodeFirst(episode: Episode)
+    suspend fun queueEpisodeFirst(episode: Episode)
 
     /**
      * Queue episode last
      */
-    fun queueEpisodeLast(episode: Episode)
+    suspend fun queueEpisodeLast(episode: Episode)
 
     /**
      * Queue episode last
      */
-    fun playEpisode(episode: Episode)
+    suspend fun playEpisode(episode: Episode)
 
     /**
      * Reorder playlist queue
      */
-    fun reorderQueue()
+    suspend fun reorderQueue()
 
     /**
      * Insert episode if not exists
      */
-    fun upsertEpisode(episode: Episode)
+    suspend fun upsertEpisode(episode: Episode)
 }

@@ -56,7 +56,7 @@ class PodcastInfoViewModel(
             = EpisodePodcastDataSourceFactory(podcast, sectionData.value, episodeRepository, getEpisodesFromFeedlyUseCase)
 
     val isLoading: LiveData<Boolean> by lazy {
-        Transformations.map(episodePodcastDataSourceFactory.isLoading) { it }
+        Transformations.switchMap(episodePodcastDataSourceFactory.sourceLiveData) { it.isLoading }
     }
 
     var pagedList: LiveData<PagedList<Episode>>

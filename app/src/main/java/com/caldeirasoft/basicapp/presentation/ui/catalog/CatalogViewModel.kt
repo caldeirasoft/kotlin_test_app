@@ -87,22 +87,6 @@ class CatalogViewModel(
      */
     fun onPodcastSubscribe(podcast: Podcast)
     {
-        podcast.apply {
-            when (isInDatabase)
-            {
-                false -> { // not yet in database : subscribe
-                    podcastRepository.insertPodcast(this)
-                    isInDatabase = true
-                }
-                true -> { // in database : remove
-                    podcastRepository.deletePodcast(this)
-                    isInDatabase = false
-                }
-            }
-
-            updatePodcastEvent.value = this
-            updatePodcastSubscriptionEvent.value = this
-        }
     }
 
     companion object {

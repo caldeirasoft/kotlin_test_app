@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyTouchHelper
+import com.airbnb.epoxy.EpoxyTouchHelperExtended
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -23,7 +24,7 @@ abstract class SwipeAwayCallbacks<T : EpoxyModel<*>>(
         private val padding: Int,
         @ColorInt private val backgroundColor: Int,
         @ColorInt private val accentColor: Int
-) : EpoxyTouchHelper.SwipeCallbacks<T>() {
+) : EpoxyTouchHelperExtended.SwipeCallbacksExtended<T>() {
     private val rect = RectF()
     private val iconBounds = Rect()
 

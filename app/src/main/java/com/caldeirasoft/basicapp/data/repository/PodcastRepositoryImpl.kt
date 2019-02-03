@@ -4,6 +4,8 @@ import androidx.lifecycle.*
 import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
 import com.caldeirasoft.basicapp.domain.entity.Podcast
 import com.caldeirasoft.basicapp.data.datasources.local.dao.PodcastDao
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.jetbrains.anko.doAsync
 
 /**
@@ -23,9 +25,9 @@ class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it
      */
-    override fun insertPodcast(podcast: Podcast)
+    override suspend fun insertPodcast(podcast: Podcast)
     {
-        doAsync {
+        withContext(Dispatchers.IO){
             podcastDao.insertPodcast(podcast)
         }
     }
@@ -33,8 +35,8 @@ class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository
     /**
      * Update a podcast
      */
-    override fun updatePodcast(podcast: Podcast) {
-        doAsync {
+    override suspend fun updatePodcast(podcast: Podcast) {
+        withContext(Dispatchers.IO) {
             podcastDao.updatePodcast(podcast)
         }
     }
@@ -42,8 +44,8 @@ class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository
     /**
      * Delete a podcast
      */
-    override fun deletePodcast(podcast: Podcast) {
-        doAsync {
+    override suspend fun deletePodcast(podcast: Podcast) {
+        withContext(Dispatchers.IO) {
             podcastDao.deletePodcast(podcast)
         }
     }

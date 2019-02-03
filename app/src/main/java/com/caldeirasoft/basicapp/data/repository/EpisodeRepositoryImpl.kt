@@ -9,8 +9,7 @@ import com.caldeirasoft.basicapp.domain.entity.Podcast
 import com.caldeirasoft.basicapp.domain.entity.PodcastWithCount
 import com.caldeirasoft.basicapp.domain.entity.SectionWithCount
 import com.caldeirasoft.basicapp.domain.entity.SectionState
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.jetbrains.anko.doAsyncResult
 
 /**
@@ -40,38 +39,38 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
 
     override fun getEpisodeLive(episodeId:String): LiveData<Episode> = episodeDao.getEpisodeLive(episodeId)
 
-    override fun insertEpisode(episode: Episode) {
-        GlobalScope.launch {
+    override suspend fun insertEpisode(episode: Episode) {
+        withContext(Dispatchers.IO){
             episodeDao.insertEpisode(episode)
         }
     }
 
-    override fun updatePodcast(podcast: Podcast) {
-        GlobalScope.launch {
+    override suspend fun updatePodcast(podcast: Podcast) {
+        withContext(Dispatchers.IO){
             episodeDao.updatePodcast(podcast)
         }
     }
 
-    override fun updateEpisode(episode: Episode) {
-        GlobalScope.launch {
+    override suspend fun updateEpisode(episode: Episode) {
+        withContext(Dispatchers.IO){
             episodeDao.updateEpisode(episode)
         }
     }
 
-    override fun updateEpisodes(episodes: List<Episode>) {
-        GlobalScope.launch {
+    override suspend fun updateEpisodes(episodes: List<Episode>) {
+        withContext(Dispatchers.IO) {
             episodeDao.updateEpisodes(episodes)
         }
     }
 
-    override fun deleteEpisode(episode: Episode) {
-        GlobalScope.launch {
+    override suspend fun deleteEpisode(episode: Episode) {
+        withContext(Dispatchers.IO){
             episodeDao.deleteEpisode(episode)
         }
     }
 
-    override fun deleteEpisodes(feedUrl: String) {
-        GlobalScope.launch {
+    override suspend fun deleteEpisodes(feedUrl: String) {
+        withContext(Dispatchers.IO){
             episodeDao.deleteEpisodes(feedUrl)
         }
     }
@@ -79,7 +78,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Archive episode
      */
-    override fun archiveEpisode(episode: Episode) {
+    override suspend fun archiveEpisode(episode: Episode) {
         val lastSection = episode.section
         episode.section = SectionState.ARCHIVE.value
         updateEpisode(episode)
@@ -91,7 +90,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Toggle episode favorite status
      */
-    override fun toggleEpisodeFavorite(episode: Episode) {
+    override suspend fun toggleEpisodeFavorite(episode: Episode) {
         episode.isFavorite = !episode.isFavorite
         upsertEpisode(episode)
     }
@@ -99,7 +98,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Queue episode first
      */
-    override fun queueEpisodeFirst(episode: Episode) {
+    override suspend fun queueEpisodeFirst(episode: Episode) {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().let {
             when (it.isEmpty()) {
@@ -118,7 +117,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Queue episode last
      */
-    override fun queueEpisodeLast(episode: Episode) {
+    override suspend fun queueEpisodeLast(episode: Episode) {
         // get queue size
         val queueSize = getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().size
         episode.section = SectionState.QUEUE.value
@@ -129,7 +128,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Queue episode last
      */
-    override fun playEpisode(episode: Episode) {
+    override suspend fun playEpisode(episode: Episode) {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value.orEmpty().let {
             it.forEachIndexed { i, episode -> episode.queuePosition = i + 1 }
@@ -145,7 +144,7 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Queue episode first
      */
-    override fun reorderQueue() {
+    override suspend fun reorderQueue() {
         // move all episodes from queue down 1 position
         getEpisodesBySection(SectionState.QUEUE.value).value?.let {
             it.forEachIndexed { i, episode -> episode.queuePosition = i }
@@ -156,12 +155,14 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
     /**
      * Insert episode if not exists
      */
-    override fun upsertEpisode(episode: Episode) {
-        doAsyncResult { getEpisodeByUrl(episode.feedUrl, episode.mediaUrl) }.get().let {
-            if (it != null)
-                updateEpisode(episode)
-            else
-                insertEpisode(episode)
+    override suspend fun upsertEpisode(episode: Episode) {
+        GlobalScope.launch {
+            getEpisodeByUrl(episode.feedUrl, episode.mediaUrl).let {
+                if (it != null)
+                    updateEpisode(episode)
+                else
+                    insertEpisode(episode)
+            }
         }
     }
 }
