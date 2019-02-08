@@ -1,9 +1,6 @@
-package com.caldeirasoft.basicapp.presentation.extensions
+package com.caldeirasoft.basicapp.presentation.utils.extensions
 
-import com.airbnb.epoxy.CarouselModelBuilder
-import com.airbnb.epoxy.CarouselModel_
-import com.airbnb.epoxy.EpoxyController
-import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.*
 
 /**
  * For use in the buildModels method of EpoxyController.
@@ -27,3 +24,15 @@ inline fun <T> CarouselModelBuilder.withModelsFrom(
 ) {
     models(items.map { modelBuilder(it) })
 }
+
+/**
+ * Easily add models to an EpoxyRecyclerView, the same way you would in a buildModels method of EpoxyController
+ */
+fun EpoxyRecyclerView.withModels(buildModelsCallback: EpoxyController.() -> Unit) {
+    setControllerAndBuildModels(object : EpoxyController() {
+        override fun buildModels() {
+            buildModelsCallback()
+        }
+    })
+}
+

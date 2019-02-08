@@ -1,24 +1,17 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
 import androidx.lifecycle.*
-import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.presentation.datasource.EpisodeDbDataSourceFactory
-import com.caldeirasoft.basicapp.presentation.datasource.EpisodeFeedlyDataSourceFactory
 import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.domain.entity.Podcast
 import com.caldeirasoft.basicapp.domain.entity.SectionWithCount
-import com.caldeirasoft.basicapp.domain.entity.SectionState
-import com.caldeirasoft.basicapp.domain.entity.SubscribeAction
 import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
-import com.caldeirasoft.basicapp.domain.repository.FeedlyRepository
 import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
 import com.caldeirasoft.basicapp.domain.usecase.*
 import com.caldeirasoft.basicapp.presentation.datasource.EpisodePodcastDataSourceFactory
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -56,7 +49,7 @@ class PodcastInfoViewModel(
             = EpisodePodcastDataSourceFactory(podcast, sectionData.value, episodeRepository, getEpisodesFromFeedlyUseCase)
 
     val isLoading: LiveData<Boolean> by lazy {
-        Transformations.map(episodePodcastDataSourceFactory.isLoading) { it }
+        Transformations.switchMap(episodePodcastDataSourceFactory.sourceLiveData) { it.isLoading }
     }
 
     var pagedList: LiveData<PagedList<Episode>>

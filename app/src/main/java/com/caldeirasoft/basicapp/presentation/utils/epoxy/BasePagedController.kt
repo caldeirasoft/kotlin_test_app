@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.presentation.ui.base
+package com.caldeirasoft.basicapp.presentation.utils.epoxy
 
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -7,7 +7,8 @@ import com.airbnb.epoxy.EpoxyAsyncUtil
 import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.presentation.utils.defaultItemDiffCallback
 
-abstract class BasePagedController<T>(val itemDiffCallback: DiffUtil.ItemCallback<T> = defaultItemDiffCallback()) :
+abstract class BasePagedController<T>(
+        itemDiffCallback: DiffUtil.ItemCallback<T> = defaultItemDiffCallback()) :
         PagedListEpoxyController<T>(
                 modelBuildingHandler = EpoxyAsyncUtil.getAsyncBackgroundHandler(),
                 diffingHandler = EpoxyAsyncUtil.getAsyncBackgroundHandler(),

@@ -1,9 +1,8 @@
-package com.caldeirasoft.basicapp.presentation.extensions
+package com.caldeirasoft.basicapp.presentation.utils.extensions
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat

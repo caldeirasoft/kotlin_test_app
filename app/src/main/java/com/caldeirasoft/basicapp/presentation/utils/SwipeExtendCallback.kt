@@ -92,9 +92,9 @@ abstract class SwipeExtendCallback(swipeDirs: Int,
             val bgColor = if (isAboveThresold) action.backgroundColor else disabledBackgroundColor
             val fgColor = if (isDark(bgColor)) Color.WHITE else Color.BLACK
 
-            var backgroundBounds = Rect()
-            var swipeIconBounds = Rect()
-            var swipeTextBounds = Rect()
+            val backgroundBounds = Rect()
+            val swipeIconBounds = Rect()
+            val swipeTextBounds = Rect()
 
             val textPaint = Paint()
             textPaint.color = fgColor

@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:bind="http://schemas.android.com/apk/res-auto">
+    xmlns:bind="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <import type="android.view.View" />
+        <import type="androidx.lifecycle.MutableLiveData"/>
         <variable
             name="viewModel"
-            type="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverViewModel"/>
+            type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel"/>
+        <variable
+            name="onSubscribe"
+            type="android.view.View.OnClickListener"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout_root"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:fitsSystemWindows="true"
         android:background="?android:attr/windowBackground">
 
         <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
@@ -23,36 +27,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <include layout="@layout/fragment_discover_header"
-                    bind:viewModel="@{viewModel}"/>
+            <include layout="@layout/fragment_podcastdetail_header"
+                    bind:viewModel="@{viewModel}"
+                    bind:onSubscribe="@{onSubscribe}"/>
 
         </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
 
         <!-- placeholder -->
         <FrameLayout
+            android:id="@+id/shimmerLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground"
-            android:visibility="@{viewModel.isLoading}"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:alpha="0">
 
-            <include
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                layout="@layout/shimmer_discover"
-                android:layout_gravity="top|fill_horizontal"/>
+            <include layout="@layout/shimmer_podcastdetail"/>
 
         </FrameLayout>
 
         <!-- list -->
         <com.airbnb.epoxy.EpoxyRecyclerView
             android:id="@+id/recyclerView"
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="?android:attr/colorBackground"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:visibility="@{!viewModel.isLoading}"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

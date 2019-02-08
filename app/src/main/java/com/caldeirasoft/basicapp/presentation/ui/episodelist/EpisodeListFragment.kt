@@ -1,55 +1,38 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodelist
 
-import android.os.Bundle
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.navigation.Navigation.findNavController
+import android.widget.ImageView
+import androidx.core.view.ViewCompat
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.paging.PagedListEpoxyController
+import com.caldeirasoft.basicapp.ItemEpisodeBindingModel_
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.databinding.FragmentEpisodelistBinding
+import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.presentation.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
+import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
+import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import kotlinx.android.synthetic.main.fragment_episodelist.*
 
 
-abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>(), EpisodeListController.Callbacks {
+abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>() {
 
     protected var showHeader:Boolean = true
     protected abstract val mViewModel:EpisodeListViewModel
-    protected val controller = EpisodeListController(this)
+    private val controller by lazy { createEpoxyController() }
 
     override fun onCreate() {
-        initMotionLayout()
         initObservers()
         initUi()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mViewModel.episodes.removeObservers(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!showHeader)
-            motionLayout_root.transitionToEnd()
-    }
-
-    private fun initMotionLayout() {
-        motionLayout_root.setTransitionListener(object: MotionLayout.TransitionListener {
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
-            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
-            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                showHeader = (p1 != R.id.end)
-            }
-        })
-    }
-
     private fun initObservers() {
-        mViewModel.episodes.observeK(this) {
-            controller.setData(it)
+        mViewModel.episodes.observeK(this) { data ->
+            controller.submitList(data)
         }
     }
 
@@ -58,15 +41,33 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
         recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
-    override fun onEpisodeClick(episode: Episode) {
-        view?.let {
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_FEED_ID, episode)
-            findNavController(it).navigate(R.id.action_podcastFragment_to_podcastInfoFragment, bundle)
-        }
-    }
+    private fun createEpoxyController(): PagedListEpoxyController<Episode> =
+            object : BasePagedController<Episode>() {
+                override fun buildItemModel(currentPosition: Int, item: Episode?): EpoxyModel<*> {
+                    item?.let {
+                        return ItemEpisodeBindingModel_()
+                                .id(item.episodeId)
+                                .title(item.title)
+                                .duration(item.durationFormat())
+                                .imageUrl(item.imageUrl)
+                                .onEpisodeClick { model, parentView, clickedView, position ->
+                                    val transitionName = "iv_episode$position"
+                                    val rootView = parentView.dataBinding.root
+                                    val imageView: ImageView = rootView.findViewById(R.id.imageview_thumbnail)
+                                    ViewCompat.setTransitionName(imageView, transitionName)
 
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
-    }
+                                    val direction =
+                                            getEpisodeDirection(item, transitionName)
+                                    val extras = FragmentNavigatorExtras(
+                                            imageView to transitionName)
+                                    navigateTo(direction)
+                                }
+                    } ?: run {
+                        return ItemEpisodeBindingModel_()
+                                .id(currentPosition)
+                    }
+                }
+            }
+
+    abstract fun getEpisodeDirection(episode: Episode, transitionName:String): NavDirections
 }

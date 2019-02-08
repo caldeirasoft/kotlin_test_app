@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <import type="android.view.View" />
+    <variable
+        name="title"
+        type="String"/>
+    <variable
+        name="backButtonVisible"
+        type="Boolean"/>
+  </data>
+
+  <com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar
+      android:id="@+id/motionLayout_root"
+      android:layout_width="match_parent"
+      android:layout_height="250dp"
+      android:minHeight="?attr/actionBarSize"
+      android:orientation="vertical"
+      android:fitsSystemWindows="true"
+      android:background="?android:attr/windowBackground"
+      app:layoutDescription="@xml/scene_podcasts"
+      app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
+
+    <LinearLayout
+        android:id="@+id/layout_title"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+      <TextView
+          android:id="@+id/textview_title"
+          android:layout_height="wrap_content"
+          android:layout_width="match_parent"
+          android:layout_gravity="center"
+          android:gravity="center"
+          android:text="@string/podcasts"
+          android:paddingStart="@dimen/element_margin_small"
+          android:paddingEnd="@dimen/element_margin_small"
+          style = "@style/TextAppearance.MaterialComponents.Headline4"/>
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/details_appbar"
+        android:layout_width="0dp"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="?android:attr/colorBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="5dp">
+
+      <TextView
+          android:id="@+id/appbar_title"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_gravity="start"
+          android:gravity="start"
+          android:ellipsize="end"
+          android:scrollHorizontally="true"
+          android:marqueeRepeatLimit="marquee_forever"
+          android:elevation="5dp"
+          android:text="@string/podcasts"
+          android:singleLine="true"
+          android:layout_marginTop="@dimen/dp_5"
+          android:layout_marginBottom="@dimen/dp_5"
+          android:paddingStart="@dimen/element_margin_small"
+          android:paddingEnd="@dimen/element_margin_small"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintTop_toTopOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          style = "@style/TextAppearance.MaterialComponents.Headline6"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+  </com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar>
+</layout>

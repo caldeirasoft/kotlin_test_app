@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.presentation.extensions
+package com.caldeirasoft.basicapp.presentation.utils.extensions
 
 import android.util.Log
 import androidx.fragment.app.Fragment

@@ -1,29 +1,20 @@
-package com.caldeirasoft.basicapp.presentation.utils
+package com.caldeirasoft.basicapp.presentation.utils.epoxy
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.*
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
-import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.graphics.ColorUtils
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyModel
-import com.airbnb.epoxy.EpoxyTouchHelper
-import java.util.*
 import kotlin.math.roundToInt
 
 
-abstract class SwipeAwayCallbacks<T : EpoxyModel<*>>(
+abstract class SwipeCallbacks<T : EpoxyModel<*>>(
         private val icon: Drawable,
         private val padding: Int,
         @ColorInt private val backgroundColor: Int,
         @ColorInt private val accentColor: Int
-) : EpoxyTouchHelper.SwipeCallbacks<T>() {
+) : EpoxyTouchHelperExt.SwipeCallbacksExt<T>() {
+
     private val rect = RectF()
     private val iconBounds = Rect()
 
@@ -70,7 +61,7 @@ abstract class SwipeAwayCallbacks<T : EpoxyModel<*>>(
             canvas.clipRect(rect)
 
             val startValue = iconBounds.right + padding / 2
-            val endValue = rect.left + itemView.width / 2
+            val endValue = rect.left + itemView.width * getCompletionThreshold()
             if (rect.right >= startValue) {
                 val fraction =
                         ((rect.right - startValue) / (endValue - startValue)).coerceIn(0f, 1f)
@@ -93,7 +84,7 @@ abstract class SwipeAwayCallbacks<T : EpoxyModel<*>>(
             canvas.clipRect(rect)
 
             val startValue = iconBounds.left - padding / 2
-            val endValue = rect.right - itemView.width / 2
+            val endValue = rect.right - itemView.width * getCompletionThreshold()
             if (rect.left <= startValue) {
                 val fraction = ((rect.left - startValue) / (endValue - startValue)).coerceIn(0f, 1f)
                 val maxRadius = Math.hypot(
@@ -125,6 +116,14 @@ abstract class SwipeAwayCallbacks<T : EpoxyModel<*>>(
         icon.draw(canvas)
 
         canvas.restoreToCount(save)
+    }
+
+    open fun getCompletionThreshold(): Float {
+        return super.getSwipeThreshold()
+    }
+
+    override fun getSwipeThreshold(): Float {
+        return super.getSwipeThreshold()
     }
 
     fun lerp(startValue: Float, endValue: Float, fraction: Float) =

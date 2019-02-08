@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.presentation.extensions
+package com.caldeirasoft.basicapp.presentation.utils.extensions
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData

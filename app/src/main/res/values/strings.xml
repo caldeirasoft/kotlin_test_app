@@ -79,4 +79,6 @@
     <string name="label_all">All</string>
 
     <string name="concat_separator"><![CDATA[<font color="#FF8000">%1$s</font> %2$s]]></string>
+
+    <string name="imageTransition">full_image</string>
 </resources>

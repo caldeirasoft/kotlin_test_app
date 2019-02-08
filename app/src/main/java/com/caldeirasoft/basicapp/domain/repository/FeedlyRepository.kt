@@ -2,7 +2,6 @@ package com.caldeirasoft.basicapp.domain.repository;
 
 import com.caldeirasoft.basicapp.data.dto.feedly.EntryDto
 import com.caldeirasoft.basicapp.data.dto.feedly.StreamEntriesDto
-import com.caldeirasoft.basicapp.presentation.datasource.EpisodeFeedlyDataSourceFactory
 import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.domain.entity.Podcast;
 import kotlinx.coroutines.Deferred

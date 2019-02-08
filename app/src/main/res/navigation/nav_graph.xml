@@ -7,37 +7,88 @@
     <fragment
         android:id="@+id/queueFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.queue.QueueFragment"
-        android:label="QueueFragment" />
+        android:label="QueueFragment" >
+        <action
+            android:id="@+id/go_to_episode"
+            app:destination="@+id/episodeInfoFragment"
+            app:enterAnim="@anim/slide_in_top"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@anim/slide_page_pop_exit"/>
+    </fragment>
     <fragment
         android:id="@+id/inboxFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.inbox.InboxFragment"
-        android:label="InboxFragment" />
+        android:label="InboxFragment" >
+        <action
+            android:id="@+id/go_to_episode"
+            app:destination="@id/episodeInfoFragment"
+            app:enterAnim="@anim/slide_in_top"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@anim/slide_page_pop_exit"/>
+    </fragment>
     <fragment
         android:id="@+id/podcastFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragment"
         android:label="PodcastFragment" >
         <action
-            android:id="@+id/action_podcastFragment_to_podcastInfoFragment"
-            app:destination="@id/podcastInfoFragment" />
+            android:id="@+id/go_to_podcast"
+            app:destination="@id/podcastInfoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/podcastInfoFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoFragment"
         android:label="PodcastInfoFragment" >
+        <argument
+            android:name="podcast"
+            app:argType="com.caldeirasoft.basicapp.domain.entity.Podcast" />
+        <argument
+            android:name="transitionName"
+            app:argType="string"
+            app:nullable="true" />
         <action
-            android:id="@+id/action_podcastInfoFragment_to_episodeInfoFragment"
-            app:destination="@id/episodeInfoFragment" />
+            android:id="@+id/go_to_episode"
+            app:destination="@id/episodeInfoDialogFragment" />
     </fragment>
     <fragment
         android:id="@+id/episodeInfoFragment"
-        android:name="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoFragment"
-        android:label="EpisodeInfoFragment" />
+        android:name="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoFragment2"
+        android:label="EpisodeInfoFragment" >
+        <argument
+            android:name="episode"
+            app:argType="com.caldeirasoft.basicapp.domain.entity.Episode"
+            app:enterAnim="@anim/slide_in_top"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@anim/slide_page_pop_exit"/>
+        <argument
+            android:name="transitionName"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
     <fragment
         android:id="@+id/discoverFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverFragment"
         android:label="DiscoverFragment" >
         <action
-            android:id="@+id/action_discoverFragment_to_podcastInfoFragment"
-            app:destination="@id/podcastInfoFragment" />
+            android:id="@+id/go_to_podcast"
+            app:destination="@id/podcastInfoFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/episodeInfoDialogFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment"
+        android:label="EpisodeInfoDialogFragment" >
+        <argument
+            android:name="episode"
+            app:argType="com.caldeirasoft.basicapp.domain.entity.Episode" />
     </fragment>
 </navigation>

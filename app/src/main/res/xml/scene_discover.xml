@@ -4,13 +4,7 @@
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
     <Transition app:constraintSetStart="@id/start"
-                app:constraintSetEnd="@id/end"
-                app:duration="500"
-                motion:interpolator="linear">
-        <OnSwipe
-            app:touchAnchorId="@id/recyclerView"
-            app:dragDirection="dragUp"
-            app:touchAnchorSide="top"/>
+                app:constraintSetEnd="@id/end">
     </Transition>
 
     <ConstraintSet android:id="@+id/start">

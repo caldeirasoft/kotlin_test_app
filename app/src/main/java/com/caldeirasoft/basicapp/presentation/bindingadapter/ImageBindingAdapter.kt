@@ -73,7 +73,7 @@ private fun setImageCallback(imageView: ImageView, scrimView: View?): Callback {
                 override fun onGenerated(palette: Palette?) {
                     val defaultColor = imageView.resources.getColor(R.color.black)
                     val vibrantColor = palette?.getDarkVibrantColor(defaultColor)?.let {
-                        scrimView?.setBackgroundColor(it)
+                        //scrimView?.setBackgroundColor(it)
                     }
                 }
             })

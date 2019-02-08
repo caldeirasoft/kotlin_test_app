@@ -2,6 +2,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+//Apply Safe Args Plugin
+apply plugin: 'androidx.navigation.safeargs'
+
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -46,7 +49,7 @@ dependencies {
 
     // Android
     implementation "androidx.appcompat:appcompat:1.1.0-alpha01"
-    implementation "com.google.android.material:material:1.1.0-alpha02"
+    implementation "com.google.android.material:material:1.1.0-alpha03"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation 'com.android.support:coordinatorlayout:28.0.0'
     implementation "androidx.cardview:cardview:1.0.0"
@@ -62,8 +65,8 @@ dependencies {
     // Android-Paging
     implementation "android.arch.paging:runtime:1.0.1"
     // Android-Navigation
-    implementation 'android.arch.navigation:navigation-fragment:1.0.0-alpha11'
-    implementation 'android.arch.navigation:navigation-ui:1.0.0-alpha11'
+    implementation 'android.arch.navigation:navigation-fragment-ktx:1.0.0-beta01'
+    implementation 'android.arch.navigation:navigation-ui-ktx:1.0.0-beta01'
 
     // Anko
     implementation "org.jetbrains.anko:anko:0.10.5"
@@ -132,9 +135,6 @@ dependencies {
     // RoundedImageView
     implementation 'com.makeramen:roundedimageview:2.3.0'
 
-    // Shape of view
-    // implementation 'com.github.florent37:shapeofview:1.4.6'
-
     // Skeleton
     implementation 'com.ethanhua:skeleton:1.1.1'
     implementation 'io.supercharge:shimmerlayout:2.1.0'
@@ -144,6 +144,9 @@ dependencies {
 
     // Sticky header decoration
     implementation 'com.github.qdxxxx:StickyHeaderDecoration:1.0.1'
+
+    // SuperBottomSheet
+    implementation 'com.github.andrefrsousa:SuperBottomSheet:1.2.3'
 
     // ThreeTenABP (Java Time)
     implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'

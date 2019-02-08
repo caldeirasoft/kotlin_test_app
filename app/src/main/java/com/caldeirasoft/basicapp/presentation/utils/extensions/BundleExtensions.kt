@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.presentation.extensions
+package com.caldeirasoft.basicapp.presentation.utils.extensions
 
 import android.app.Activity
 import android.content.Intent

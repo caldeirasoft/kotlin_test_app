@@ -1,26 +1,32 @@
 package com.caldeirasoft.basicapp.presentation.ui.discover
 
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.navigation.Navigation
 import android.view.ViewGroup
-import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.domain.entity.Podcast
+import android.widget.ImageView
+import androidx.constraintlayout.motion.widget.MotionLayout
+import androidx.core.view.ViewCompat
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import com.airbnb.epoxy.DataBindingEpoxyModel
+import com.airbnb.epoxy.EpoxyRecyclerView
+import com.airbnb.epoxy.TypedEpoxyController
+import com.caldeirasoft.basicapp.*
 import com.caldeirasoft.basicapp.databinding.FragmentDiscoverBinding
+import com.caldeirasoft.basicapp.domain.entity.ItunesSection
+import com.caldeirasoft.basicapp.domain.entity.ItunesStore
+import com.caldeirasoft.basicapp.domain.entity.Podcast
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.presentation.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.utils.extensions.*
 import kotlinx.android.synthetic.main.fragment_discover.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment :
-        BindingFragment<FragmentDiscoverBinding>(),
-        DiscoverController.Callbacks {
+        BindingFragment<FragmentDiscoverBinding>() {
 
     private var showHeader: Boolean = true
     private val mViewModel: DiscoverViewModel by viewModel()
-    private val controller = DiscoverController(this)
+    private val controller by lazy { createEpoxyController() }
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
         mBinding = FragmentDiscoverBinding.inflate(inflater, container, false)
@@ -32,53 +38,75 @@ class DiscoverFragment :
     }
 
     override fun onCreate() {
-        initMotionLayout()
         initObservers()
         initUi()
         mViewModel.request()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mViewModel.itunesStore.removeObservers(this@DiscoverFragment)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!showHeader)
-            motionLayout_root.progress = 1f
-    }
-
-    private fun initMotionLayout() {
-        motionLayout_root.setTransitionListener(object: MotionLayout.TransitionListener {
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
-            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
-            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                showHeader = (p1 != R.id.end)
-            }
-        })
-    }
-
     private fun initObservers() {
-        mViewModel.itunesStore.observeK(this) {
-            controller.setData(it)
+        mViewModel.itunesStore.observeK(this) { data ->
+            controller.setData(data)
         }
     }
 
     private fun initUi() {
-        recyclerView.setController(controller)
+        mBinding.recyclerView.setController(controller)
     }
 
-    override fun onPodcastClick(podcast: Podcast) {
-        view?.let {
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_FEED_ID, podcast)
-            Navigation.findNavController(it).navigate(R.id.action_discoverFragment_to_podcastInfoFragment, bundle)
-        }
-    }
+    private fun createEpoxyController() =
+            object : TypedEpoxyController<ItunesStore>() {
+                override fun buildModels(store: ItunesStore?) {
+                    store ?: return
+                    headerTrending {
+                        id("trending_header")
+                        text("")
+                    }
+                    carousel {
+                        id("trending_content")
+                        withModelsFrom(store.trending) {
+                            ItemPodcastTrendingBindingModel_()
+                                    .id("trending" + it.artworkUrl)
+                                    .imageUrl(it.artworkUrl)
+                                    .onPodcastClick { model, parentView, clickedView, position ->
+                                        navigateToPodcast(it.podcast, parentView, position)
+                                    }
+                        }
+                    }
 
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
+                    store.sections.forEach { section ->
+                        headerDiscoverSection {
+                            id(section.name + "_header")
+                            text(section.name)
+                        }
+                        carousel {
+                            id(section.name + "_content")
+                            withModelsFrom(section.podcasts) {
+                                ItemPodcastDiscoverBindingModel_()
+                                        .id("section" + it.feedUrl)
+                                        .title(it.title)
+                                        .imageUrl(it.imageUrl)
+                                        .authors(it.authors)
+                                        .onPodcastClick { model, parentView, clickedView, position ->
+                                            navigateToPodcast(it, parentView, position)
+                                        }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+    private fun navigateToPodcast(podcast: Podcast,
+                                  parentView: DataBindingEpoxyModel.DataBindingHolder,
+                                  position: Int) {
+        val transitionName = "iv_podcast$position"
+        val rootView = parentView.dataBinding.root
+        val imageView: ImageView = rootView.findViewById(R.id.img_row)
+        ViewCompat.setTransitionName(imageView, transitionName)
+
+        val direction =
+                DiscoverFragmentDirections.goToPodcast(podcast, transitionName)
+        val extras = FragmentNavigatorExtras(imageView to transitionName)
+        navigateTo(direction)
     }
 }
