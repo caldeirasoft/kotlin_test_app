@@ -25,26 +25,43 @@
                   android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- App links for http -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="http"
+                    android:host="basicapp.caldeirasoft.com"
+                    android:pathPattern="/basicapp" />
+            </intent-filter>
+
+            <!-- App links for https -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="basicapp.caldeirasoft.com"
+                    android:pathPattern="/basicapp" />
             </intent-filter>
         </activity>
 
         <provider
-            android:name=".service.sync.StubProvider"
+            android:name=".service_old.sync.StubProvider"
             android:authorities="com.caldeirasoft.basicapp.sync.provider"
             android:exported="true"
             android:syncable="true" />
 
-        <service android:name=".service.mediaplayback.MediaPlaybackService"
-                android:exported="true">
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService"/>
-            </intent-filter>
-        </service>
-
-        <service android:name=".service.sync.SyncService"
-                android:exported="true">
+        <service
+            android:name=".service_old.sync.SyncService"
+            android:enabled="true"
+            android:exported="true"
+            tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter"/>
             </intent-filter>
@@ -52,7 +69,7 @@
                         android:resource="@xml/syncadapter"/>
         </service>
 
-        <service android:name=".service.sync.AuthenticatorService">
+        <service android:name=".service_old.sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator"/>
             </intent-filter>

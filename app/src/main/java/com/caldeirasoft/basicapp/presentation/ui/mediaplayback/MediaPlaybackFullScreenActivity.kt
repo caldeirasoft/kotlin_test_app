@@ -14,10 +14,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion.SET_SLEEP_TIMER
-import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_LABEL
-import com.caldeirasoft.basicapp.service.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_MILLISECONDS
-import com.caldeirasoft.basicapp.service.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
+import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SET_SLEEP_TIMER
+import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_LABEL
+import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_MILLISECONDS
+import com.caldeirasoft.basicapp.service_old.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaBrowserProvider
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
 import com.squareup.picasso.Picasso

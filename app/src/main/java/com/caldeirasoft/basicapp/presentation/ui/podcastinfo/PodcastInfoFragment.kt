@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
-import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.media2.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.epoxy.EpoxyModel
@@ -15,14 +15,16 @@ import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
-import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
+import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
+import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
+import com.caldeirasoft.castly.service.playback.extensions.*
 import com.marozzi.roundbutton.RoundButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -39,12 +41,12 @@ class PodcastInfoFragment :
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
     // viewmodel
-    private val mViewModel:PodcastInfoViewModel by viewModel { parametersOf(args.podcast) }
+    private val mViewModel:PodcastInfoViewModel by viewModel { parametersOf(args.mediaMetadata) }
     private val controller by lazy { createEpoxyController() }
 
     // views
     private val mButtonSubscribe: RoundButton by bindView(R.id.button_subscribe)
-    private val mImageView: ImageView by bindView(R.id.imageview_artwork)
+    private lateinit var mArtworkImageView: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
         mBinding = FragmentPodcastdetailBinding.inflate(inflater, container, false)
@@ -53,8 +55,8 @@ class PodcastInfoFragment :
             it.viewModel = mViewModel
 
             // set transition item
-            val imageView: ImageView = it.root.findViewById(R.id.imageview_artwork)
-            ViewCompat.setTransitionName(imageView, args.transitionName)
+            mArtworkImageView = it.root.findViewById(R.id.imageview_artwork)
+            ViewCompat.setTransitionName(mArtworkImageView, args.transitionName)
 
             return it.root
         }
@@ -71,7 +73,7 @@ class PodcastInfoFragment :
 
     private fun initObservers() {
         // set loading
-        mViewModel.episodes.observeK(this) {
+        mViewModel.getPagedMediaItems().observeK(this) {
             controller.submitList(it)
         }
         mViewModel.updateEpisodeEvent.observeK(this) {
@@ -151,23 +153,24 @@ class PodcastInfoFragment :
     }
     */
 
-    private fun createEpoxyController(): PagedListEpoxyController<Episode> =
-            object : BasePagedController<Episode>() {
-                override fun buildItemModel(currentPosition: Int, item: Episode?): EpoxyModel<*> {
+    private fun createEpoxyController(): PagedListEpoxyController<MediaItem> =
+            object : BasePagedController<MediaItem>() {
+                override fun buildItemModel(currentPosition: Int, item: MediaItem?): EpoxyModel<*> {
                     item?.let {
-                        return ItemEpisodePodcastBindingModel_()
-                                .id(item.episodeId)
-                                .title(item.title)
-                                .duration(item.durationFormat())
-                                .imageUrl(item.imageUrl)
-                                .publishedDate(item.publishedFormat())
-                                .onEpisodeClick { model, parentView, clickedView, position ->
+                        return ItemEpisodePodcastBindingModel_().apply {
+                            id(item.metadata?.id)
+                            title(item.metadata?.title.toString())
+                            imageUrl(item.metadata?.albumArtUri.toString())
+                            duration(item.metadata?.duration.toString())
+                            publishedDate(it.metadata?.date)
+                            onEpisodeClick { model, parentView, clickedView, position ->
 
-                                    val episodeInfoDialog =
-                                            EpisodeInfoDialogFragment()
-                                                    .withArgs("episode" to item)
-                                    episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
-                                }
+                                val episodeInfoDialog =
+                                        EpisodeInfoDialogFragment()
+                                                .withArgs(EPISODE_ARG to item)
+                                episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
+                            }
+                        }
                     } ?: run {
                         return ItemEpisodePodcastBindingModel_()
                                 .id(currentPosition)

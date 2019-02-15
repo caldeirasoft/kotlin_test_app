@@ -1,8 +1,8 @@
 package com.caldeirasoft.basicapp.presentation.datasource
 
 import androidx.paging.*
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -15,8 +15,8 @@ class EpisodeDbDataSourceFactory(
 {
     override fun create(): DataSource<Int, Episode> {
         return when (filter.isNullOrBlank()) {
-            true -> episodeRepository.fetchEpisodesBySection(section).create()
-            else -> episodeRepository.fetchEpisodesBySection(section, filter!!).create()
+            true -> episodeRepository.fetchFactory(section).create()
+            else -> episodeRepository.fetchFactory(section, filter!!).create()
         }
     }
 

@@ -23,7 +23,7 @@
         android:background="?android:attr/windowBackground"
         app:applyMotionScene="true"
         app:layoutDescription="@xml/scene_podcastdetail"
-        app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
+        app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
         <ImageView
             android:id="@+id/imageview_backdrop"
@@ -61,9 +61,7 @@
             app:riv_border_color="@color/light_gray"
             app:riv_border_width="1dp"
             app:riv_corner_radius="5dp"
-            android:paddingLeft="@dimen/element_margin_medium"
-            android:paddingRight="@dimen/element_margin_medium"
-            android:paddingBottom="@dimen/element_margin_medium"/>
+            android:layout_marginStart="@dimen/activity_horizontal_margin"/>
 
         <View
             android:id="@+id/details_podcast_info"

@@ -10,7 +10,7 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.service.mediaplayback.MediaPlaybackService
+import com.caldeirasoft.basicapp.service_old.mediaplayback.MediaPlaybackService
 import com.caldeirasoft.basicapp.presentation.ui.mediaplayback.MediaPlaybackControlsFragment
 
 abstract class MediaPlayerBaseActivity : BaseActivity(), MediaBrowserProvider {

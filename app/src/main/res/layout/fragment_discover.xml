@@ -15,18 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:fitsSystemWindows="true"
         android:background="?android:attr/windowBackground">
-
-        <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
-            android:id="@+id/appbar_layout_root"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <include layout="@layout/fragment_discover_header"
-                    bind:viewModel="@{viewModel}"/>
-
-        </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
 
         <!-- placeholder -->
         <FrameLayout
@@ -47,12 +36,73 @@
         <!-- list -->
         <com.airbnb.epoxy.EpoxyRecyclerView
             android:id="@+id/recyclerView"
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="?android:attr/colorBackground"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:visibility="@{!viewModel.isLoading}"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{!viewModel.isLoading}"
+            android:fitsSystemWindows="true"/>
+
+        <!-- header -->
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:fitsSystemWindows="true"
+            app:elevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="@dimen/dp_10">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/search_cardView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/dp_5"
+                    android:layout_marginBottom="@dimen/dp_5"
+                    app:cardElevation="@dimen/dp_5"
+                    app:cardCornerRadius="25dp"
+                    app:cardBackgroundColor="?android:attr/colorBackground"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/layout_title"
+                    app:layout_constraintBottom_toBottomOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:paddingStart="@dimen/dp_5"
+                        android:paddingEnd="@dimen/dp_5">
+
+                        <ImageButton
+                            android:layout_width="?android:attr/actionBarSize"
+                            android:layout_height="?android:attr/actionBarSize"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:tint="@color/grey_10"
+                            android:src="@drawable/ic_search_24dp"
+                            android:contentDescription="@null"
+                            android:background="@android:color/transparent"/>
+
+                        <EditText
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:hint="search"
+                            android:imeOptions="actionSearch"
+                            android:singleLine="true"
+                            android:background="@android:color/transparent">
+                            <requestFocus/>
+                        </EditText>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

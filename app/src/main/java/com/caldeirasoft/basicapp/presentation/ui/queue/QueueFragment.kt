@@ -1,10 +1,8 @@
 package com.caldeirasoft.basicapp.presentation.ui.queue
 
 import android.view.*
-import androidx.navigation.NavDirections
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentEpisodelistBinding
-import com.caldeirasoft.basicapp.domain.entity.Episode
 import com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -20,7 +18,4 @@ class QueueFragment : EpisodeListFragment() {
             return it.root
         }
     }
-
-    override fun getEpisodeDirection(episode: Episode, transitionName: String): NavDirections =
-            QueueFragmentDirections.goToEpisode(episode, transitionName)
 }

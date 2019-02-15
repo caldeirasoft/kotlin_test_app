@@ -25,6 +25,10 @@ android {
     dataBinding {
         enabled = true
     }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
 }
 
 androidExtensions {
@@ -40,15 +44,18 @@ dependencies {
 
     // Local project
     implementation project(path: ':roundbutton')
+    implementation project(path: ':domain')
+    implementation project(path: ':data')
+    implementation project(path: ':service')
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.20"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.20"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.20"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
 
     // Android
-    implementation "androidx.appcompat:appcompat:1.1.0-alpha01"
+    implementation "androidx.appcompat:appcompat:1.1.0-alpha02"
     implementation "com.google.android.material:material:1.1.0-alpha03"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
     implementation 'com.android.support:coordinatorlayout:28.0.0'
@@ -67,6 +74,9 @@ dependencies {
     // Android-Navigation
     implementation 'android.arch.navigation:navigation-fragment-ktx:1.0.0-beta01'
     implementation 'android.arch.navigation:navigation-ui-ktx:1.0.0-beta01'
+    // Android Media
+    implementation "androidx.media2:media2:1.0.0-alpha04"
+
 
     // Anko
     implementation "org.jetbrains.anko:anko:0.10.5"

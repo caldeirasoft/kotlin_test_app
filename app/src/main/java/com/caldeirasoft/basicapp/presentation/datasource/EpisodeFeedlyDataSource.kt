@@ -5,10 +5,9 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PositionalDataSource
-import com.caldeirasoft.basicapp.domain.datasource.EpisodeFeedlyDataProvider
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.usecase.GetEpisodesFromFeedlyUseCase
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.usecase.GetEpisodesFromFeedlyUseCase
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope

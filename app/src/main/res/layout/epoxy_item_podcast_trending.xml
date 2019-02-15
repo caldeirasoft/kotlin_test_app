@@ -17,7 +17,7 @@
         app:cardElevation="@dimen/dp_5"
         app:cardCornerRadius="@dimen/dp_5">
 
-        <ImageView
+        <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/imageview_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

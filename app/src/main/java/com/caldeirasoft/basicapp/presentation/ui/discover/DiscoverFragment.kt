@@ -4,20 +4,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.view.ViewCompat
+import androidx.media2.MediaItem
+import androidx.media2.MediaMetadata
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.airbnb.epoxy.DataBindingEpoxyModel
-import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
 import com.caldeirasoft.basicapp.*
 import com.caldeirasoft.basicapp.databinding.FragmentDiscoverBinding
-import com.caldeirasoft.basicapp.domain.entity.ItunesSection
-import com.caldeirasoft.basicapp.domain.entity.ItunesStore
-import com.caldeirasoft.basicapp.domain.entity.Podcast
+import com.caldeirasoft.castly.domain.model.itunes.ItunesStore
+import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
+import com.caldeirasoft.basicapp.presentation.ui.base.MediaItemViewModel
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
-import kotlinx.android.synthetic.main.fragment_discover.*
+import com.caldeirasoft.castly.service.playback.extensions.mediaMetadata
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment :
@@ -50,7 +50,9 @@ class DiscoverFragment :
     }
 
     private fun initUi() {
-        mBinding.recyclerView.setController(controller)
+        mBinding.recyclerView.apply {
+            setController(controller)
+        }
     }
 
     private fun createEpoxyController() =
@@ -59,7 +61,6 @@ class DiscoverFragment :
                     store ?: return
                     headerTrending {
                         id("trending_header")
-                        text("")
                     }
                     carousel {
                         id("trending_content")
@@ -68,7 +69,15 @@ class DiscoverFragment :
                                     .id("trending" + it.artworkUrl)
                                     .imageUrl(it.artworkUrl)
                                     .onPodcastClick { model, parentView, clickedView, position ->
-                                        navigateToPodcast(it.podcast, parentView, position)
+                                        val transitionName = "iv_podcast$position"
+                                        val rootView = parentView.dataBinding.root
+                                        val imageView: ImageView = rootView.findViewById(R.id.imageview_background)
+                                        ViewCompat.setTransitionName(imageView, transitionName)
+
+                                        val direction =
+                                                DiscoverFragmentDirections.openMediaItem(it.podcast.mediaMetadata, transitionName)
+                                        val extras = FragmentNavigatorExtras(imageView to transitionName)
+                                        navigateTo(direction, extras)
                                     }
                         }
                     }
@@ -87,7 +96,7 @@ class DiscoverFragment :
                                         .imageUrl(it.imageUrl)
                                         .authors(it.authors)
                                         .onPodcastClick { model, parentView, clickedView, position ->
-                                            navigateToPodcast(it, parentView, position)
+                                            navigateToPodcast(it.mediaMetadata, parentView, position)
                                         }
                             }
                         }
@@ -96,7 +105,7 @@ class DiscoverFragment :
             }
 
 
-    private fun navigateToPodcast(podcast: Podcast,
+    private fun navigateToPodcast(mediaItem: MediaMetadata,
                                   parentView: DataBindingEpoxyModel.DataBindingHolder,
                                   position: Int) {
         val transitionName = "iv_podcast$position"
@@ -105,8 +114,8 @@ class DiscoverFragment :
         ViewCompat.setTransitionName(imageView, transitionName)
 
         val direction =
-                DiscoverFragmentDirections.goToPodcast(podcast, transitionName)
+                DiscoverFragmentDirections.openMediaItem(mediaItem, transitionName)
         val extras = FragmentNavigatorExtras(imageView to transitionName)
-        navigateTo(direction)
+        navigateTo(direction, extras)
     }
 }

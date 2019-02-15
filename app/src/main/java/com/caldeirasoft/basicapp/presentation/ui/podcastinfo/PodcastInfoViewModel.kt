@@ -1,29 +1,40 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
 import androidx.lifecycle.*
+import androidx.media2.MediaItem
+import androidx.media2.MediaMetadata
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.entity.SectionWithCount
-import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
-import com.caldeirasoft.basicapp.domain.usecase.*
+import com.caldeirasoft.basicapp.media.MediaSessionConnection
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.SectionWithCount
+import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import com.caldeirasoft.basicapp.presentation.datasource.EpisodePodcastDataSourceFactory
+import com.caldeirasoft.basicapp.presentation.datasource.MediaItemDataSourceFactory
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
+import com.caldeirasoft.castly.domain.model.MediaID
+import com.caldeirasoft.castly.domain.usecase.GetEpisodesFromFeedlyUseCase
+import com.caldeirasoft.castly.domain.usecase.GetPodcastFromFeedlyUseCase
+import com.caldeirasoft.castly.domain.usecase.SubscribeToPodcastUseCase
+import com.caldeirasoft.castly.domain.usecase.UnsubscribeUseCase
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_PODCAST
+import com.caldeirasoft.castly.service.playback.extensions.toPodcast
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 class PodcastInfoViewModel(
-        val podcast: Podcast,
+        val mediaMetadata: MediaMetadata,
         val podcastRepository: PodcastRepository,
         val episodeRepository: EpisodeRepository,
         val getEpisodesFromFeedlyUseCase: GetEpisodesFromFeedlyUseCase,
         val getPodcastFromFeedlyUseCase: GetPodcastFromFeedlyUseCase,
         val subscribeToPodcastUseCase: SubscribeToPodcastUseCase,
-        val unsubscribeFromPodcastUseCase: UnsubscribeFromPodcastUseCase)
+        val unsubscribeUseCase: UnsubscribeUseCase,
+        val mediaSessionConnection: MediaSessionConnection)
     : ViewModel() {
 
     lateinit var podcastInDb: LiveData<Podcast>
@@ -39,14 +50,14 @@ class PodcastInfoViewModel(
 
     var isSubscribing = MutableLiveData<Boolean>()
 
-    var podcastData = MutableLiveData<Podcast>().apply { value = podcast }
+    var podcastData = MutableLiveData<Podcast>()
 
     var sectionData = MutableLiveData<Int>()
 
     var descriptionData: MutableLiveData<String> = MutableLiveData()
 
     val episodePodcastDataSourceFactory
-            = EpisodePodcastDataSourceFactory(podcast, sectionData.value, episodeRepository, getEpisodesFromFeedlyUseCase)
+            = EpisodePodcastDataSourceFactory(podcastInDb.value!!, sectionData.value, episodeRepository, getEpisodesFromFeedlyUseCase)
 
     val isLoading: LiveData<Boolean> by lazy {
         Transformations.switchMap(episodePodcastDataSourceFactory.sourceLiveData) { it.isLoading }
@@ -56,11 +67,43 @@ class PodcastInfoViewModel(
     val episodes: LiveData<PagedList<Episode>>
         get() = pagedList
 
+    //region media
+    private val mediaId: MediaID = MediaID(TYPE_PODCAST, mediaMetadata.mediaId)
+
+    //mediaItems
+    fun getPagedMediaItems(): LiveData<PagedList<MediaItem>> {
+        val pagedListConfig: PagedList.Config = PagedList.Config.Builder()
+                .setPageSize(PAGE_SIZE)
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(5)
+                .build()
+        // pagedList
+        return LivePagedListBuilder(MediaItemDataSourceFactory(mediaId.asString(), mediaMetadata, mediaSessionConnection), pagedListConfig)
+                .setFetchExecutor(ioExecutor)
+                .build()
+    }
+
+    /*
+    // mediasession
+    private val mediaSessionConnection = mediaSessionConnection.also {
+        it.subscribe(mediaId.asString(), subscriptionCallback)
+    }
+    */
+
+    //endregion
+
+    companion object {
+        val PAGE_SIZE = 15
+    }
+
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
 
+        // podcast
+        podcastData.postValue(mediaMetadata.toPodcast())
+
         // podcast in database
-        val podcastInDb = podcastRepository.getPodcastById(podcast.feedUrl)
+        val podcastInDb = podcastRepository.get(mediaMetadata.mediaId.toString())
         isInDatabase.addSource(podcastInDb) { pod ->
             isInDatabase.value = pod != null
         }
@@ -81,23 +124,20 @@ class PodcastInfoViewModel(
         getDescriptionInfo()
     }
 
-    companion object {
-        val PAGE_SIZE = 15
-    }
-
     /**
      * Get podcast description info
      */
     fun getDescriptionInfo() {
         GlobalScope.launch {
-            podcast.description
+            podcastInDb.value
+                    ?.description
                     ?.let {
                         descriptionData.postValue(it)
                     }
                     ?: run {
                         // get podcast from db
                         getPodcastFromFeedlyUseCase
-                                .execute(GetPodcastFromFeedlyUseCase.Params(podcast.feedUrl))
+                                .execute(GetPodcastFromFeedlyUseCase.Params(mediaMetadata.mediaId.toString()))
                                 .await()
                                 .data
                                 ?.let {
@@ -106,6 +146,14 @@ class PodcastInfoViewModel(
                     }
         }
     }
+
+    //hacky way to force reload items (e.g. song sort order changed)
+    /*
+    fun reloadMediaItems() {
+        mediaSessionConnection.unsubscribe(mediaId.asString(), subscriptionCallback)
+        mediaSessionConnection.subscribe(mediaId.asString(), subscriptionCallback)
+    }
+    */
 
     // change episode filter (by section)
     fun setSection(sec: Int?) {
@@ -124,16 +172,16 @@ class PodcastInfoViewModel(
             subscribeToPodcastUseCase.beforeExecute = { isSubscribing.postValue(true) }
             subscribeToPodcastUseCase.afterExecute = { isSubscribing.postValue(false) }
             subscribeToPodcastUseCase.failed = { it.printStackTrace() }
-            subscribeToPodcastUseCase.execute(SubscribeToPodcastUseCase.Params(podcast)).await()
+            subscribeToPodcastUseCase.execute(SubscribeToPodcastUseCase.Params(podcastInDb.value!!)).await()
         }
     }
 
     fun unsubscribe() {
         GlobalScope.launch {
-            unsubscribeFromPodcastUseCase.beforeExecute = { isSubscribing.postValue(true) }
-            unsubscribeFromPodcastUseCase.afterExecute = { isSubscribing.postValue(false) }
-            unsubscribeFromPodcastUseCase.failed = { it.printStackTrace() }
-            unsubscribeFromPodcastUseCase.execute(UnsubscribeFromPodcastUseCase.Params(podcast)).await()
+            unsubscribeUseCase.beforeExecute = { isSubscribing.postValue(true) }
+            unsubscribeUseCase.afterExecute = { isSubscribing.postValue(false) }
+            unsubscribeUseCase.failed = { it.printStackTrace() }
+            unsubscribeUseCase.execute(UnsubscribeUseCase.Params(podcastInDb.value!!)).await()
         }
     }
 }

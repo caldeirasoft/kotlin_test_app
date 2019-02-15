@@ -1,1 +1,1 @@
-include ':app', ':roundbutton'
+include ':app', ':roundbutton', ':domain', ':domain', ':domain', ':data', ':service'

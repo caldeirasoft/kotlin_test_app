@@ -9,12 +9,10 @@ import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
-import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoFragment2
 import kotlinx.android.synthetic.main.activity_main.*
 
 @FragmentLayout(layoutId = R.layout.activity_main)
-class MainActivity : MediaPlayerBaseActivity(),
-        EpisodeInfoFragment2.OnFragmentInteractionListener
+class MainActivity : MediaPlayerBaseActivity()
 {
     //private val mFirestore: FirebaseFirestore? = null
     //private static final int RC_SIGN_IN = 9001
@@ -41,15 +39,5 @@ class MainActivity : MediaPlayerBaseActivity(),
             }
         }
         super.onBackPressed()
-    }
-
-    override fun onFragmentInteraction(uri: Uri) {
-        val lastPathSegment = uri.lastPathSegment
-        if (lastPathSegment == "hideBottomNavigationView=1") {
-            navigation.isVisible = !navigation.isVisible
-        }
-        else if (lastPathSegment == "showBottomNavigationView=1") {
-            navigation.isVisible = true
-        }
     }
 }

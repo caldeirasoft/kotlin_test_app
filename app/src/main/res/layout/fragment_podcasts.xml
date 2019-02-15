@@ -17,7 +17,7 @@
         android:layout_height="wrap_content">
 
       <include layout="@layout/fragment_list_header"
-          bind:title="@string/podcasts"/>
+          bind:title="@{@string/podcasts}"/>
 
     </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
 

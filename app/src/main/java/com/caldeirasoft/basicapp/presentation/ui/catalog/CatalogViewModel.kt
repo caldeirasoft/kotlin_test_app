@@ -6,12 +6,14 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.repository.ItunesRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.repository.ItunesRepository
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import com.caldeirasoft.basicapp.presentation.datasource.ItunesPodcastDataSourceFactory
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -87,21 +89,22 @@ class CatalogViewModel(
      */
     fun onPodcastSubscribe(podcast: Podcast)
     {
-        podcast.apply {
-            when (isInDatabase)
-            {
-                false -> { // not yet in database : subscribe
-                    podcastRepository.insertPodcast(this)
-                    isInDatabase = true
+        GlobalScope.launch {
+            podcast.apply {
+                when (isInDatabase) {
+                    false -> { // not yet in database : subscribe
+                        podcastRepository.insert(this).await()
+                        isInDatabase = true
+                    }
+                    true -> { // in database : remove
+                        podcastRepository.delete(this).await()
+                        isInDatabase = false
+                    }
                 }
-                true -> { // in database : remove
-                    podcastRepository.deletePodcast(this)
-                    isInDatabase = false
-                }
-            }
 
-            updatePodcastEvent.value = this
-            updatePodcastSubscriptionEvent.value = this
+                updatePodcastEvent.value = this
+                updatePodcastSubscriptionEvent.value = this
+            }
         }
     }
 

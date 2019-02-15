@@ -1,32 +1,30 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcast
 
-import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.view.ViewCompat
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
+import androidx.media2.MediaItem
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastsBinding
-import com.caldeirasoft.basicapp.domain.entity.Podcast
+import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.basicapp.itemPodcast
-import com.caldeirasoft.basicapp.presentation.ui.base.BaseFragment
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import com.caldeirasoft.basicapp.presentation.utils.extensions.bindView
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
-import com.caldeirasoft.basicapp.presentation.utils.extensions.withModels
+import com.caldeirasoft.castly.service.playback.extensions.displayDescription
+import com.caldeirasoft.castly.service.playback.extensions.id
+import com.caldeirasoft.castly.service.playback.extensions.title
+import com.caldeirasoft.castly.service.playback.extensions.toPodcast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @FragmentLayout(layoutId = R.layout.fragment_podcasts)
@@ -60,20 +58,20 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
     }
 
     private fun initObservers() {
-        viewModel.podcasts.observeK(this) {data ->
+        viewModel.mediaItems.observeK(this) {data ->
             controller.setData(data)
         }
     }
 
-    private fun createEpoxyController(): TypedEpoxyController<List<Podcast>> =
-            object : TypedEpoxyController<List<Podcast>>() {
-                override fun buildModels(data: List<Podcast>?) {
+    private fun createEpoxyController(): TypedEpoxyController<List<MediaItem>> =
+            object : TypedEpoxyController<List<MediaItem>>() {
+                override fun buildModels(data: List<MediaItem>?) {
                     data ?: return
                     data.forEach { content ->
                         itemPodcast {
-                            id(content.feedUrl)
-                            title(content.title)
-                            imageUrl(content.imageUrl)
+                            id(content.metadata?.id)
+                            title(content.metadata?.title.toString())
+                            imageUrl(content.metadata?.displayDescription.toString())
                             onPodcastClick { model, parentView, clickedView, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
@@ -81,10 +79,10 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.goToPodcast(content, transitionName)
+                                        PodcastFragmentDirections.openMediaItem(content.metadata!!, transitionName)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
-                                navigateTo(direction)
+                                navigateTo(direction, extras)
                             }
                         }
                     }

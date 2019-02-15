@@ -3,10 +3,8 @@ package com.caldeirasoft.basicapp.presentation.ui.discover
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.caldeirasoft.basicapp.domain.entity.ItunesStore
-import com.caldeirasoft.basicapp.domain.repository.ItunesRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
-import com.caldeirasoft.basicapp.domain.usecase.GetItunesStoreUseCase
+import com.caldeirasoft.castly.domain.model.itunes.ItunesStore
+import com.caldeirasoft.castly.domain.usecase.GetItunesStoreUseCase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

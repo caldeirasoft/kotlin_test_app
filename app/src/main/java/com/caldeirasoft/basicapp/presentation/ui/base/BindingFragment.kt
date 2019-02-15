@@ -15,8 +15,11 @@ abstract class BindingFragment<B : ViewDataBinding> : Fragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(R.transition.image_transition)
-        sharedElementReturnTransition = TransitionInflater.from(context).inflateTransition(R.transition.image_transition)
+        TransitionInflater.from(context).apply {
+            //R.transition.image_transition
+            sharedElementEnterTransition = inflateTransition(R.transition.image_transition)
+            sharedElementReturnTransition = inflateTransition(R.transition.image_transition)
+        }
     }
 
     abstract fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View?
