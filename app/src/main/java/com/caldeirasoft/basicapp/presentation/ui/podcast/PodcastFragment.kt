@@ -1,70 +1,93 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcast
 
-import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
+import android.view.LayoutInflater
 import android.view.View
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.navigation.Navigation.findNavController
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.view.ViewCompat
+import androidx.media2.MediaItem
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.epoxy.EpoxyRecyclerView
+import com.airbnb.epoxy.TypedEpoxyController
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.presentation.ui.base.BaseFragment
+import com.caldeirasoft.basicapp.databinding.FragmentPodcastsBinding
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.basicapp.itemPodcast
+import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
-import com.caldeirasoft.basicapp.presentation.extensions.observeK
-import kotlinx.android.synthetic.main.fragment_podcasts.*
+import com.caldeirasoft.basicapp.presentation.utils.extensions.bindView
+import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
+import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
+import com.caldeirasoft.castly.service.playback.extensions.displayDescription
+import com.caldeirasoft.castly.service.playback.extensions.id
+import com.caldeirasoft.castly.service.playback.extensions.title
+import com.caldeirasoft.castly.service.playback.extensions.toPodcast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @FragmentLayout(layoutId = R.layout.fragment_podcasts)
-class PodcastFragment : BaseFragment(), PodcastController.Callbacks {
+class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
 
     private var showHeader:Boolean = true
+
+    // view model
     private val viewModel: PodcastViewModel by viewModel()
-    private val controller = PodcastController(this)
+    private val controller by lazy { createEpoxyController() }
+
+    // views
+    private val mRecyclerView: EpoxyRecyclerView by bindView(R.id.recyclerView)
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
+        mBinding = FragmentPodcastsBinding.inflate(inflater, container, false)
+        mBinding.let {
+            it.setLifecycleOwner(this)
+            return it.root
+        }
+    }
 
     override fun onCreate() {
-        initMotionLayout()
         initObservers()
         initUi()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        viewModel.podcasts.removeObservers(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!showHeader)
-            motionLayout_root.transitionToEnd()
-    }
-
-    private fun initMotionLayout() {
-        motionLayout_root.setTransitionListener(object: MotionLayout.TransitionListener {
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
-            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
-            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                showHeader = (p1 != R.id.end)
-            }
-        })
+    private fun initUi() {
+        mBinding.recyclerView.setController(controller)
+        mBinding.recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
     private fun initObservers() {
-        viewModel.podcasts.observeK(this) {
-            controller.setData(it)
+        viewModel.mediaItems.observeK(this) {data ->
+            controller.setData(data)
         }
     }
 
-    private fun initUi() {
-        recyclerView.setController(controller)
-        recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
-    }
+    private fun createEpoxyController(): TypedEpoxyController<List<MediaItem>> =
+            object : TypedEpoxyController<List<MediaItem>>() {
+                override fun buildModels(data: List<MediaItem>?) {
+                    data ?: return
+                    data.forEach { content ->
+                        itemPodcast {
+                            id(content.metadata?.id)
+                            title(content.metadata?.title.toString())
+                            imageUrl(content.metadata?.displayDescription.toString())
+                            onPodcastClick { model, parentView, clickedView, position ->
+                                val transitionName = "iv_podcast$position"
+                                val rootView = parentView.dataBinding.root
+                                val imageView: ImageView = rootView.findViewById(R.id.img_row)
+                                ViewCompat.setTransitionName(imageView, transitionName)
 
-    override fun onPodcastClick(view: View, podcast: Podcast) {
-        val bundle = Bundle()
-        bundle.putParcelable(EXTRA_FEED_ID, podcast)
-        findNavController(view).navigate(R.id.action_podcastFragment_to_podcastInfoFragment, bundle)
-    }
+                                val direction =
+                                        PodcastFragmentDirections.openMediaItem(content.metadata!!, transitionName)
+                                val extras = FragmentNavigatorExtras(
+                                        imageView to transitionName)
+                                navigateTo(direction, extras)
+                            }
+                        }
+                    }
+                }
+            }
 
     /*
     private fun changeLayout()
@@ -84,9 +107,4 @@ class PodcastFragment : BaseFragment(), PodcastController.Callbacks {
         }
     }
     */
-
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
-        const val COLLAPSED = "COLLAPSED"
-    }
 }

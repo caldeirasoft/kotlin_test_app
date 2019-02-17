@@ -1,14 +1,11 @@
 package com.caldeirasoft.basicapp.presentation.datasource
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.paging.DataSource
-import com.caldeirasoft.basicapp.domain.datasource.EpisodeFeedlyDataProvider
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
-import com.caldeirasoft.basicapp.domain.usecase.GetEpisodesFromFeedlyUseCase
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.domain.usecase.GetEpisodesFromFeedlyUseCase
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -20,13 +17,8 @@ class EpisodePodcastDataSourceFactory (
         val getEpisodesFromFeedlyUseCase: GetEpisodesFromFeedlyUseCase
         ) : DataSource.Factory<Int, Episode>()
 {
-    var isLoading: LiveData<Boolean>
     val sourceLiveData = MutableLiveData<EpisodeFeedlyDataSource>()
     val dataProvider = EpisodeFeedlyDataProvider()
-
-    init {
-        isLoading = Transformations.switchMap(sourceLiveData) { it.isLoading }
-    }
 
     override fun create(): DataSource<Int, Episode> {
         val source: DataSource<Int, Episode> =
@@ -41,7 +33,7 @@ class EpisodePodcastDataSourceFactory (
                                 }
                     }
                     else -> {
-                        episodeRepository.fetchEpisodesBySection(section!!).create()
+                        episodeRepository.fetchFactory(section!!).create()
                     }
                 }
         return source

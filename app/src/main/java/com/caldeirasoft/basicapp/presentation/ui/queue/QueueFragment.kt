@@ -18,8 +18,4 @@ class QueueFragment : EpisodeListFragment() {
             return it.root
         }
     }
-
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
-    }
 }

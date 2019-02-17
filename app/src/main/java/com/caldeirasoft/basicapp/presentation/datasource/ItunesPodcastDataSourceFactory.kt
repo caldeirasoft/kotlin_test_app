@@ -2,11 +2,9 @@ package com.caldeirasoft.basicapp.presentation.datasource
 
 import androidx.lifecycle.*
 import androidx.paging.*
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.data.datasources.remote.ITunesApi
-import com.caldeirasoft.basicapp.data.datasources.local.dao.PodcastDao
-import com.caldeirasoft.basicapp.domain.repository.ItunesRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.repository.ItunesRepository
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 
 /**
  * Created by Edmond on 15/02/2018.

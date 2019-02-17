@@ -2,10 +2,9 @@ package com.caldeirasoft.basicapp
 
 import android.app.Application
 import com.caldeirasoft.basicapp.di.*
-import com.caldeirasoft.basicapp.service.sync.SyncAdapterManager
-import com.caldeirasoft.basicapp.service.sync.SyncHelper
+import com.caldeirasoft.basicapp.service_old.sync.SyncAdapterManager
+import com.caldeirasoft.basicapp.service_old.sync.SyncHelper
 import com.chibatching.kotpref.Kotpref
-import com.github.salomonbrys.kodein.*
 import com.jakewharton.threetenabp.AndroidThreeTen
 import org.koin.android.ext.android.startKoin
 
@@ -31,6 +30,7 @@ class App : Application() {
                 networkModule,
                 repositoryModule,
                 usecaseModule,
+                mediaModule,
                 presentationModule
         ))
     }

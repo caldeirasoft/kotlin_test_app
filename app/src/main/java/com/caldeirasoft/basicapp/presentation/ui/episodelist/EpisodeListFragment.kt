@@ -1,55 +1,42 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodelist
 
-import android.os.Bundle
-import androidx.constraintlayout.motion.widget.MotionLayout
-import androidx.navigation.Navigation.findNavController
+import androidx.media2.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.domain.entity.Episode
+import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.TypedEpoxyController
+import com.airbnb.epoxy.paging.PagedListEpoxyController
+import com.caldeirasoft.basicapp.ItemEpisodeBindingModel_
 import com.caldeirasoft.basicapp.databinding.FragmentEpisodelistBinding
+import com.caldeirasoft.basicapp.itemEpisode
+import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.presentation.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
+import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
+import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
+import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.utils.extensions.withArgs
+import com.caldeirasoft.castly.service.playback.extensions.albumArtUri
+import com.caldeirasoft.castly.service.playback.extensions.duration
+import com.caldeirasoft.castly.service.playback.extensions.id
+import com.caldeirasoft.castly.service.playback.extensions.title
 import kotlinx.android.synthetic.main.fragment_episodelist.*
 
 
-abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>(), EpisodeListController.Callbacks {
+abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>() {
 
-    protected var showHeader:Boolean = true
-    protected abstract val mViewModel:EpisodeListViewModel
-    protected val controller = EpisodeListController(this)
+    protected var showHeader: Boolean = true
+    protected abstract val mViewModel: EpisodeListViewModel
+    private val controller by lazy { createEpoxyController() }
 
     override fun onCreate() {
-        initMotionLayout()
         initObservers()
         initUi()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mViewModel.episodes.removeObservers(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!showHeader)
-            motionLayout_root.transitionToEnd()
-    }
-
-    private fun initMotionLayout() {
-        motionLayout_root.setTransitionListener(object: MotionLayout.TransitionListener {
-            override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
-            override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
-            override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-            override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                showHeader = (p1 != R.id.end)
-            }
-        })
-    }
-
     private fun initObservers() {
-        mViewModel.episodes.observeK(this) {
-            controller.setData(it)
+        mViewModel.mediaItems.observeK(this) { data ->
+            controller.setData(data)
         }
     }
 
@@ -58,15 +45,25 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
         recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
-    override fun onEpisodeClick(episode: Episode) {
-        view?.let {
-            val bundle = Bundle()
-            bundle.putParcelable(EXTRA_FEED_ID, episode)
-            findNavController(it).navigate(R.id.action_podcastFragment_to_podcastInfoFragment, bundle)
-        }
-    }
+    private fun createEpoxyController(): TypedEpoxyController<List<MediaItem>> =
+            object : TypedEpoxyController<List<MediaItem>>() {
+                override fun buildModels(data: List<MediaItem>?) {
+                    data ?: return
+                    data.forEach { item ->
+                        itemEpisode {
+                            id(item.metadata?.id)
+                            title(item.metadata?.title.toString())
+                            imageUrl(item.metadata?.albumArtUri.toString())
+                            duration(item.metadata?.duration.toString())
+                            onEpisodeClick { model, parentView, clickedView, position ->
 
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
-    }
+                                val episodeInfoDialog =
+                                        EpisodeInfoDialogFragment()
+                                                .withArgs(EPISODE_ARG to item)
+                                episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
+                            }
+                        }
+                    }
+                }
+            }
 }

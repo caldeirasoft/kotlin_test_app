@@ -4,40 +4,37 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.PodcastWithCount
-import com.caldeirasoft.basicapp.domain.entity.SectionState
+import com.caldeirasoft.basicapp.media.MediaSessionConnection
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.basicapp.presentation.datasource.EpisodeDbDataSourceFactory
-import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
+import com.caldeirasoft.basicapp.presentation.ui.base.MediaItemViewModel
+import com.caldeirasoft.castly.domain.model.MediaID
+import com.caldeirasoft.castly.domain.model.PodcastWithCount
+import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_FAVORITE
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_GENRE
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_HISTORY
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_INBOX
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_QUEUE
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 abstract class EpisodeListViewModel(
         sectionState: SectionState,
-        val episodeRepository: EpisodeRepository)
-    : ViewModel() {
+        mediaSessionConnection: MediaSessionConnection,
+        episodeRepository: EpisodeRepository)
+    : MediaItemViewModel(getMediaId(sectionState).asString(), mediaSessionConnection) {
 
-    var sourceFactory: EpisodeDbDataSourceFactory
-    private var ioExecutor: Executor
-
-    var episodes: LiveData<PagedList<Episode>>
-    var podcastsWithCount: LiveData<List<PodcastWithCount>>
-
-    init {
-        ioExecutor = Executors.newFixedThreadPool(5)
-        sourceFactory = EpisodeDbDataSourceFactory(sectionState.value, episodeRepository = episodeRepository)
-
-        val pagedListConfig = PagedList.Config.Builder()
-                .setPageSize(PAGE_SIZE)
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(5)
-                .build()
-
-        episodes = LivePagedListBuilder(sourceFactory, pagedListConfig)
-                .setFetchExecutor(ioExecutor)
-                .build()
-
-        podcastsWithCount = episodeRepository.fetchEpisodesCoutByPodcast(sectionState.value)
+    companion object {
+        fun getMediaId(sectionState: SectionState): MediaID =
+                MediaID(when (sectionState) {
+                    SectionState.QUEUE -> TYPE_QUEUE
+                    SectionState.INBOX -> TYPE_INBOX
+                    SectionState.FAVORITE -> TYPE_FAVORITE
+                    SectionState.HISTORY -> TYPE_HISTORY
+                    else -> TYPE_GENRE
+                })
     }
 
     fun refresh() { //datasourceFactory.invalidate()
@@ -45,11 +42,7 @@ abstract class EpisodeListViewModel(
 
 
     fun applyFilter(feedUrl: String?) {
-        sourceFactory.applyFilter(feedUrl)
-        episodes.value?.dataSource?.invalidate()
-    }
-
-    companion object {
-        val PAGE_SIZE = 15
+        //sourceFactory.applyFilter(feedUrl)
+        //episodes.value?.dataSource?.invalidate()
     }
 }

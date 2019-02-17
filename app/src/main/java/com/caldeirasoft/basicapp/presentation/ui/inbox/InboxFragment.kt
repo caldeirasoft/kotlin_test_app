@@ -4,7 +4,6 @@ import android.view.*
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentEpisodelistBinding
 import com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListFragment
-import org.koin.androidx.viewmodel.ext.android.getViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class InboxFragment : EpisodeListFragment() {
@@ -18,9 +17,5 @@ class InboxFragment : EpisodeListFragment() {
             it.title = context?.getString(R.string.inbox)
             return it.root
         }
-    }
-
-    companion object {
-        const val EXTRA_FEED_ID = "FEED_ID"
     }
 }

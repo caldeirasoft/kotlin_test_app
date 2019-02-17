@@ -1,8 +1,8 @@
 package com.caldeirasoft.basicapp.presentation.datasource
 
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.repository.ItunesRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.repository.ItunesRepository
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 

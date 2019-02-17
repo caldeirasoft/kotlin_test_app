@@ -1,23 +1,21 @@
 package com.caldeirasoft.basicapp.di
 
+import android.content.ComponentName
 import android.content.Context
-import com.caldeirasoft.basicapp.App
+import android.support.v4.media.MediaBrowserCompat
+import androidx.media2.MediaItem
+import androidx.media2.MediaMetadata
 import com.caldeirasoft.basicapp.BuildConfig
-import com.caldeirasoft.basicapp.data.datasources.local.DatabaseApi
-import com.caldeirasoft.basicapp.data.datasources.remote.FeedlyApi
-import com.caldeirasoft.basicapp.data.datasources.remote.ITunesApi
-import com.caldeirasoft.basicapp.data.repository.EpisodeRepositoryImpl
-import com.caldeirasoft.basicapp.data.repository.FeedlyRepositoryImpl
-import com.caldeirasoft.basicapp.data.repository.ItunesRepositoryImpl
-import com.caldeirasoft.basicapp.data.repository.PodcastRepositoryImpl
-import com.caldeirasoft.basicapp.domain.entity.Episode
-import com.caldeirasoft.basicapp.domain.entity.Podcast
-import com.caldeirasoft.basicapp.domain.repository.EpisodeRepository
-import com.caldeirasoft.basicapp.domain.repository.FeedlyRepository
-import com.caldeirasoft.basicapp.domain.repository.ItunesRepository
-import com.caldeirasoft.basicapp.domain.repository.PodcastRepository
-import com.caldeirasoft.basicapp.domain.usecase.*
-import com.caldeirasoft.basicapp.presentation.datasource.EpisodePodcastDataSourceFactory
+import com.caldeirasoft.basicapp.media.MediaSessionConnection
+import com.caldeirasoft.castly.data.datasources.local.DatabaseApi
+import com.caldeirasoft.castly.data.datasources.remote.FeedlyApi
+import com.caldeirasoft.castly.data.datasources.remote.ITunesApi
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.domain.repository.FeedlyRepository
+import com.caldeirasoft.castly.domain.repository.ItunesRepository
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import com.caldeirasoft.basicapp.presentation.ui.catalog.CatalogViewModel
 import com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverViewModel
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoViewModel
@@ -26,15 +24,18 @@ import com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastViewModel
 import com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel
 import com.caldeirasoft.basicapp.presentation.ui.queue.QueueViewModel
 import com.caldeirasoft.basicapp.util.Constants
-import com.caldeirasoft.basicapp.util.Constants.ITUNES_BASE_URL
 import com.caldeirasoft.basicapp.util.HttpLogger
+import com.caldeirasoft.castly.data.repository.EpisodeRepositoryImpl
+import com.caldeirasoft.castly.data.repository.FeedlyRepositoryImpl
+import com.caldeirasoft.castly.data.repository.ItunesRepositoryImpl
+import com.caldeirasoft.castly.data.repository.PodcastRepositoryImpl
+import com.caldeirasoft.castly.domain.usecase.*
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.ext.koin.viewModel
-import org.koin.core.parameter.parametersOf
 import org.koin.dsl.module.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -70,25 +71,34 @@ val usecaseModule = module {
     //single { GetEpisodeFromDbUseCase(episodeRepository = get()) }
     single { GetEpisodesFromFeedlyUseCase(episodeRepository = get(), feedlyRepository = get()) }
     single { GetPodcastFromFeedlyUseCase(feedlyRepository = get()) }
-    single { SubscribeToPodcastUseCase(feedlyRepository = get(), podcastRepository = get(), episodeRepository = get())}
-    single { UnsubscribeFromPodcastUseCase(podcastRepository = get(), episodeRepository = get())}
+    single { SubscribeToPodcastUseCase(feedlyRepository = get(), podcastRepository = get(), episodeRepository = get()) }
+    single { UnsubscribeUseCase(podcastRepository = get(), episodeRepository = get()) }
+}
+
+val mediaModule = module {
+    single { MediaSessionConnection.getInstance(
+            context = get(),  serviceComponent = ComponentName(get(), PodcastLibraryService::class.java))}
 }
 
 val presentationModule = module {
-    viewModel { QueueViewModel(episodeRepository = get()) }
-    viewModel { InboxViewModel(episodeRepository = get()) }
-    viewModel { PodcastViewModel(podcastRepository = get()) }
+    viewModel { QueueViewModel(episodeRepository = get(), mediaSessionConnection = get()) }
+    viewModel { InboxViewModel(episodeRepository = get(), mediaSessionConnection = get()) }
+    viewModel { PodcastViewModel(mediaSessionConnection = get()) }
     viewModel { DiscoverViewModel(getItunesStoreUseCase = get())}
     viewModel { (category: Int) -> CatalogViewModel(itunesRepository = get(), podcastRepository = get(), category = category) }
-    viewModel { (podcast: Podcast) -> PodcastInfoViewModel(
-                podcast = podcast,
+    viewModel { (mediaMetadata: MediaMetadata) -> PodcastInfoViewModel(
+                mediaMetadata = mediaMetadata,
                 podcastRepository = get(),
                 episodeRepository = get(),
                 getEpisodesFromFeedlyUseCase = get(),
                 getPodcastFromFeedlyUseCase = get(),
                 subscribeToPodcastUseCase = get(),
-                unsubscribeFromPodcastUseCase = get())}
-    viewModel { (episode: Episode) -> EpisodeInfoViewModel(episode = episode, episodeRepository = get())}
+                unsubscribeUseCase = get(),
+                mediaSessionConnection = get())}
+    viewModel { (mediaItem: MediaBrowserCompat.MediaItem) -> EpisodeInfoViewModel(
+            mediaItem = mediaItem,
+            episodeRepository = get(),
+            mediaSessionConnection = get())}
 }
 
 

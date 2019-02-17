@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition app:constraintSetStart="@+id/podcastinfo_start"
+                app:constraintSetEnd="@+id/podcastinfo_end">
+
+        <KeyFrameSet>
+            <!-- move image behind background -->
+            <KeyPosition
+                app:target="@id/imageview_artwork"
+                app:framePosition="10"
+                app:percentX="-0.4"
+                app:keyPositionType="pathRelative"/>
+
+            <KeyAttribute
+                app:target="@id/imageview_artwork"
+                app:framePosition="11"
+                android:elevation="0dp"/>
+
+            <KeyPosition
+                app:target="@id/imageview_artwork"
+                app:framePosition="20"
+                app:percentY="0.20"
+                app:keyPositionType="deltaRelative"/>
+
+            <KeyAttribute
+                app:target="@id/imageview_artwork"
+                app:framePosition="20"
+                android:alpha="1"/>
+
+            <KeyAttribute
+                app:target="@id/imageview_artwork"
+                app:framePosition="70"
+                android:alpha="0"/>
+
+            <KeyPosition
+                app:target="@id/details_appbar"
+                app:framePosition="80"
+                app:percentY="1"
+                app:keyPositionType="deltaRelative"/>
+
+            <KeyAttribute
+                app:target="@id/details_appbar"
+                app:framePosition="80"
+                android:alpha="0"/>
+
+        </KeyFrameSet>
+
+
+    </Transition>
+
+    <ConstraintSet android:id="@+id/podcastinfo_start">
+        <Constraint
+            android:id="@id/imageview_artwork"
+            android:elevation="4dp"
+            android:layout_height="180dp"
+            android:layout_width="180dp"
+            android:alpha="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/layout_buttons"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"/>
+
+        <Constraint
+            android:id="@id/details_appbar"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            app:layout_constraintBottom_toBottomOf="@id/linearLayout_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:alpha="0"/>
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/podcastinfo_end">
+        <Constraint
+            android:id="@id/imageview_artwork"
+            android:layout_height="180dp"
+            android:layout_width="180dp"
+            android:elevation="0dp"
+            android:alpha="0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/layout_buttons"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"/>
+
+        <Constraint
+            android:id="@id/details_appbar"
+            android:layout_width="0dp"
+            android:layout_height="?android:attr/actionBarSize"
+            app:layout_constraintBottom_toBottomOf="@id/linearLayout_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:alpha="1"/>
+
+
+    </ConstraintSet>
+
+</MotionScene>

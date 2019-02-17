@@ -12,10 +12,10 @@
     </string-array>
 
     <string-array name="subscribe_options">
-        <item>@string/add_to_inbox</item>
-        <item>@string/queue_next</item>
-        <item>@string/queue_next</item>
-        <item>@string/archive</item>
+        <item>@string/action_add_to_inbox</item>
+        <item>@string/action_queue_next</item>
+        <item>@string/action_queue_last</item>
+        <item>@string/action_archive</item>
     </string-array>
 
     <string-array name="categories_options">

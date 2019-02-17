@@ -26,6 +26,7 @@
             android:layout_margin="7dp"
             android:id="@+id/img_row"
             android:contentDescription="@null"
+            android:scaleType="centerCrop"
             app:imageUrl="@{imageUrl}"
             app:riv_border_color="@color/light_gray"
             app:riv_border_width="1dp"
