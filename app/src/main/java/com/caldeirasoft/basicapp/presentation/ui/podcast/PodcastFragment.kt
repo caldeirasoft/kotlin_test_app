@@ -79,7 +79,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.openMediaItem(content.metadata!!, transitionName)
+                                        PodcastFragmentDirections.openPodcast(content.metadata?.mediaId, transitionName)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)

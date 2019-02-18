@@ -19,7 +19,7 @@
         android:name="com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragment"
         android:label="PodcastFragment" >
         <action
-            android:id="@+id/openMediaItem"
+            android:id="@+id/openPodcast"
             app:destination="@id/podcastInfoFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
@@ -31,19 +31,25 @@
         android:name="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoFragment"
         android:label="PodcastInfoFragment" >
         <argument
-            android:name="mediaMetadata"
-            app:argType="androidx.media2.MediaMetadata" />
+            android:name="mediaId"
+            app:argType="string"
+            app:nullable="true" />
         <argument
             android:name="transitionName"
             app:argType="string"
             app:nullable="true" />
+        <argument
+            android:name="podcast"
+            app:argType="com.caldeirasoft.castly.domain.model.Podcast"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/discoverFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverFragment"
         android:label="DiscoverFragment" >
         <action
-            android:id="@+id/openMediaItem"
+            android:id="@+id/openPodcast"
             app:destination="@+id/podcastInfoFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"

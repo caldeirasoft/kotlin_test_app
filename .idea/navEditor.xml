@@ -19,24 +19,12 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_discoverFragment_to_podcastInfoFragment">
+                            <entry key="openPodcast">
                               <value>
                                 <LayoutPositions />
                               </value>
                             </entry>
                           </map>
-                        </option>
-                      </LayoutPositions>
-                    </value>
-                  </entry>
-                  <entry key="episodeInfoFragment">
-                    <value>
-                      <LayoutPositions>
-                        <option name="myPosition">
-                          <Point>
-                            <option name="x" value="301" />
-                            <option name="y" value="493" />
-                          </Point>
                         </option>
                       </LayoutPositions>
                     </value>
@@ -64,7 +52,7 @@
                         </option>
                         <option name="myPositions">
                           <map>
-                            <entry key="action_podcastFragment_to_podcastInfoFragment">
+                            <entry key="openPodcast">
                               <value>
                                 <LayoutPositions />
                               </value>
@@ -82,15 +70,6 @@
                             <option name="x" value="117" />
                             <option name="y" value="492" />
                           </Point>
-                        </option>
-                        <option name="myPositions">
-                          <map>
-                            <entry key="action_podcastInfoFragment_to_episodeInfoFragment">
-                              <value>
-                                <LayoutPositions />
-                              </value>
-                            </entry>
-                          </map>
                         </option>
                       </LayoutPositions>
                     </value>

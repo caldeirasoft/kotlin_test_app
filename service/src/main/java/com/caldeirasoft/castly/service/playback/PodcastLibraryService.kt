@@ -70,7 +70,6 @@ import java.util.concurrent.Executors
 @SuppressLint("RestrictedApi")
 class PodcastLibraryService : MediaLibraryService() {
     private lateinit var mediaSession: MediaLibrarySession
-    private lateinit var mediaController: MediaController
 
     private val podcastRepository: PodcastRepository by inject()
     private val episodeRepository: EpisodeRepository by inject()
@@ -145,7 +144,7 @@ class PodcastLibraryService : MediaLibraryService() {
         // create a new media player
         val mediaPlayer = MediaPlayer(this)
 
-        val ioExecutor = Executors.newFixedThreadPool(5)
+        val ioExecutor = Executors.newSingleThreadExecutor()
 
         val sessionCallback = SessionCallback()
         // Create a new MediaSession.
@@ -156,17 +155,17 @@ class PodcastLibraryService : MediaLibraryService() {
                 .setId(ID)
                 .build()
 
-        val controllerCallback = MediaControllerCallBack()
-        // Because ExoPlayer will manage the MediaSession, add the service as a callback for
-        // state changes.
-        mediaController = MediaController(this, mediaSession.token, ioExecutor, controllerCallback)
-
         return mediaSession
     }
 
     private inner class SessionCallback : MediaLibrarySession.MediaLibrarySessionCallback() {
         override fun onGetLibraryRoot(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, params: LibraryParams?): LibraryResult {
             return LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS)
+        }
+
+        override fun onSubscribe(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, parentId: String, params: LibraryParams?): Int {
+            session.notifyChildrenChanged(parentId, 0, params)
+            return RESULT_CODE_SUCCESS
         }
 
         override fun onGetItem(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, mediaId: String): LibraryResult {

@@ -20,6 +20,7 @@ import com.caldeirasoft.castly.domain.usecase.GetPodcastFromFeedlyUseCase
 import com.caldeirasoft.castly.domain.usecase.SubscribeToPodcastUseCase
 import com.caldeirasoft.castly.domain.usecase.UnsubscribeUseCase
 import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_PODCAST
+import com.caldeirasoft.castly.service.playback.extensions.mediaMetadata
 import com.caldeirasoft.castly.service.playback.extensions.toPodcast
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -27,7 +28,8 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 class PodcastInfoViewModel(
-        val mediaMetadata: MediaMetadata,
+        mediaId: String?,
+        val podcast: Podcast?,
         val podcastRepository: PodcastRepository,
         val episodeRepository: EpisodeRepository,
         val getEpisodesFromFeedlyUseCase: GetEpisodesFromFeedlyUseCase,
@@ -50,7 +52,8 @@ class PodcastInfoViewModel(
 
     var isSubscribing = MutableLiveData<Boolean>()
 
-    var podcastData = MutableLiveData<Podcast>()
+    val _podcastData = MutableLiveData<Podcast>()
+    var podcastData: LiveData<Podcast> = _podcastData
 
     var sectionData = MutableLiveData<Int>()
 
@@ -68,7 +71,12 @@ class PodcastInfoViewModel(
         get() = pagedList
 
     //region media
-    private val mediaId: MediaID = MediaID(TYPE_PODCAST, mediaMetadata.mediaId)
+    private val mediaId: MediaID =
+            mediaId?.let { MediaID().fromString(it) }
+                    ?: MediaID(TYPE_PODCAST, podcast?.feedId)
+
+    // podcast url
+    private val podcastUrl:String = this.mediaId.mediaId.toString()
 
     //mediaItems
     fun getPagedMediaItems(): LiveData<PagedList<MediaItem>> {
@@ -78,7 +86,7 @@ class PodcastInfoViewModel(
                 .setPrefetchDistance(5)
                 .build()
         // pagedList
-        return LivePagedListBuilder(MediaItemDataSourceFactory(mediaId.asString(), mediaMetadata, mediaSessionConnection), pagedListConfig)
+        return LivePagedListBuilder(MediaItemDataSourceFactory(mediaId.asString(), podcastData.value?.mediaMetadata!!, mediaSessionConnection), pagedListConfig)
                 .setFetchExecutor(ioExecutor)
                 .build()
     }
@@ -99,14 +107,15 @@ class PodcastInfoViewModel(
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
 
-        // podcast
-        podcastData.postValue(mediaMetadata.toPodcast())
-
         // podcast in database
-        val podcastInDb = podcastRepository.get(mediaMetadata.mediaId.toString())
+        val podcastDb = podcastRepository.get(podcastUrl)
         isInDatabase.addSource(podcastInDb) { pod ->
             isInDatabase.value = pod != null
         }
+
+        // podcast
+        if (podcast != null) { _podcastData.postValue(podcast) }
+        else { podcastData = podcastDb }
 
         // pagedList
         val pagedListConfig: PagedList.Config = PagedList.Config.Builder()
@@ -137,7 +146,7 @@ class PodcastInfoViewModel(
                     ?: run {
                         // get podcast from db
                         getPodcastFromFeedlyUseCase
-                                .execute(GetPodcastFromFeedlyUseCase.Params(mediaMetadata.mediaId.toString()))
+                                .execute(GetPodcastFromFeedlyUseCase.Params(podcastUrl))
                                 .await()
                                 .data
                                 ?.let {

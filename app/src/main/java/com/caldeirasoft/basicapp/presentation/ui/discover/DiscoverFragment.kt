@@ -75,7 +75,9 @@ class DiscoverFragment :
                                         ViewCompat.setTransitionName(imageView, transitionName)
 
                                         val direction =
-                                                DiscoverFragmentDirections.openMediaItem(it.podcast.mediaMetadata, transitionName)
+                                                DiscoverFragmentDirections.openPodcast(null, transitionName).apply {
+                                                    podcast = it.podcast
+                                                }
                                         val extras = FragmentNavigatorExtras(imageView to transitionName)
                                         navigateTo(direction, extras)
                                     }
@@ -96,7 +98,7 @@ class DiscoverFragment :
                                         .imageUrl(it.imageUrl)
                                         .authors(it.authors)
                                         .onPodcastClick { model, parentView, clickedView, position ->
-                                            navigateToPodcast(it.mediaMetadata, parentView, position)
+                                            navigateToPodcast(it, parentView, position)
                                         }
                             }
                         }
@@ -105,7 +107,7 @@ class DiscoverFragment :
             }
 
 
-    private fun navigateToPodcast(mediaItem: MediaMetadata,
+    private fun navigateToPodcast(podcast: Podcast,
                                   parentView: DataBindingEpoxyModel.DataBindingHolder,
                                   position: Int) {
         val transitionName = "iv_podcast$position"
@@ -114,7 +116,9 @@ class DiscoverFragment :
         ViewCompat.setTransitionName(imageView, transitionName)
 
         val direction =
-                DiscoverFragmentDirections.openMediaItem(mediaItem, transitionName)
+                DiscoverFragmentDirections.openPodcast(null, transitionName).also{
+                    it.podcast = podcast
+                }
         val extras = FragmentNavigatorExtras(imageView to transitionName)
         navigateTo(direction, extras)
     }

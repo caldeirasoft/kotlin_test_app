@@ -1,11 +1,10 @@
 package com.caldeirasoft.basicapp.presentation.ui.base
 
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.media2.MediaBrowser
-import androidx.media2.MediaItem
-import androidx.media2.MediaLibraryService
+import androidx.media2.*
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 
 open class MediaItemViewModel(
@@ -20,6 +19,13 @@ open class MediaItemViewModel(
 
     // subscriptions callback
     private val browserCallback = object : MediaBrowser.BrowserCallback() {
+        override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
+            (controller as MediaBrowser)
+                    .subscribe(mediaId,
+                            MediaLibraryService.LibraryParams
+                                    .Builder().setExtras(Bundle())
+                                    .build())
+        }
         override fun onChildrenChanged(browser: MediaBrowser, parentId: String, itemCount: Int, params: MediaLibraryService.LibraryParams?) {
             browser.getChildren(parentId, 0, 5, params)
                     .get()
@@ -32,7 +38,7 @@ open class MediaItemViewModel(
 
     // mediasession
     private val mediaBrowser = mediaSessionConnection.createBrowser(browserCallback).also {
-        it.subscribe(mediaId, null)
+        it.subscribe(mediaId, MediaLibraryService.LibraryParams.Builder().build())
     }
 
 

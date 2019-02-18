@@ -19,10 +19,14 @@ package com.caldeirasoft.basicapp.media
 import androidx.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
+import android.os.AsyncTask
 import android.os.Bundle
+import android.os.HandlerThread
 import androidx.media2.*
 import androidx.media2.SessionPlayer.*
+import com.caldeirasoft.castly.service.playback.utils.SyncHandler
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 /**
@@ -44,8 +48,7 @@ import java.util.concurrent.Executors
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
 class MediaSessionConnection(val context: Context, val serviceComponent: ComponentName) {
-    private val ioExecutor = Executors.newFixedThreadPool(5)
-
+    private lateinit var ioExecutor: Executor
     val isConnected = MutableLiveData<Boolean>()
             .apply { postValue(false) }
 
@@ -55,6 +58,22 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
             .apply { postValue(null) }
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
+
+    init {
+        val handlerThread = HandlerThread("MediaSessionConnection")
+        handlerThread.start()
+        val sHandler = SyncHandler(handlerThread.looper)
+
+        ioExecutor =  object : Executor {
+            override fun execute(command: Runnable?) {
+                val handler: SyncHandler?
+                synchronized(MediaSessionConnection.javaClass) {
+                    handler = sHandler
+                }
+                handler?.post(command)
+            }
+        }
+    }
 
     fun createBrowser(): MediaBrowser {
         return createBrowser(null)

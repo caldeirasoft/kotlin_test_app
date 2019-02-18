@@ -41,7 +41,7 @@ class PodcastInfoFragment :
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
     // viewmodel
-    private val mViewModel:PodcastInfoViewModel by viewModel { parametersOf(args.mediaMetadata) }
+    private val mViewModel:PodcastInfoViewModel by viewModel { parametersOf(args.mediaId, args.podcast) }
     private val controller by lazy { createEpoxyController() }
 
     // views

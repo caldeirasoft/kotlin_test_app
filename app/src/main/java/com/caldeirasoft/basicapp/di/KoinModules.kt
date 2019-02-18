@@ -86,8 +86,9 @@ val presentationModule = module {
     viewModel { PodcastViewModel(mediaSessionConnection = get()) }
     viewModel { DiscoverViewModel(getItunesStoreUseCase = get())}
     viewModel { (category: Int) -> CatalogViewModel(itunesRepository = get(), podcastRepository = get(), category = category) }
-    viewModel { (mediaMetadata: MediaMetadata) -> PodcastInfoViewModel(
-                mediaMetadata = mediaMetadata,
+    viewModel { (mediaId: String?, podcast: Podcast?) -> PodcastInfoViewModel(
+                mediaId = mediaId,
+                podcast = podcast,
                 podcastRepository = get(),
                 episodeRepository = get(),
                 getEpisodesFromFeedlyUseCase = get(),
