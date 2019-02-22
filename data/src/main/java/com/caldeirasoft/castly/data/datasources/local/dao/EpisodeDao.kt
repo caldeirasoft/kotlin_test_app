@@ -15,14 +15,20 @@ interface EpisodeDao {
     /**
      * Select all episodes by podcast id
      */
-    @Query("SELECT * FROM Episodes Where feedUrl = :feedUrl ORDER BY published DESC")
-    fun fetchFactory(feedUrl: String): DataSource.Factory<Int, EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where feedUrl= :feedUrl ORDER BY published DESC")
+    fun fetch(feedUrl: String): LiveData<List<EpisodeEntity>>
 
     /**
      * Select all episodes by podcast id
      */
     @Query("SELECT * FROM Episodes Where feedUrl= :feedUrl ORDER BY published DESC")
-    fun fetch(feedUrl: String): LiveData<List<EpisodeEntity>>
+    fun fetchSync(feedUrl: String): List<EpisodeEntity>
+
+    /**
+     * Select all episodes by podcast id
+     */
+    @Query("SELECT * FROM Episodes Where feedUrl = :feedUrl ORDER BY published DESC")
+    fun fetchFactory(feedUrl: String): DataSource.Factory<Int, EpisodeEntity>
 
     /**
      * Select all episodes by section

@@ -16,97 +16,71 @@ import kotlinx.coroutines.async
  */
 class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
 
-    override fun fetch(feedUrl: String): LiveData<List<Episode>>
-            = episodeDao.fetch(feedUrl).convertAll()
+    override fun fetch(feedUrl: String): LiveData<List<Episode>> = episodeDao.fetch(feedUrl).convertAll()
 
-    override fun fetchFactory(feedUrl: String): DataSource.Factory<Int, Episode>
-            = episodeDao.fetchFactory(feedUrl).convertAll()
+    override fun fetchSync(feedUrl: String): List<Episode> = episodeDao.fetchSync(feedUrl).map { it as Episode }
 
-    override fun fetch(section: Int): LiveData<List<Episode>>
-            = episodeDao.fetch(section).convertAll()
+    override fun fetchFactory(feedUrl: String): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(feedUrl).convertAll()
 
-    override fun fetchSync(section: Int): List<Episode>
-            = episodeDao.fetchSync(section).map { it as Episode }
+    override fun fetch(section: Int): LiveData<List<Episode>> = episodeDao.fetch(section).convertAll()
 
-    override fun fetchQueue(): LiveData<List<Episode>>
-            = episodeDao.fetchQueue().convertAll()
+    override fun fetchSync(section: Int): List<Episode> = episodeDao.fetchSync(section).map { it as Episode }
 
-    override fun fetchQueueSync(): List<Episode>
-            = episodeDao.fetchQueueSync()
+    override fun fetchQueue(): LiveData<List<Episode>> = episodeDao.fetchQueue().convertAll()
 
-    override fun fetchFactory(section: Int): DataSource.Factory<Int, Episode>
-            = episodeDao.fetchFactory(section).convertAll()
+    override fun fetchQueueSync(): List<Episode> = episodeDao.fetchQueueSync()
 
-    override fun fetch(section: Int, feedUrl: String): LiveData<List<Episode>>
-            = episodeDao.fetch(section, feedUrl).convertAll()
+    override fun fetchFactory(section: Int): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(section).convertAll()
 
-    override fun fetchSync(section: Int, feedUrl: String): List<Episode>
-            = episodeDao.fetchSync(section, feedUrl).map { it as Episode }
+    override fun fetch(section: Int, feedUrl: String): LiveData<List<Episode>> = episodeDao.fetch(section, feedUrl).convertAll()
 
-    override fun fetchFactory(section: Int, feedUrl: String): DataSource.Factory<Int, Episode>
-            = episodeDao.fetchFactory(section, feedUrl).convertAll()
+    override fun fetchSync(section: Int, feedUrl: String): List<Episode> = episodeDao.fetchSync(section, feedUrl).map { it as Episode }
 
-    override fun fetchEpisodesCountByPodcast(section: Int): LiveData<List<PodcastWithCount>>
-            = episodeDao.fetchEpisodesCountByPodcast(section).convertAll()
+    override fun fetchFactory(section: Int, feedUrl: String): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(section, feedUrl).convertAll()
 
-    override fun fetchEpisodeCountBySection(feedUrl: String): LiveData<SectionWithCount>
-            = episodeDao.fetchEpisodeCountBySection(feedUrl).convert()
+    override fun fetchEpisodesCountByPodcast(section: Int): LiveData<List<PodcastWithCount>> = episodeDao.fetchEpisodesCountByPodcast(section).convertAll()
 
-    override fun getSync(episodeId: String): Episode?
-            = episodeDao.getSync(episodeId)
+    override fun fetchEpisodeCountBySection(feedUrl: String): LiveData<SectionWithCount> = episodeDao.fetchEpisodeCountBySection(feedUrl).convert()
 
-    override fun getSync(feedUrl: String, mediaUrl: String): Episode?
-            = episodeDao.getSync(feedUrl, mediaUrl)
+    override fun getSync(episodeId: String): Episode? = episodeDao.getSync(episodeId)
 
-    override fun get(episodeId:String): LiveData<Episode>
-            = episodeDao.get(episodeId).convert()
+    override fun getSync(feedUrl: String, mediaUrl: String): Episode? = episodeDao.getSync(feedUrl, mediaUrl)
 
-    override fun insert(episode: Episode): Deferred<Unit> {
-        return GlobalScope.async {
-            episode as EpisodeEntity
-            episodeDao.insert(episode)
-        }
+    override fun get(episodeId: String): LiveData<Episode> = episodeDao.get(episodeId).convert()
+
+    override fun insert(episode: Episode) {
+        episode as EpisodeEntity
+        episodeDao.insert(episode)
     }
 
-    override fun update(episode: Episode): Deferred<Unit> {
-        return GlobalScope.async {
-            episode as EpisodeEntity
-            episodeDao.update(episode)
-        }
+    override fun update(episode: Episode) {
+        episode as EpisodeEntity
+        episodeDao.update(episode)
     }
 
-    override fun update(episodes: List<Episode>): Deferred<Unit> {
-        return GlobalScope.async{
-            episodes as List<EpisodeEntity>
-            episodeDao.update (episodes)
-        }
+    override fun update(episodes: List<Episode>) {
+        episodes as List<EpisodeEntity>
+        episodeDao.update(episodes)
     }
 
-    override fun delete(episode: Episode): Deferred<Unit> {
-        return GlobalScope.async {
-            episode as EpisodeEntity
-            episodeDao.delete(episode)
-        }
+    override fun delete(episode: Episode) {
+        episode as EpisodeEntity
+        episodeDao.delete(episode)
     }
 
-    override fun deleteByPodcast(feedUrl: String): Deferred<Unit> {
-        return GlobalScope.async {
-            episodeDao.deleteByPodcast(feedUrl)
-        }
+    override fun deleteByPodcast(feedUrl: String) {
+        episodeDao.deleteByPodcast(feedUrl)
     }
 
     /**
      * Insert episode if not exists
      */
-    override fun upsert(episode: Episode): Deferred<Unit> {
-        return GlobalScope.async{
-            getSync(episode.feedUrl, episode.mediaUrl).let {
-                if (it != null)
-                    update(episode).await()
-                else
-                    insert(episode).await()
-            }
-            Unit
+    override fun upsert(episode: Episode) {
+        getSync(episode.feedUrl, episode.mediaUrl).let {
+            if (it != null)
+                update(episode)
+            else
+                insert(episode)
         }
     }
 }

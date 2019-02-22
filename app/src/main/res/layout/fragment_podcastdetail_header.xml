@@ -9,6 +9,12 @@
         <variable
             name="viewModel"
             type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel"/>
+
+        <variable name="title" type="String"/>
+        <variable name="artist" type="String"/>
+        <variable name="albumArtUri" type="String"/>
+        <variable name="displayDescription" type="String"/>
+        <variable name="inDatabase" type="Boolean"/>
         <variable
             name="onSubscribe"
             type="android.view.View.OnClickListener"/>
@@ -31,7 +37,7 @@
             android:layout_height="220dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
-            app:blurUrl="@{viewModel.podcastData.imageUrl}"
+            app:blurUrl="@{albumArtUri}"
             app:attachedScrimView="@{viewBackdropScrim}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,7 +62,7 @@
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:elevation="4dp"
-            app:imageUrl="@{viewModel.podcastData.imageUrl}"
+            app:imageUrl="@{albumArtUri}"
             android:src="@drawable/thumb_1_0"
             app:riv_border_color="@color/light_gray"
             app:riv_border_width="1dp"
@@ -108,7 +114,7 @@
                 app:rb_text_color="@color/colorPrimary"
                 app:rb_text_color_pressed="@android:color/white"
                 android:textStyle="bold"
-                android:onClick="@{() -> !viewModel.isInDatabase() ? viewModel.subscribe() : viewModel.unsubscribe()}"
+                android:onClick="@{() -> viewModel.toggleSubscription()}"
                 />
 
         </LinearLayout>
@@ -123,7 +129,7 @@
             android:ellipsize="end"
             android:scrollHorizontally="true"
             android:marqueeRepeatLimit="marquee_forever"
-            android:text="@{viewModel.podcastData.title, default=`Default Title`}"
+            android:text="@{title, default=`Default Title`}"
             android:maxLines="2"
             android:layout_marginTop="@dimen/dp_5"
             android:layout_marginBottom="@dimen/dp_5"
@@ -141,7 +147,7 @@
             android:layout_gravity="start"
             android:gravity="start"
             android:singleLine="true"
-            android:text="@{viewModel.podcastData.authors}"
+            android:text="@{artist}"
             android:paddingStart="@dimen/element_margin_small"
             android:paddingEnd="@dimen/element_margin_small"
             app:layout_constraintTop_toBottomOf="@id/textview_title"
@@ -164,7 +170,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:visibility="@{viewModel.descriptionData == null}">
+                android:visibility="@{displayDescription == null}">
                 <include layout="@layout/shimmer_item_podcast_description"/>
             </FrameLayout>
 
@@ -172,12 +178,12 @@
                 android:id="@+id/podcastDescription"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="@{viewModel.descriptionData}"
+                android:text="@{displayDescription}"
                 android:layout_gravity="center_horizontal"
                 android:textColor="#616161"
                 android:textSize="@dimen/text_medium"
                 android:fontFamily="sans-serif-light"
-                android:visibility="@{viewModel.descriptionData != null}"
+                android:visibility="@{displayDescription != null}"
                 />
         </LinearLayout>
 
@@ -216,7 +222,7 @@
                 android:scrollHorizontally="true"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:elevation="5dp"
-                android:text="@{viewModel.podcastData.title}"
+                android:text="@{title}"
                 android:singleLine="true"
                 android:layout_marginTop="@dimen/dp_5"
                 android:layout_marginBottom="@dimen/dp_5"

@@ -12,11 +12,6 @@ import com.caldeirasoft.basicapp.presentation.ui.base.MediaItemViewModel
 import com.caldeirasoft.castly.domain.model.MediaID
 import com.caldeirasoft.castly.domain.model.PodcastWithCount
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_FAVORITE
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_GENRE
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_HISTORY
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_INBOX
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_QUEUE
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
@@ -24,22 +19,7 @@ abstract class EpisodeListViewModel(
         sectionState: SectionState,
         mediaSessionConnection: MediaSessionConnection,
         episodeRepository: EpisodeRepository)
-    : MediaItemViewModel(getMediaId(sectionState).asString(), mediaSessionConnection) {
-
-    companion object {
-        fun getMediaId(sectionState: SectionState): MediaID =
-                MediaID(when (sectionState) {
-                    SectionState.QUEUE -> TYPE_QUEUE
-                    SectionState.INBOX -> TYPE_INBOX
-                    SectionState.FAVORITE -> TYPE_FAVORITE
-                    SectionState.HISTORY -> TYPE_HISTORY
-                    else -> TYPE_GENRE
-                })
-    }
-
-    fun refresh() { //datasourceFactory.invalidate()
-    }
-
+    : MediaItemViewModel<Episode>(MediaID(sectionState).asString(), mediaSessionConnection) {
 
     fun applyFilter(feedUrl: String?) {
         //sourceFactory.applyFilter(feedUrl)

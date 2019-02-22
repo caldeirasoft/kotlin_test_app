@@ -22,6 +22,11 @@ interface EpisodeRepository {
     /**
      * Select all episodes by podcast id
      */
+    fun fetchSync(feedUrl: String): List<Episode>
+
+    /**
+     * Select all episodes by podcast id
+     */
     fun fetchFactory(feedUrl: String): DataSource.Factory<Int, Episode>
 
     /**
@@ -92,30 +97,30 @@ interface EpisodeRepository {
     /**
      * Insert an episode in the database. If the podcast already exists, replace it
      */
-    fun insert(episode: Episode): Deferred<Unit>
+    fun insert(episode: Episode)
 
     /**
      * Update an episode
      */
-    fun update(episode: Episode): Deferred<Unit>
+    fun update(episode: Episode)
 
     /**
      * Update a list of episodes
      */
-    fun update(episodes: List<Episode>): Deferred<Unit>
+    fun update(episodes: List<Episode>)
 
     /**
      * Delete an episode
      */
-    fun delete(episode: Episode): Deferred<Unit>
+    fun delete(episode: Episode)
 
     /**
      * Delete episodes of a podcast by its feedId
      */
-    fun deleteByPodcast(feedUrl: String): Deferred<Unit>
+    fun deleteByPodcast(feedUrl: String)
 
     /**
      * Insert episode if not exists
      */
-    fun upsert(episode: Episode): Deferred<Unit>
+    fun upsert(episode: Episode)
 }

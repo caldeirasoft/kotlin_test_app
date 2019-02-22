@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.view.*
 import androidx.core.content.ContextCompat
+import androidx.media2.MediaItem
+import androidx.versionedparcelable.ParcelUtils
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.basicapp.databinding.FragmentEpisodedetailBinding
@@ -14,6 +16,7 @@ import com.caldeirasoft.basicapp.presentation.utils.extensions.lazyArg
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.basicapp.presentation.utils.extensions.setSupportActionBar
 import com.caldeirasoft.basicapp.presentation.utils.widget.RoundedBottomSheetDialogFragment
+import com.caldeirasoft.castly.service.playback.extensions.*
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -23,13 +26,13 @@ class EpisodeInfoDialogFragment :
         RoundedBottomSheetDialogFragment()
 {
     // arguments
-    private val mediaItem:MediaBrowserCompat.MediaItem by lazyArg(EPISODE_ARG)
+    private val mediaItem: MediaItem? by lazy { ParcelUtils.getVersionedParcelable<MediaItem>(arguments, EPISODE_ARG) }
 
     // binding
     protected lateinit var mBinding: FragmentEpisodedetailBinding
 
     // viewmodel
-    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem) }
+    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem!!) }
 
     // override
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,6 +117,16 @@ class EpisodeInfoDialogFragment :
     private fun initObservers() {
         mViewModel.sectionData.observeK(this) {
             activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.mediaData.observeK(this) {
+            it?.metadata?.let {
+                mBinding.title = it.title
+                mBinding.albumArtUri = it.albumArtUri.toString()
+                mBinding.podcastTitle = it.album
+                mBinding.date = it.date
+                mBinding.displayDescription = it.displayDescription
+            }
         }
     }
 

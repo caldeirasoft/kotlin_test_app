@@ -1,17 +1,22 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaMetadataCompat
+import android.os.Bundle
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.media2.MediaItem
+import androidx.versionedparcelable.ParcelUtils
+import com.caldeirasoft.basicapp.media.MediaBrowserConnectionCallback
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_PODCAST
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class EpisodeInfoViewModel(val mediaItem: MediaBrowserCompat.MediaItem,
+class EpisodeInfoViewModel(val mediaItem: MediaItem,
                            val episodeRepository: EpisodeRepository,
                            mediaSessionConnection: MediaSessionConnection)
     : ViewModel() {
@@ -20,27 +25,34 @@ class EpisodeInfoViewModel(val mediaItem: MediaBrowserCompat.MediaItem,
     var episodeData = MutableLiveData<Episode>()
     val episodeDb: LiveData<Episode>
 
-    // section
+    // mediadata
+    var mediaData = MutableLiveData<MediaItem>().apply {
+        this.value = mediaItem
+    }
+
+    // episode section
     val _sectionData: MediatorLiveData<Int> = MediatorLiveData()
     val sectionData: LiveData<Int> = _sectionData
 
-    // mediasession
-    val mediaSessionConnection = mediaSessionConnection.also {
-    }
+    // media browser
+    val browser = mediaSessionConnection.getMediaBrowser(object : MediaBrowserConnectionCallback(){})
 
+    // init
     init {
-        episodeDb = episodeRepository.get(mediaItem.mediaId.toString())
+        episodeDb = episodeRepository.get(mediaItem.metadata?.mediaId.orEmpty())
 
         _sectionData.addSource(episodeDb) { episode ->
             _sectionData.postValue(episode?.section ?: SectionState.ARCHIVE.value)
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-    }
-
     fun playEpisode() {
+        GlobalScope.launch {
+            if (browser.isConnected) {
+                browser.setPlaylist(arrayListOf(mediaItem.metadata?.mediaId.orEmpty()), null)
+                browser.skipToPlaylistItem(0)
+            }
+        }
         /*
         val mediaDescription = MediaMetadataCompat.Builder()
                 .from(episode)
@@ -50,7 +62,7 @@ class EpisodeInfoViewModel(val mediaItem: MediaBrowserCompat.MediaItem,
         val transportControls = mediaSessionConnection.transportControls
 
         val isPrepared = mediaSessionConnection.playbackState.value?.isPrepared ?: false
-        if (isPrepared && (mediaItem.mediaId == nowPlaying?.id)) {
+        if (isPrepared && (mediaItem.id == nowPlaying?.id)) {
 
         }
         else {

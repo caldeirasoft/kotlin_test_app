@@ -6,4 +6,11 @@ enum class SectionState(val value: Int) {
     ARCHIVE(3),
     FAVORITE(4),
     HISTORY(5),
+
+    ALL_PODCASTS(10),
+    PODCAST(11),
+    EPISODE(12),
+
+    IN_DATABASE(20),
+    ROOT(-1)
 }

@@ -6,12 +6,18 @@
         <service
             android:name=".playback.PodcastLibraryService"
             android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedService">
+            android:exported="true">
             <intent-filter>
+                <action android:name="androidx.media2.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
+
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
 
         <!-- Declare that UAMP supports Android Auto. -->
         <meta-data android:name="com.google.android.gms.car.application"

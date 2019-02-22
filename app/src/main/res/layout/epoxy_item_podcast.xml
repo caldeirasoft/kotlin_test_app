@@ -42,7 +42,6 @@
             android:textColor="#616161"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:fontFamily="sans-serif-light"
             android:onClick="@{onPodcastClick}"
             />
     </LinearLayout>

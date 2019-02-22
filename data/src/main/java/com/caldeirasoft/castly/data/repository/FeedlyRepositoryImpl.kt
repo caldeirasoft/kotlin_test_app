@@ -19,30 +19,35 @@ class FeedlyRepositoryImpl(
     /**
      * Select a podcast by id
      */
-    override fun getPodcastFromFeedlyApi(feedUrl: String): Deferred<Podcast?> =
-    // request Ids
-            GlobalScope.async {
-                val feedId = "feed/" + feedUrl
-                val feed = feedlyApi.getFeed(feedId).await();
-                val podcast = PodcastEntity()
-                //podcast.imageUrl = feed.artwork
-                podcast.feedUrl = feedUrl
-                podcast.updated = feed.updated
-                podcast.description = feed.description
-                podcast
-            }
+    override fun getPodcastFromFeedlyApi(feedUrl: String): Podcast? {
+        // request Ids
+        val feedId = "feed/" + feedUrl
+        val response = feedlyApi.getFeed(feedId).execute()
+        val feed = response.body()
+        feed?.let {
+            val podcast = PodcastEntity()
+            //podcast.imageUrl = feed.artwork
+            podcast.feedUrl = feedUrl
+            podcast.updated = feed.updated
+            podcast.description = feed.description
+            return podcast
+        }
+        return null
+    }
 
     /**
      * Get stream entries from feed
      */
-    override fun getStreamEntries(podcast: Podcast, pageSize: Int, continuation: String): Deferred<FeedlyEntries> =
-            GlobalScope.async {
-                val responseEntries = feedlyApi.getStreamEntries(podcast.feedId, pageSize, continuation).await()
-                val feedlyEntries = FeedlyEntries(
-                        data = getEpisodesFromEntries(podcast, responseEntries),
-                        continuation = responseEntries.continuation)
-                feedlyEntries
-            }
+    override fun getStreamEntries(podcast: Podcast, pageSize: Int, continuation: String): FeedlyEntries? {
+        val responseEntries = feedlyApi.getStreamEntries(podcast.feedId, pageSize, continuation).execute()
+        responseEntries.body()?.let {
+            val feedlyEntries = FeedlyEntries(
+                    data = getEpisodesFromEntries(podcast, it),
+                    continuation = it.continuation)
+            return feedlyEntries
+        }
+        return null
+    }
 
     /**
      * Get episodes from stream entries
@@ -57,31 +62,30 @@ class FeedlyRepositoryImpl(
     /**
      * Get last episode of a podcast
      */
-    override fun getLastEpisode(podcast: Podcast): Deferred<Episode?> =
-            GlobalScope.async {
-                val streamEntries = feedlyApi.getStreamEntries(podcast.feedId, 1, "").await()
-                streamEntries.items
-                        .filter { entry ->
-                            entry.enclosure.firstOrNull()?.href != null
-                        }
-                        .map { entry ->
-                            getEpisodeFromEntry(entry, podcast)
-                        }
-                        .firstOrNull()
-            }
+    override fun getLastEpisode(podcast: Podcast): Episode? {
+        val streamEntries = feedlyApi.getStreamEntries(podcast.feedId, 1, "").execute()
+        return streamEntries.body()
+                ?.items
+                ?.filter { entry ->
+                    entry.enclosure.firstOrNull()?.href != null
+                }
+                ?.map { entry ->
+                    getEpisodeFromEntry(entry, podcast)
+                }
+                ?.firstOrNull()
+    }
 
     /**
      * Update podcast
      */
-    override fun updatePodcastFromFeedlyApi(podcast: Podcast): Deferred<Boolean> =
-            GlobalScope.async {
-                val result = getPodcastFromFeedlyApi(podcast.feedUrl).await()
-                result?.let {
-                    podcast.updated = it.updated
-                    podcast.description = it.description
-                    true
-                } ?: false
-            }
+    override fun updatePodcastFromFeedlyApi(podcast: Podcast): Boolean {
+        val result = getPodcastFromFeedlyApi(podcast.feedUrl)
+        return result?.let {
+            podcast.updated = it.updated
+            podcast.description = it.description
+            true
+        } ?: false
+    }
 
 
     /**
@@ -93,6 +97,7 @@ class FeedlyRepositoryImpl(
                     , entry.title
                     , entry.published ?: 0)
                     .apply {
+                        feedUrl = podcast.feedUrl
                         description = entry.summary?.content
                         mediaUrl = entry.enclosure.get(0).href
                         mediaType = entry.enclosure.get(0).type

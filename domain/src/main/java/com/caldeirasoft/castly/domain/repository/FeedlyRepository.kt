@@ -14,20 +14,20 @@ interface FeedlyRepository {
     /**
      * Get podcast from Feedly ID
      */
-    fun getPodcastFromFeedlyApi(feedUrl: String): Deferred<Podcast?>
+    fun getPodcastFromFeedlyApi(feedUrl: String): Podcast?
 
     /**
      * Get last episode from podcast
      */
-    fun getLastEpisode(podcast: Podcast): Deferred<Episode?>
+    fun getLastEpisode(podcast: Podcast): Episode?
 
     /**
      * Get stream entries from feed
      */
-    fun getStreamEntries(podcast: Podcast, pageSize:Int, continuation: String): Deferred<FeedlyEntries>
+    fun getStreamEntries(podcast: Podcast, pageSize:Int, continuation: String): FeedlyEntries?
 
     /**
      * Update podcast
      */
-    fun updatePodcastFromFeedlyApi(podcast: Podcast): Deferred<Boolean>
+    fun updatePodcastFromFeedlyApi(podcast: Podcast): Boolean
 }

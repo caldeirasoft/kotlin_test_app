@@ -16,18 +16,23 @@
 
 package com.caldeirasoft.basicapp.media
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.HandlerThread
+import android.util.Log
 import androidx.media2.*
 import androidx.media2.SessionPlayer.*
+import com.caldeirasoft.castly.service.playback.const.Constants
 import com.caldeirasoft.castly.service.playback.utils.SyncHandler
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.
@@ -47,8 +52,12 @@ import java.util.concurrent.Executors
  *  parameters, rather than private properties. They're only required to build the
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
-class MediaSessionConnection(val context: Context, val serviceComponent: ComponentName) {
-    private lateinit var ioExecutor: Executor
+class MediaSessionConnection(val context: Context, val serviceComponent: ComponentName)
+{
+    private val ioExecutor: Executor by lazy { getExecutor() }
+    private val sessionToken = SessionToken(context, serviceComponent)
+    private var mediaBrowserProxyCallbacksList: MutableList<MediaBrowser.BrowserCallback> = arrayListOf()
+
     val isConnected = MutableLiveData<Boolean>()
             .apply { postValue(false) }
 
@@ -57,14 +66,27 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
     val nowPlaying = MutableLiveData<MediaItem>()
             .apply { postValue(null) }
 
-    private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
+    fun getMediaBrowser(callback: MediaBrowserConnectionCallback, connectedAction: (() -> Unit)? = null): MediaBrowser {
+        callback.setConnectionAction(connectedAction)
+        return MediaBrowser(context, sessionToken, ioExecutor, callback)
+    }
 
-    init {
+    private fun subscribe(parentId: String, params: MediaLibraryService.LibraryParams) {
+        Log.d("Subscribe", parentId)
+        //mediaBrowser.subscribe(parentId, params)
+    }
+
+    private fun unsubscribe(parentId: String) {
+        Log.d("Unsubscribe", parentId)
+        //mediaBrowser.unsubscribe(parentId)
+    }
+
+    private fun getExecutor(): Executor {
         val handlerThread = HandlerThread("MediaSessionConnection")
         handlerThread.start()
         val sHandler = SyncHandler(handlerThread.looper)
 
-        ioExecutor =  object : Executor {
+        val executor =  object : Executor {
             override fun execute(command: Runnable?) {
                 val handler: SyncHandler?
                 synchronized(MediaSessionConnection.javaClass) {
@@ -73,35 +95,7 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
                 handler?.post(command)
             }
         }
-    }
-
-    fun createBrowser(): MediaBrowser {
-        return createBrowser(null)
-    }
-
-    fun createBrowser(callback: MediaBrowser.BrowserCallback?): MediaBrowser {
-        val sessionToken = SessionToken(context, serviceComponent)
-        return MediaBrowser(context, sessionToken, ioExecutor, callback ?: object : MediaBrowser.BrowserCallback(){})
-    }
-
-    private inner class MediaBrowserConnectionCallback(private val context: Context)
-        : MediaBrowser.BrowserCallback() {
-        /**
-         * Invoked after [MediaBrowserCompat.connect] when the request has successfully
-         * completed.
-         */
-        override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
-            // Get a MediaController for the MediaSession.
-            isConnected.postValue(true)
-        }
-
-        /**
-         * Invoked when the client is disconnected from the media browser.
-         */
-        override fun onDisconnected(controller: MediaController) {
-            super.onDisconnected(controller)
-            isConnected.postValue(false)
-        }
+        return executor
     }
 
     private inner class MediaControllerCallback : MediaController.ControllerCallback() {
@@ -123,7 +117,6 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
         }
 
         override fun onDisconnected(controller: MediaController) {
-            mediaBrowserConnectionCallback.onDisconnected(controller)
         }
     }
 
@@ -139,4 +132,35 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
                 }
     }
 }
+
+abstract class MediaBrowserConnectionCallback()
+    : MediaBrowser.BrowserCallback() {
+
+    val isConnected = MutableLiveData<Boolean>()
+            .apply { postValue(false) }
+    var onConnectedAction: (() -> Unit)? = null
+    val connectLatch: CountDownLatch = CountDownLatch(1)
+
+    fun setConnectionAction(connectedAction: (() -> Unit)?) {
+        this.onConnectedAction = connectedAction
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
+        // Get a MediaController for the MediaSession.
+        isConnected.postValue(true)
+        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_GET_DESCRIPTION, Bundle()))
+        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_SUBSCRIBE, Bundle()))
+        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_UNSUBSCRIBE, Bundle()))
+
+        connectLatch.countDown()
+        onConnectedAction?.invoke()
+    }
+
+    override fun onDisconnected(controller: MediaController) {
+        isConnected.postValue(false)
+    }
+}
+
+
 

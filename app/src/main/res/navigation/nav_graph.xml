@@ -32,8 +32,7 @@
         android:label="PodcastInfoFragment" >
         <argument
             android:name="mediaId"
-            app:argType="string"
-            app:nullable="true" />
+            app:argType="string" />
         <argument
             android:name="transitionName"
             app:argType="string"

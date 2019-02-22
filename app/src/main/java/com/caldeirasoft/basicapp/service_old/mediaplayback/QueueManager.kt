@@ -36,10 +36,10 @@ class QueueManager(private val episodeDao: EpisodeDao)
 
     fun getMediaItem(mediaId: String?): MediaMetadataCompat? {
         return if (mediaId != null) {
-            /*val item = if (mediaId == MEDIA_ID_PLAY_ALL) {
+            /*val item = if (id == MEDIA_ID_PLAY_ALL) {
                 currentPlaylist[0]
             } else {
-                currentPlaylist.filter { it -> it.description.mediaId == mediaId }[0]
+                currentPlaylist.filter { it -> it.description.id == id }[0]
             }*/
             val item = currentPlaylist.filter { it -> it.description.mediaId == mediaId }[0]
             val itemMediaData = item.description

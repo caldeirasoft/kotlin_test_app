@@ -16,18 +16,17 @@
 
 package com.caldeirasoft.castly.service.playback.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Bundle
 import androidx.media2.MediaItem
 import androidx.media2.MediaMetadata
 import androidx.media2.MediaMetadata.*
 import androidx.media2.exoplayer.external.source.ExtractorMediaSource
 import androidx.media2.exoplayer.external.upstream.DataSource
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.MediaID
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.PodcastEntity
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.TYPE_PODCAST
+import com.caldeirasoft.castly.domain.model.*
+import com.caldeirasoft.castly.service.playback.const.Constants
 import java.util.concurrent.TimeUnit
 
 /**
@@ -294,9 +293,9 @@ inline val Episode.mediaMetadata: MediaMetadata
 /**
  * Extension method for building a [MediaDescriptionCompat] from a [Podcast] object
  */
-inline val Podcast.mediaMetadata: MediaMetadata
-    get() = MediaMetadata.Builder().also {
-        it.id = MediaID(TYPE_PODCAST, feedUrl).asString()
+fun Podcast.getMediaMetadata(inDb: Boolean = false): MediaMetadata {
+    return MediaMetadata.Builder().also {
+        it.id = MediaID(SectionState.PODCAST, feedUrl).asString()
         it.title = title
         it.artist = authors
         it.displayDescription = description
@@ -304,7 +303,21 @@ inline val Podcast.mediaMetadata: MediaMetadata
 
         it.browsable = BROWSABLE_TYPE_ALBUMS
         it.playable = 0
+        it.setExtras(Bundle().apply {
+            if (inDb) {
+                putBoolean(Constants.METADATA_KEY_IN_DATABASE, true)
+            }
+        })
     }.build()
+}
+
+/**
+ * Extension method for building a [MediaItem] from a [Podcast] object
+ */
+@SuppressLint("RestrictedApi")
+fun Podcast.toMediaItem(): MediaItem {
+    return MediaItem.Builder().setMetadata(this.getMediaMetadata()).build()
+}
 
 
 /**
@@ -313,11 +326,12 @@ inline val Podcast.mediaMetadata: MediaMetadata
 fun MediaItem.toPodcast(): Podcast {
     return PodcastEntity().also { podcast ->
         this.metadata.also {
-            podcast.feedUrl = MediaID().fromString(it?.mediaId.toString()).mediaId.toString()
+            podcast.feedUrl = MediaID().fromString(it?.mediaId.toString()).id.toString()
             podcast.title = it?.title.toString()
             podcast.authors = it?.artist.toString()
             podcast.description = it?.displayDescription.toString()
             podcast.imageUrl = it?.albumArtUri.toString()
+            podcast.updated = it?.date?.toLong()
         }
     }
 }
@@ -328,7 +342,7 @@ fun MediaItem.toPodcast(): Podcast {
 fun MediaMetadata.toPodcast(): Podcast {
     return PodcastEntity().also { podcast ->
         this.also {
-            podcast.feedUrl = MediaID().fromString(it.mediaId.toString()).mediaId.toString()
+            podcast.feedUrl = MediaID.fromString(it.mediaId).id
             podcast.title = it.title.toString()
             podcast.authors = it.artist.toString()
             podcast.description = it.displayDescription.toString()

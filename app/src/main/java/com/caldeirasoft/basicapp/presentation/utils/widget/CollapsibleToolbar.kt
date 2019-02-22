@@ -30,7 +30,7 @@ class CollapsibleToolbar : MotionLayout, AppBarLayout.OnOffsetChangedListener {
 
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
         progress = -verticalOffset / appBarLayout?.totalScrollRange?.toFloat()!!
-        Log.d("progress", progress.toString());
+        //Log.d("progress", progress.toString());
     }
 
     override fun onAttachedToWindow() {

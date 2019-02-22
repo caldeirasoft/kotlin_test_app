@@ -93,11 +93,11 @@ class CatalogViewModel(
             podcast.apply {
                 when (isInDatabase) {
                     false -> { // not yet in database : subscribe
-                        podcastRepository.insert(this).await()
+                        podcastRepository.insert(this)
                         isInDatabase = true
                     }
                     true -> { // in database : remove
-                        podcastRepository.delete(this).await()
+                        podcastRepository.delete(this)
                         isInDatabase = false
                     }
                 }

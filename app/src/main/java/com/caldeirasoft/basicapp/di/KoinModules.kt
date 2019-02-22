@@ -69,9 +69,7 @@ val repositoryModule = module {
 val usecaseModule = module {
     single { GetItunesStoreUseCase(podcastRepository = get(), itunesRepository = get()) }
     //single { GetEpisodeFromDbUseCase(episodeRepository = get()) }
-    single { GetEpisodesFromFeedlyUseCase(episodeRepository = get(), feedlyRepository = get()) }
     single { GetPodcastFromFeedlyUseCase(feedlyRepository = get()) }
-    single { SubscribeToPodcastUseCase(feedlyRepository = get(), podcastRepository = get(), episodeRepository = get()) }
     single { UnsubscribeUseCase(podcastRepository = get(), episodeRepository = get()) }
 }
 
@@ -83,20 +81,18 @@ val mediaModule = module {
 val presentationModule = module {
     viewModel { QueueViewModel(episodeRepository = get(), mediaSessionConnection = get()) }
     viewModel { InboxViewModel(episodeRepository = get(), mediaSessionConnection = get()) }
-    viewModel { PodcastViewModel(mediaSessionConnection = get()) }
+    viewModel { PodcastViewModel(
+            mediaSessionConnection = get(),
+            podcastRepository = get()) }
     viewModel { DiscoverViewModel(getItunesStoreUseCase = get())}
     viewModel { (category: Int) -> CatalogViewModel(itunesRepository = get(), podcastRepository = get(), category = category) }
-    viewModel { (mediaId: String?, podcast: Podcast?) -> PodcastInfoViewModel(
+    viewModel { (mediaId: String, podcast: Podcast?) -> PodcastInfoViewModel(
                 mediaId = mediaId,
                 podcast = podcast,
                 podcastRepository = get(),
                 episodeRepository = get(),
-                getEpisodesFromFeedlyUseCase = get(),
-                getPodcastFromFeedlyUseCase = get(),
-                subscribeToPodcastUseCase = get(),
-                unsubscribeUseCase = get(),
                 mediaSessionConnection = get())}
-    viewModel { (mediaItem: MediaBrowserCompat.MediaItem) -> EpisodeInfoViewModel(
+    viewModel { (mediaItem: MediaItem) -> EpisodeInfoViewModel(
             mediaItem = mediaItem,
             episodeRepository = get(),
             mediaSessionConnection = get())}

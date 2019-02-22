@@ -13,63 +13,52 @@ import kotlinx.coroutines.async
 /**
  * Created by Edmond on 15/02/2018.
  */
-class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository
-{
+class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository {
     private val TAG = PodcastRepository::class.java.simpleName
 
 
     /**
      * Select all podcasts from the database
      */
-    override fun fetch(): LiveData<List<Podcast>>
-            = podcastDao.fetch().convert()
+    override fun fetch(): LiveData<List<Podcast>> = podcastDao.fetch().convert()
 
 
     /**
      * Select all podcasts from the database
      */
-    override fun fetchSync(): List<Podcast>
-            = podcastDao.fetchSync().map { it as Podcast }
+    override fun fetchSync(): List<Podcast> = podcastDao.fetchSync().map { it as Podcast }
 
     /**
      * Select a podcast by id
      */
-    override fun get(feedUrl:String): LiveData<Podcast>
-            = podcastDao.get(feedUrl).convert()
+    override fun get(feedUrl: String): LiveData<Podcast> = podcastDao.get(feedUrl).convert()
 
     /**
      * Select a podcast by id
      */
-    override fun getSync(feedUrl:String): Podcast?
-            = podcastDao.getSync(feedUrl)
+    override fun getSync(feedUrl: String): Podcast? = podcastDao.getSync(feedUrl)
 
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it
      */
-    override fun insert(podcast: Podcast): Deferred<Unit> {
-        return GlobalScope.async {
-            podcast as PodcastEntity
-            podcastDao.insert(podcast)
-        }
+    override fun insert(podcast: Podcast) {
+        podcast as PodcastEntity
+        podcastDao.insert(podcast)
     }
 
     /**
      * Update a podcast
      */
-    override fun update(podcast: Podcast): Deferred<Unit> {
-        return GlobalScope.async {
-            podcast as PodcastEntity
-            podcastDao.update(podcast)
-        }
+    override fun update(podcast: Podcast) {
+        podcast as PodcastEntity
+        podcastDao.update(podcast)
     }
 
     /**
      * Delete a podcast
      */
-    override fun delete(podcast: Podcast): Deferred<Unit> {
-        return GlobalScope.async {
-            podcast as PodcastEntity
-            podcastDao.delete(podcast)
-        }
+    override fun delete(podcast: Podcast) {
+        podcast as PodcastEntity
+        podcastDao.delete(podcast)
     }
 }

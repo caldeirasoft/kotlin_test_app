@@ -17,6 +17,8 @@ import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaItemViewModel
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
+import com.caldeirasoft.castly.domain.model.MediaID
+import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.service.playback.extensions.mediaMetadata
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -74,8 +76,9 @@ class DiscoverFragment :
                                         val imageView: ImageView = rootView.findViewById(R.id.imageview_background)
                                         ViewCompat.setTransitionName(imageView, transitionName)
 
+                                        val id = MediaID(SectionState.PODCAST, it.podcast.feedUrl).asString()
                                         val direction =
-                                                DiscoverFragmentDirections.openPodcast(null, transitionName).apply {
+                                                DiscoverFragmentDirections.openPodcast(id, transitionName).apply {
                                                     podcast = it.podcast
                                                 }
                                         val extras = FragmentNavigatorExtras(imageView to transitionName)
@@ -115,8 +118,9 @@ class DiscoverFragment :
         val imageView: ImageView = rootView.findViewById(R.id.img_row)
         ViewCompat.setTransitionName(imageView, transitionName)
 
+        val id = MediaID(SectionState.PODCAST, podcast.feedUrl).asString()
         val direction =
-                DiscoverFragmentDirections.openPodcast(null, transitionName).also{
+                DiscoverFragmentDirections.openPodcast(id, transitionName).also{
                     it.podcast = podcast
                 }
         val extras = FragmentNavigatorExtras(imageView to transitionName)

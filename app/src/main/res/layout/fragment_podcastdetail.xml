@@ -10,6 +10,11 @@
         <variable
             name="viewModel"
             type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel"/>
+        <variable name="title" type="String"/>
+        <variable name="artist" type="String"/>
+        <variable name="albumArtUri" type="String"/>
+        <variable name="displayDescription" type="String"/>
+        <variable name="inDatabase" type="Boolean"/>
         <variable
             name="onSubscribe"
             type="android.view.View.OnClickListener"/>
@@ -29,7 +34,11 @@
 
             <include layout="@layout/fragment_podcastdetail_header"
                     bind:viewModel="@{viewModel}"
-                    bind:onSubscribe="@{onSubscribe}"/>
+                    bind:onSubscribe="@{onSubscribe}"
+                    bind:title="@{title}"
+                    bind:artist="@{artist}"
+                    bind:albumArtUri="@{albumArtUri}"
+                    bind:displayDescription="@{displayDescription}"/>
 
         </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
 

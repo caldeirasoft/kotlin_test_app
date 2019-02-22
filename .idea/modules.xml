@@ -5,9 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/data/data.iml" filepath="$PROJECT_DIR$/data/data.iml" />
       <module fileurl="file://$PROJECT_DIR$/domain/domain.iml" filepath="$PROJECT_DIR$/domain/domain.iml" />
-      <module fileurl="file://$PROJECT_DIR$/kotlin_test_app.iml" filepath="$PROJECT_DIR$/kotlin_test_app.iml" />
       <module fileurl="file://$PROJECT_DIR$/roundbutton/roundbutton.iml" filepath="$PROJECT_DIR$/roundbutton/roundbutton.iml" />
       <module fileurl="file://$PROJECT_DIR$/service/service.iml" filepath="$PROJECT_DIR$/service/service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/test_app.iml" filepath="$PROJECT_DIR$/test_app.iml" />
     </modules>
   </component>
 </project>

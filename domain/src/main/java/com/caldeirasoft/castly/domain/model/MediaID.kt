@@ -1,28 +1,31 @@
 package com.caldeirasoft.castly.domain.model
 
-class MediaID(var type: Int? = null, var mediaId: String? = "NA", var caller: String? = currentCaller) {
-    companion object {
-        const val CALLER_SELF = "self"
-        const val CALLER_OTHER = "other"
+import android.provider.MediaStore
 
+class MediaID(var type: SectionState = SectionState.ROOT, var id: String = "NA") {
+
+    companion object {
         private const val TYPE = "type: "
         private const val MEDIA_ID = "media_id: "
-        private const val CALLER = "caller: "
         private const val SEPARATOR = " | "
 
-        var currentCaller: String? = MediaID.CALLER_SELF
+        fun fromString(s: String?): MediaID =
+                MediaID().apply {
+                    s?.let {
+                        this.type = SectionState.valueOf(s.substring(6, s.indexOf(SEPARATOR)))
+                        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR))
+                    }
+                    return this
+                }
     }
 
-    //var mediaItem: MediaBrowser.MediaItem? = null
-
     fun asString(): String {
-        return TYPE + type + SEPARATOR + MEDIA_ID + mediaId + SEPARATOR + CALLER + caller
+        return TYPE + type + SEPARATOR + MEDIA_ID + id + SEPARATOR
     }
 
     fun fromString(s: String): MediaID {
-        this.type = s.substring(6, s.indexOf(SEPARATOR)).toInt()
-        this.mediaId = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR))
-        this.caller = s.substring(s.lastIndexOf(SEPARATOR) + 3 + 8, s.length)
+        this.type = SectionState.valueOf(s.substring(6, s.indexOf(SEPARATOR)))
+        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR))
         return this
     }
 }

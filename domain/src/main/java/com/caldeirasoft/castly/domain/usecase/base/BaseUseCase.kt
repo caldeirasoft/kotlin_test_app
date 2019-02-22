@@ -12,22 +12,18 @@ abstract class BaseUseCase<in Input, out Output> {
     var terminated: (() -> Unit)? = null
 
 
-    suspend fun execute(params: Input): Deferred<UseCaseResponse<out Output>> {
+    fun execute(params: Input): UseCaseResponse<out Output> {
         beforeExecute?.invoke()
 
         var succeed = false
         try {
-            val result = run(params).await()
+            val result = run(params)
             succeed = true
-            return GlobalScope.async {
-                UseCaseResponse.success(result)
-            }
+            return UseCaseResponse.success(result)
         } catch (e: Exception) {
             succeed = false
             failed?.invoke(e)
-            return GlobalScope.async {
-                UseCaseResponse.error<Output>(e)
-            }
+            return UseCaseResponse.error<Output>(e)
         } finally {
             if (succeed) {
                 afterExecute?.invoke()
@@ -38,6 +34,6 @@ abstract class BaseUseCase<in Input, out Output> {
 
     }
 
-    protected abstract suspend fun run(params: Input): Deferred<Output>
+    protected abstract fun run(params: Input): Output
 
 }

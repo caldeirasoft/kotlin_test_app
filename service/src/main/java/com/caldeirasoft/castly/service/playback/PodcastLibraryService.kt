@@ -17,17 +17,10 @@
 package com.caldeirasoft.castly.service.playback
 
 import android.annotation.SuppressLint
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.media.AudioManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.support.v4.media.MediaDescriptionCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
+import android.os.Process
+import android.util.Log
 import androidx.media2.*
 import androidx.media2.MediaController.ControllerResult.RESULT_CODE_BAD_VALUE
 import androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS
@@ -35,24 +28,24 @@ import androidx.media2.MediaMetadata.*
 import androidx.media2.exoplayer.external.C
 import androidx.media2.exoplayer.external.ExoPlayer
 import androidx.media2.exoplayer.external.ExoPlayerFactory
-import androidx.media2.exoplayer.external.Player
 import androidx.media2.exoplayer.external.audio.AudioAttributes
-import androidx.media2.exoplayer.external.source.ConcatenatingMediaSource
 import androidx.versionedparcelable.ParcelUtils
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.MediaID
 import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import com.caldeirasoft.castly.domain.repository.FeedlyRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.castly.domain.usecase.GetEpisodesFromFeedlyUseCase
 import com.caldeirasoft.castly.service.R
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_GET_DESCRIPTION
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_REFRESH
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_SUBSCRIBE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_UNSUBSCRIBE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.io.InputStream
 import java.util.concurrent.Executors
 
 
@@ -68,33 +61,22 @@ import java.util.concurrent.Executors
  * visit [https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html](https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html).
  */
 @SuppressLint("RestrictedApi")
-class PodcastLibraryService : MediaLibraryService() {
+class PodcastLibraryService : LifecycleMediaBrowserService() {
     private lateinit var mediaSession: MediaLibrarySession
 
     private val podcastRepository: PodcastRepository by inject()
     private val episodeRepository: EpisodeRepository by inject()
-    private val getEpisodesFromFeedlyUseCase: GetEpisodesFromFeedlyUseCase by inject()
+    private val feedlyRepository: FeedlyRepository by inject()
+    private val mediaItemsHashMap: HashMap<String, MediaItem> = hashMapOf()
 
     companion object {
         const val ID = "TEST"
 
-        const val MEDIA_ID_ARG = "MEDIA_ID"
-        const val MEDIA_TYPE_ARG = "MEDIA_TYPE"
-        const val MEDIA_CALLER = "MEDIA_CALLER"
-        const val MEDIA_ID_ROOT = -1
-        const val TYPE_ALL_PODCASTS = 0
-        const val TYPE_QUEUE = 1
-        const val TYPE_INBOX = 2
-        const val TYPE_FAVORITE = 3
-        const val TYPE_HISTORY = 4
-        const val TYPE_PODCAST = 9
-        const val TYPE_ALL_FOLDERS = 13
-        const val TYPE_ALL_GENRES = 14
-        const val TYPE_GENRE = 15
-
+        const val EXTRA_MEDIA_ID = "android.media.browse.extra.media_id"
         const val EXTRA_PODCAST = "android.media.browse.extra.podcast"
         const val EXTRA_CONTINUATION = "android.media.browse.extra.continuation"
         const val EXTRA_SECTION = "android.media.browse.extra.section"
+        const val EXTRA_RELOAD_ALL = "android.media.browse.extra.reload"
 
         const val NOTIFICATION_ID = 888
 
@@ -106,7 +88,7 @@ class PodcastLibraryService : MediaLibraryService() {
         init {
             ROOT_ITEM = MediaItem.Builder().setMetadata(
                     MediaMetadata.Builder().apply {
-                        id = MediaID(MEDIA_ID_ROOT).asString()
+                        id = MediaID(SectionState.ROOT).asString()
                         browsable = BROWSABLE_TYPE_MIXED
                         playable = 0
                     }.build()).build()
@@ -132,8 +114,8 @@ class PodcastLibraryService : MediaLibraryService() {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
+    override fun onUpdateNotification(session: MediaSession): MediaNotification? {
+        return super.onUpdateNotification(session)
     }
 
     override fun onGetSession(): MediaLibrarySession {
@@ -143,7 +125,6 @@ class PodcastLibraryService : MediaLibraryService() {
 
         // create a new media player
         val mediaPlayer = MediaPlayer(this)
-
         val ioExecutor = Executors.newSingleThreadExecutor()
 
         val sessionCallback = SessionCallback()
@@ -152,70 +133,202 @@ class PodcastLibraryService : MediaLibraryService() {
                 mediaPlayer,
                 ioExecutor,
                 sessionCallback)
-                .setId(ID)
+                .setId(ID + System.currentTimeMillis())
                 .build()
 
         return mediaSession
     }
 
     private inner class SessionCallback : MediaLibrarySession.MediaLibrarySessionCallback() {
+        // Episodes loaded Pages
+        private val loadedPages = hashMapOf<Int, String>()
+        // Episodes backend
+        private val mediaItemsBackstore: MutableList<MediaItem> = arrayListOf()
+        // Continuation
+        private val continuation: String? = ""
+
         override fun onGetLibraryRoot(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, params: LibraryParams?): LibraryResult {
             return LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS)
         }
 
         override fun onSubscribe(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, parentId: String, params: LibraryParams?): Int {
-            session.notifyChildrenChanged(parentId, 0, params)
+            if (Process.myUid() == controller.uid) {
+                val mediaIdParent = MediaID().fromString(parentId)
+                val mediaType = mediaIdParent.type
+                val mediaId = mediaIdParent.id
+                val list = when (mediaType) {
+                    SectionState.ALL_PODCASTS -> {
+                        podcastRepository.fetchSync()
+                    }
+                    SectionState.INBOX,
+                    SectionState.QUEUE,
+                    SectionState.FAVORITE,
+                    SectionState.HISTORY -> {
+                        episodeRepository.fetchSync(mediaType.value)
+                    }
+                    SectionState.PODCAST -> {
+                        episodeRepository.fetchSync(mediaId)
+                    }
+                    else -> arrayListOf()
+                }
+
+                session.notifyChildrenChanged(controller, parentId, list.size, params)
+            }
             return RESULT_CODE_SUCCESS
+        }
+
+        override fun onUnsubscribe(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, parentId: String): Int {
+            return RESULT_CODE_SUCCESS
+        }
+
+        override fun onCustomCommand(session: MediaSession, controller: MediaSession.ControllerInfo, customCommand: SessionCommand, args: Bundle?): MediaSession.SessionResult {
+            when (customCommand.customCommand) {
+                COMMAND_CODE_PODCAST_SUBSCRIBE -> {
+                    val mediaItemPodcast = ParcelUtils.getVersionedParcelable<MediaItem>(args, EXTRA_PODCAST)
+                    mediaItemPodcast?.let {
+                        subscribeToPodcast(mediaItem = it)
+                        val bundleResult = Bundle().apply {
+                            ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, it)
+                        }
+
+                        val controllers = (session as MediaLibrarySession).connectedControllers
+
+                        //session
+                        session as MediaLibrarySession
+                        Log.d("notifyChildrenChanged", MediaID(SectionState.ALL_PODCASTS).asString())
+                        session.notifyChildrenChanged(MediaID(SectionState.ALL_PODCASTS).asString(), 1, LibraryParams.Builder().build())
+
+                        Log.d("notifyChildrenChanged", it.mediaId.orEmpty())
+                        session.notifyChildrenChanged(it.mediaId.orEmpty(), 1, LibraryParams.Builder().build())
+
+                        //super.onCustomCommand(session, controller, customCommand, args)
+                        return MediaSession.SessionResult(RESULT_CODE_SUCCESS, bundleResult)
+                    }
+                }
+
+                COMMAND_CODE_PODCAST_UNSUBSCRIBE -> {
+                    val mediaItemPodcast = ParcelUtils.getVersionedParcelable<MediaItem>(args, EXTRA_PODCAST)
+                    mediaItemPodcast?.let {
+                        unsubscribeFromPodcast(mediaItem = it)
+                        val bundleResult = Bundle().apply {
+                            ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, it)
+                        }
+
+                        //session.broadcastCustomCommand()
+
+                        session as MediaLibrarySession
+
+                        Log.d("notifyChildrenChanged", MediaID(SectionState.ALL_PODCASTS).asString())
+                        session.notifyChildrenChanged(MediaID(SectionState.ALL_PODCASTS).asString(), 1, LibraryParams.Builder().build())
+
+                        Log.d("notifyChildrenChanged", it.mediaId.orEmpty())
+                        session.notifyChildrenChanged(it.mediaId.orEmpty(), 1, LibraryParams.Builder().build())
+
+                        //super.onCustomCommand(session, controller, customCommand, args)
+                        return MediaSession.SessionResult(RESULT_CODE_SUCCESS, bundleResult)
+                    }
+                }
+
+                COMMAND_CODE_PODCAST_GET_DESCRIPTION -> {
+                    val mediaItemPodcast = ParcelUtils.getVersionedParcelable<MediaItem>(args, EXTRA_PODCAST)
+                    mediaItemPodcast?.let {
+                        getPodcastInfoFromDb(mediaItem = it)
+                        getPodcastDescription(mediaItem = it)
+                        val bundleResult = Bundle().apply {
+                            ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, it)
+                        }
+
+                        return MediaSession.SessionResult(RESULT_CODE_SUCCESS, bundleResult)
+                    }
+
+                    val mediaId = args?.getString(EXTRA_MEDIA_ID)
+                    mediaId?.let {
+                        val mediaItem = getPodcastInfoFromDb(mediaId = it)
+                        val bundleResult = Bundle().apply {
+                            ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, mediaItem)
+                        }
+                        return MediaSession.SessionResult(RESULT_CODE_SUCCESS, bundleResult)
+                    }
+                }
+
+                COMMAND_CODE_PODCAST_REFRESH -> {
+                    val mediaId = args?.getString(EXTRA_MEDIA_ID)
+                    mediaId?.let {
+                        session as MediaLibrarySession
+                        session.notifyChildrenChanged(mediaId, 0, LibraryParams.Builder().build())
+                        return MediaSession.SessionResult(RESULT_CODE_SUCCESS, Bundle())
+                    }
+                }
+            }
+
+            return MediaSession.SessionResult(RESULT_CODE_BAD_VALUE, null)
+        }
+
+        override fun onCreateMediaItem(session: MediaSession, controller: MediaSession.ControllerInfo, mediaId: String): MediaItem? {
+            return mediaItemsHashMap.get(mediaId)
         }
 
         override fun onGetItem(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, mediaId: String): LibraryResult {
             return if (mediaId == MEDIA_ID_GET_ITEM) {
                 LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null)
-            }
-            else {
+            } else {
                 LibraryResult(RESULT_CODE_BAD_VALUE)
             }
         }
 
-        override fun onGetChildren(session: MediaLibrarySession, controller: MediaSession.ControllerInfo, parentId: String, page: Int, pageSize: Int, params: LibraryParams?): LibraryResult {
+        override fun onGetChildren(session: MediaLibrarySession,
+                                   controller: MediaSession.ControllerInfo,
+                                   parentId: String,
+                                   page: Int,
+                                   pageSize: Int,
+                                   params: LibraryParams?): LibraryResult {
             val mediaItems = ArrayList<MediaItem>()
             val mediaIdParent = MediaID().fromString(parentId)
             val mediaType = mediaIdParent.type
-            val mediaId = mediaIdParent.mediaId
-            val caller = mediaIdParent.caller
+            val mediaId = mediaIdParent.id
 
-            when(mediaType) {
-                MEDIA_ID_ROOT -> {
-                    addMediaRoots(mediaItems, caller!!)
+            when (mediaType) {
+                SectionState.ROOT -> {
+                    addMediaRoots(mediaItems)
                     return LibraryResult(RESULT_CODE_SUCCESS, mediaItems, null)
                 }
-                TYPE_ALL_PODCASTS -> {
-                    return onGetPodcasts(podcastRepository.fetchSync())
+                SectionState.ALL_PODCASTS -> {
+                    podcastRepository.fetchSync().let {
+                        return onGetPodcasts(it)
+                    }
                 }
-                TYPE_INBOX -> {
-                    return onLoadEpisodes(episodeRepository.fetchSync(SectionState.INBOX.value))
+                SectionState.INBOX,
+                SectionState.QUEUE,
+                SectionState.FAVORITE,
+                SectionState.HISTORY -> {
+                    return onLoadEpisodes(episodeRepository.fetchSync(mediaType.value))
                 }
-                TYPE_FAVORITE -> {
-                    return onLoadEpisodes(episodeRepository.fetchSync(SectionState.FAVORITE.value))
-                }
-                TYPE_HISTORY -> {
-                    return onLoadEpisodes(episodeRepository.fetchSync(SectionState.HISTORY.value))
-                }
-                TYPE_PODCAST -> {
-                    val section = params?.extras?.getInt(EXTRA_SECTION)
-                    when (section) {
-                        SectionState.QUEUE.value,
-                        SectionState.INBOX.value,
-                        SectionState.FAVORITE.value,
-                        SectionState.HISTORY.value -> {
-                            return onLoadEpisodes(episodeRepository.fetchSync(section, mediaId.toString()))
+                SectionState.PODCAST -> {
+                    val podcastUrl = mediaId
+                    val reloadAll = params?.extras?.getBoolean(EXTRA_RELOAD_ALL)
+
+                    if (reloadAll != true) {
+                        if (page == 0)
+                            mediaItemsBackstore.clear()
+
+                        val section = params?.extras?.getInt(EXTRA_SECTION)
+                        when (section) {
+                            SectionState.QUEUE.value,
+                            SectionState.INBOX.value,
+                            SectionState.FAVORITE.value,
+                            SectionState.HISTORY.value -> {
+                                return onLoadEpisodes(episodeRepository.fetchSync(section, podcastUrl), true)
+                            }
+                            else -> {
+                                val continuation = loadedPages.get(page - 1)
+                                var episodes: List<Episode> = arrayListOf()
+                                episodes = onLoadEpisodesFromFeedly(podcastUrl, params, page, pageSize, continuation)
+                                return onLoadEpisodes(episodes, true)
+                            }
                         }
-                        else -> {
-                            val continuation = params?.extras?.getString(EXTRA_CONTINUATION) ?: ""
-                            val episodes : MutableList<Episode> = arrayListOf()
-                            onLoadEpisodesFromFeedly(params, pageSize, continuation, episodes)
-                            return onLoadEpisodes(episodes)
-                        }
+                    } else {
+                        val episodesFromDb = episodeRepository.fetchSync(podcastUrl)
+                        return LibraryResult(RESULT_CODE_SUCCESS, mediaItemsBackstore, null)
                     }
                 }
                 else -> {
@@ -224,51 +337,72 @@ class PodcastLibraryService : MediaLibraryService() {
             }
         }
 
-        fun onGetPodcasts(podcasts: List<Podcast>) : LibraryResult {
-            val mediaItems = podcasts.map { MediaItem.Builder().setMetadata(it.mediaMetadata).build() }
+        fun onGetPodcasts(podcasts: List<Podcast>): LibraryResult {
+            val mediaItems = podcasts.map {
+                MediaItem.Builder()
+                        .setMetadata(it.getMediaMetadata(true))
+                        .build() }
             return LibraryResult(RESULT_CODE_SUCCESS, mediaItems, null)
         }
 
-        fun onLoadEpisodes(episodes: List<Episode>) : LibraryResult {
+        private fun onLoadEpisodes(episodes: List<Episode>, addToBackstore: Boolean = false): LibraryResult {
             val mediaItems = episodes.map { MediaItem.Builder().setMetadata(it.mediaMetadata).build() }
+            if (addToBackstore)
+                this.mediaItemsBackstore.addAll(mediaItems)
+            mediaItems.forEach {
+                mediaItemsHashMap.put(it.mediaId.toString(), it)
+            }
             return LibraryResult(RESULT_CODE_SUCCESS, mediaItems, null)
         }
 
-        fun onLoadEpisodesFromFeedly(
+        private fun onLoadEpisodesFromFeedly(
+                podcastUrl: String,
                 params: LibraryParams?,
+                page: Int,
                 pageSize: Int,
                 continuation: String?,
-                alreadyRetrievedEpisodes: MutableList<Episode> = java.util.ArrayList()) {
+                alreadyRetrievedEpisodes: MutableList<Episode> = java.util.ArrayList()): List<Episode> {
 
-            GlobalScope.launch{
-                val mediaMetadata = ParcelUtils.getVersionedParcelable<MediaMetadata>(params?.extras, EXTRA_PODCAST)
-                mediaMetadata?.let {
-                    val podcast: Podcast = mediaMetadata.toPodcast()
-
-                    getEpisodesFromFeedlyUseCase
-                            .execute(GetEpisodesFromFeedlyUseCase.Params(podcast, pageSize, continuation ?: ""))
-                            .await()
-                            .data
-                            ?.let {
-                                alreadyRetrievedEpisodes.addAll(it.data)
-                                if (!it.continuation.isEmpty() &&
-                                        (it.data.size < pageSize - alreadyRetrievedEpisodes.size)) {
-                                    onLoadEpisodesFromFeedly(params, pageSize, it.continuation, alreadyRetrievedEpisodes)
-                                } else {
-                                    params?.extras?.putString(EXTRA_CONTINUATION, continuation)
-                                }
-                            }
-                }
-                Unit
+            val episodes: MutableList<Episode> = arrayListOf()
+            val podcast =
+                    ParcelUtils.getVersionedParcelable<MediaItem>(params?.extras, EXTRA_PODCAST)?.toPodcast()
+                            ?: podcastRepository.getSync(podcastUrl)
+            podcast?.let {
+                episodes.addAll(onLoadEpisodesFromFeedly(podcast, page, pageSize, continuation, alreadyRetrievedEpisodes))
             }
+            return episodes
         }
 
-        fun addMediaRoots(mediaRoot: MutableList<MediaItem>, caller:String) {
+        private fun onLoadEpisodesFromFeedly(
+                podcast: Podcast,
+                page: Int,
+                pageSize: Int,
+                continuation: String?,
+                alreadyRetrievedEpisodes: MutableList<Episode> = java.util.ArrayList()): List<Episode> {
+
+            val episodes: MutableList<Episode> = arrayListOf()
+            val responseEntries = feedlyRepository.getStreamEntries(podcast, pageSize, continuation.orEmpty())
+            responseEntries
+                    ?.apply { data.forEach { episode -> retrieveEpisodeDataFromDb(episode) }}
+                    ?.let {
+                        alreadyRetrievedEpisodes.addAll(it.data)
+                        if (!it.continuation.isNullOrEmpty() &&
+                                (it.data.size < pageSize - alreadyRetrievedEpisodes.size)) {
+                            episodes.addAll(onLoadEpisodesFromFeedly(podcast, page, pageSize - alreadyRetrievedEpisodes.size, it.continuation, alreadyRetrievedEpisodes))
+                        } else {
+                            loadedPages.put(page, it.continuation.orEmpty())
+                            episodes.addAll(alreadyRetrievedEpisodes)
+                        }
+                    }
+            return episodes
+        }
+
+        fun addMediaRoots(mediaRoot: MutableList<MediaItem>) {
             mediaRoot.apply {
                 // podcasts
                 add(MediaItem.Builder()
                         .setMetadata(MediaMetadata.Builder().apply {
-                            id = MediaID(TYPE_ALL_PODCASTS, null, caller).asString()
+                            id = MediaID(SectionState.ALL_PODCASTS).asString()
                             title = getString(R.string.podcasts)
                             albumArtUri = ""
                         }.build())
@@ -277,7 +411,7 @@ class PodcastLibraryService : MediaLibraryService() {
                 // inbox
                 add(MediaItem.Builder()
                         .setMetadata(MediaMetadata.Builder().apply {
-                            id = MediaID(TYPE_INBOX, null, caller).asString()
+                            id = MediaID(SectionState.INBOX).asString()
                             title = getString(R.string.inbox)
                             albumArtUri = ""
                         }.build())
@@ -286,7 +420,7 @@ class PodcastLibraryService : MediaLibraryService() {
                 // favorites
                 add(MediaItem.Builder()
                         .setMetadata(MediaMetadata.Builder().apply {
-                            id = MediaID(TYPE_FAVORITE, null, caller).asString()
+                            id = MediaID(SectionState.FAVORITE).asString()
                             title = getString(R.string.favorites)
                             albumArtUri = ""
                         }.build())
@@ -295,7 +429,7 @@ class PodcastLibraryService : MediaLibraryService() {
                 // history
                 add(MediaItem.Builder()
                         .setMetadata(MediaMetadata.Builder().apply {
-                            id = MediaID(TYPE_HISTORY, null, caller).asString()
+                            id = MediaID(SectionState.HISTORY).asString()
                             title = getString(R.string.history)
                             albumArtUri = ""
                         }.build())
@@ -315,16 +449,136 @@ class PodcastLibraryService : MediaLibraryService() {
                     )
                     .build()
         }
-    }
 
-    private inner class MediaControllerCallBack : MediaController.ControllerCallback() {
-        override fun onAllowedCommandsChanged(controller: MediaController, commands: SessionCommandGroup) {
-            super.onAllowedCommandsChanged(controller, commands)
+        /**
+         * Subscribe to a new podcast
+         */
+        private fun subscribeToPodcast(mediaItem: MediaItem): Boolean {
+            // get podcast info
+            val metadata = mediaItem.metadata
+            val podcastUrl = MediaID().fromString(mediaItem.mediaId.orEmpty()).id
+            podcastUrl.let { url ->
+                feedlyRepository
+                        .getPodcastFromFeedlyApi(url)
+                        ?.let {
+                            // get date and description
+                            val newMetadata = MediaMetadata.Builder(metadata!!).apply {
+                                this.displayDescription = it.description
+                                this.date = it.updated.toString()
+                                this.setExtras(Bundle())
+                            }.build()
+                            mediaItem.metadata = newMetadata
+                            val podcast = mediaItem.toPodcast()
+                            podcastRepository.insert(podcast)
+
+                            // update metadata
+                            Log.d("MetaData extras", mediaItem.metadata?.extras.toString())
+                            mediaItem.metadata?.extras?.putBoolean(METADATA_KEY_IN_DATABASE, true)
+
+                            // get last episode
+                            feedlyRepository.getLastEpisode(podcast)
+                                    ?.apply {
+                                        this.section = SectionState.INBOX.value
+                                        episodeRepository.insert(this)
+                                    }
+                        }
+            }
+            return true
+        }
+
+        /**
+         * Unsubscribe from podcast
+         */
+        private fun unsubscribeFromPodcast(mediaItem: MediaItem) {
+            val podcast = mediaItem.toPodcast()
+
+            // delete podcast
+            podcastRepository.delete(podcast)
+
+            // delete episodes
+            episodeRepository.deleteByPodcast(podcast.feedUrl)
+
+            //
+            mediaItem.metadata?.extras?.remove(METADATA_KEY_IN_DATABASE)
+        }
+
+        /**
+         * Get description of a podcast
+         */
+        private fun getPodcastInfoFromDb(mediaItem: MediaItem){
+            // get podcast info
+            val podcastUrl = MediaID.fromString(mediaItem.mediaId).id
+            podcastRepository.getSync(podcastUrl)?.let { podcast ->
+                val newMetadata = MediaMetadata
+                        .Builder(podcast
+                                .getMediaMetadata(true))
+                        .build()
+                mediaItem.metadata = newMetadata
+            }
+        }
+
+        /**
+         * Get description of a podcast
+         */
+        private fun getPodcastInfoFromDb(mediaId: String): MediaItem {
+            // get podcast info
+            val podcastUrl = MediaID.fromString(mediaId).id
+            return MediaItem.Builder().apply {
+                podcastRepository.getSync(podcastUrl)?.let { podcast ->
+                    setMetadata(podcast.getMediaMetadata(true))
+                }
+            }.build()
+        }
+
+        /**
+         * Get description of a podcast
+         */
+        private fun getPodcastDescription(mediaItem: MediaItem): Boolean {
+            // get podcast info
+            val metadata = mediaItem.metadata
+            if (metadata?.displayDescription == null) {
+                MediaID.fromString(mediaItem.mediaId).id.let { url ->
+                    feedlyRepository
+                            .getPodcastFromFeedlyApi(url)
+                            ?.let {
+                                val newMetadata = MediaMetadata.Builder(metadata!!).apply {
+                                    this.displayDescription = it.description
+                                    this.date = it.updated.toString()
+                                }.build()
+                                mediaItem.metadata = newMetadata
+                            }
+                }
+            }
+            return true
+        }
+
+        /**
+         * Get episodes info from DB
+         */
+        private fun retrieveEpisodeDataFromDb(episode: Episode) {
+            // get episode in db
+            val episodeInDb: Episode? = episodeRepository.getSync(episode.episodeId)
+            episodeInDb.apply {
+                this?.apply {
+                    // get value from db
+                    episode.section = this.section
+                    episode.isFavorite = this.isFavorite
+                    episode.duration = this.duration
+                    episode.playbackPosition = this.playbackPosition
+                    episode.queuePosition = this.queuePosition
+                }
+            } ?: run {
+                // if the episode is new / not in db : get from podcast
+                // get value from podcast
+                episode.section = SectionState.ARCHIVE.value
+                //retrieveEpisodeDuration(episode)
+            }
+        }
+
+        private inner class MediaControllerCallBack : MediaController.ControllerCallback() {
+            override fun onAllowedCommandsChanged(controller: MediaController, commands: SessionCommandGroup) {
+                super.onAllowedCommandsChanged(controller, commands)
+            }
         }
     }
 }
-
-private const val UAMP_USER_AGENT = "uamp.next"
-
-const val COMMAND_SET_PLAYBACK_RATE = "COMMAND_SET_PLAYBACK_RATE"
-const val ARG_PLAYBACK_RATE = "ARG_PLAYBACK_RATE"

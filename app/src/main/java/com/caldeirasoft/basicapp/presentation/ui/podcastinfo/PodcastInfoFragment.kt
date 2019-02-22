@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat
 import androidx.media2.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.versionedparcelable.ParcelUtils
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
@@ -24,6 +25,7 @@ import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
 import com.marozzi.roundbutton.RoundButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -72,22 +74,31 @@ class PodcastInfoFragment :
 
 
     private fun initObservers() {
-        // set loading
-        mViewModel.getPagedMediaItems().observeK(this) {
-            controller.submitList(it)
-        }
-        mViewModel.updateEpisodeEvent.observeK(this) {
-            //controller.
-        }
+        // podcast media item
+        mViewModel.mediaItemData.observeK(this) {
+            it?.metadata?.let {
+                val inDb = it.extras?.getBoolean(METADATA_KEY_IN_DATABASE)
+                mBinding.apply {
+                    title = it.title
+                    artist = it.artist
+                    displayDescription = it.displayDescription
+                    albumArtUri = it.albumArtUri.toString()
+                    inDatabase = inDb
+                }
+            }
 
-        mViewModel.isLoading.observeK(this) {
-            mBinding.shimmerLayout.isVisible = (it ?: true)
-        }
-
-        // set button subscribe
-        mViewModel.isInDatabase.observeK(this) {
             if (!mIsSubscribing)
                 setButtonSubscribeText()
+        }
+
+        // set list
+        mViewModel.pagedList.observeK(this) {
+            controller.submitList(it)
+        }
+
+        // is loading
+        mViewModel.isLoading.observeK(this) {
+            mBinding.shimmerLayout.isVisible = (it ?: true)
         }
 
         // set button subscribe animation
@@ -107,6 +118,11 @@ class PodcastInfoFragment :
                 }
             }
         }
+
+        //
+        mViewModel.dataItems.observeK(this) {
+            mViewModel.refresh()
+        }
     }
 
     private fun initUi() {
@@ -123,9 +139,10 @@ class PodcastInfoFragment :
 
     private fun setButtonSubscribeText() {
         mIsSubscribing = false
+        val inDb = mViewModel.mediaItemData.value?.metadata?.extras?.getBoolean(METADATA_KEY_IN_DATABASE)
         mButtonSubscribe.apply {
             val textButton =
-                    if (mViewModel.isInDatabase.value == true) context.getString(R.string.menu_unsubscribe)
+                    if (inDb == true) context.getString(R.string.menu_unsubscribe)
                     else context.getString(R.string.menu_subscribe)
 
             this.text = textButton
@@ -166,8 +183,12 @@ class PodcastInfoFragment :
                             onEpisodeClick { model, parentView, clickedView, position ->
 
                                 val episodeInfoDialog =
-                                        EpisodeInfoDialogFragment()
-                                                .withArgs(EPISODE_ARG to item)
+                                        EpisodeInfoDialogFragment().apply {
+                                            Bundle().apply {
+                                                ParcelUtils.putVersionedParcelable(this, EPISODE_ARG, item)
+                                                arguments = this
+                                            }
+                                        }
                                 episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
                             }
                         }

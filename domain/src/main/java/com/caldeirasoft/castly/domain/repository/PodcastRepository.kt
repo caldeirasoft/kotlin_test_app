@@ -33,15 +33,15 @@ interface PodcastRepository {
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it
      */
-    fun insert(podcast: Podcast): Deferred<Unit>
+    fun insert(podcast: Podcast)
 
     /**
      * Update a podcast
      */
-    fun update(podcast: Podcast): Deferred<Unit>
+    fun update(podcast: Podcast)
 
     /**
      * Delete a podcast
      */
-    fun delete(podcast: Podcast): Deferred<Unit>
+    fun delete(podcast: Podcast)
 }
