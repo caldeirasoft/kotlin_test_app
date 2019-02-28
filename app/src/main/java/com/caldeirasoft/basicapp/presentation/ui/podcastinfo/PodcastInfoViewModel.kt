@@ -2,13 +2,13 @@ package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.support.v4.media.MediaBrowserCompat
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.media2.*
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import androidx.versionedparcelable.ParcelUtils
-import com.caldeirasoft.basicapp.media.MediaBrowserConnectionCallback
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.basicapp.presentation.datasource.MediaItemDataProvider
 import com.caldeirasoft.basicapp.presentation.datasource.MediaItemDataSourceFactory
@@ -18,19 +18,20 @@ import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_MEDIA_ID
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_PODCAST
+import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_MEDIA_ID
+import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_PODCAST
 import com.caldeirasoft.castly.service.playback.const.Constants
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_GET_DESCRIPTION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_SUBSCRIBE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_UNSUBSCRIBE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
-import com.caldeirasoft.castly.service.playback.extensions.toMediaItem
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
+import com.caldeirasoft.castly.service.playback.extensions.asMediaItem
+import com.caldeirasoft.castly.service.playback.extensions.inDatabaseStatus
+import com.caldeirasoft.castly.service.playback.extensions.metadata
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class PodcastInfoViewModel(
         val mediaId: String,
@@ -40,28 +41,10 @@ class PodcastInfoViewModel(
         val mediaSessionConnection: MediaSessionConnection)
     : ViewModel() {
 
-    // subscriptions callback
-    private val browserCallback = object : MediaBrowserConnectionCallback() {
-        @SuppressLint("RestrictedApi")
-        override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
-            // add new commands to allow
-            allowedCommands.apply {
-                addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_GET_DESCRIPTION, Bundle()))
-                addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_SUBSCRIBE, Bundle()))
-                addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_UNSUBSCRIBE, Bundle()))
-            }
-
-            super.onConnected(controller, allowedCommands)
-        }
-    }
-
-    // media browser
-    val mediaBrowser: MediaBrowser
-
     // podcast media item
     @SuppressLint("RestrictedApi")
     val mediaItemData = MutableLiveData<MediaItem>().apply {
-        value = podcast?.toMediaItem()
+        value = podcast?.asMediaItem()
     }
 
     // data items
@@ -104,25 +87,17 @@ class PodcastInfoViewModel(
     }
 
     init {
-        // init media browser
-        mediaBrowser = mediaSessionConnection.getMediaBrowser(browserCallback).also {
-            GlobalScope.launch {
-                if (!it.isConnected)
-                    browserCallback.connectLatch.await()
-
-                // get podcast info
-                getPodcastInfo()
-            }
-        }
-
         // init source factory
         sourceFactory =
                 MediaItemDataSourceFactory(
                         this.mediaId, this.mediaItemData.value, sectionData,
-                        mediaBrowser, browserCallback.connectLatch, dataProvider)
+                        mediaSessionConnection, dataProvider)
 
         // is loading livedata
         isLoading = Transformations.switchMap(sourceFactory.sourceLiveData) { it.isLoading }
+
+        // init media browser
+        getPodcastInfo()
     }
 
     //hacky way to force reload items (e.g. song sort order changed)
@@ -145,7 +120,7 @@ class PodcastInfoViewModel(
     fun toggleSubscription() {
         mediaItemData.value?.let { mediaItem ->
             val command =
-                    if (mediaItem.metadata?.extras?.getBoolean(METADATA_KEY_IN_DATABASE) != true)
+                    if (mediaItem.description.metadata?.inDatabaseStatus != STATUS_IN_DATABASE)
                         COMMAND_CODE_PODCAST_SUBSCRIBE
                     else COMMAND_CODE_PODCAST_UNSUBSCRIBE
             isSubscribing.postValue(true)
@@ -161,25 +136,20 @@ class PodcastInfoViewModel(
     private fun sendCustomMediaItemCommand(customAction: String, futureAction: (() -> Unit)? = null) {
         GlobalScope.launch {
             try {
-                mediaBrowser.sendCustomCommand(
-                        SessionCommand(customAction, Bundle()),
-                        Bundle().apply {
-                            // add media ID
-                            this.putString(EXTRA_MEDIA_ID, mediaId)
-                            // add media item if it exists
-                            mediaItemData.value?.let { mediaItem ->
-                                ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, mediaItem)
+                val extra = Bundle().apply {
+                    // add media ID
+                    this.putString(EXTRA_MEDIA_ID, mediaId)
+                    // add media item if it exists
+                    this.putParcelable(EXTRA_PODCAST, mediaItemData.value)
+                }
+                mediaSessionConnection.sendCustomAction(customAction, extra,
+                        object : MediaBrowserCompat.CustomActionCallback() {
+                            override fun onResult(action: String?, extras: Bundle?, resultData: Bundle?) {
+                                val mediaItem = resultData?.getParcelable<MediaItem>(EXTRA_PODCAST)
+                                mediaItemData.postValue(mediaItem)
+                                futureAction?.invoke()
                             }
                         })
-                        .get()
-                        .customCommandResult
-                        ?.let {
-                            ParcelUtils.getVersionedParcelable<MediaItem>(it, EXTRA_PODCAST)
-                                    ?.let {
-                                        mediaItemData.postValue(it)
-                                        futureAction?.invoke()
-                                    }
-                        }
             }
             catch (e: Exception) {
                 Log.d("sendCustomCommand", mediaId, e)

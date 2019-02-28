@@ -1,11 +1,11 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcast
 
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
-import androidx.media2.MediaItem
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -70,10 +70,9 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                     data ?: return
                     data.forEach { content ->
                         itemPodcast {
-                            val id = content.metadata?.id.toString()
-                            id(id)
-                            title(content.metadata?.title.toString())
-                            imageUrl(content.metadata?.albumArtUri.toString())
+                            id(content.mediaId)
+                            title(content.description.title.toString())
+                            imageUrl(content.description.iconUri.toString())
                             onPodcastClick { model, parentView, clickedView, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
@@ -81,7 +80,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.openPodcast(id, transitionName)
+                                        PodcastFragmentDirections.openPodcast(content.mediaId.orEmpty(), transitionName)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)

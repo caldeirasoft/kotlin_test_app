@@ -20,49 +20,55 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.media.session.PlaybackState.*
+import android.graphics.drawable.Icon
+import android.media.session.MediaController
+import android.media.session.MediaSession
 import android.os.Build
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.media.session.MediaButtonReceiver
-import androidx.media2.MediaSession
-import androidx.media2.SessionToken
 import com.caldeirasoft.castly.service.R
 import com.caldeirasoft.castly.service.playback.extensions.isPlayEnabled
 import com.caldeirasoft.castly.service.playback.extensions.isPlaying
 import com.caldeirasoft.castly.service.playback.extensions.isSkipToNextEnabled
 import com.caldeirasoft.castly.service.playback.extensions.isSkipToPreviousEnabled
 
-const val NOW_PLAYING_CHANNEL: String = "com.example.android.uamp.media.NOW_PLAYING"
-const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
-
 /**
  * Helper class to encapsulate code for building notifications.
  */
-/*
 class NotificationBuilder(private val context: Context) {
+    companion object {
+        const val NOW_PLAYING_CHANNEL: String = "com.example.android.uamp.media.NOW_PLAYING"
+        const val NOW_PLAYING_NOTIFICATION: Int = 0xb339
+    }
+
     private val platformNotificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private val skipToPreviousAction = Notification.Action.Builder(
+    private val skipToPreviousAction = NotificationCompat.Action.Builder(
             R.drawable.exo_controls_previous,
             context.getString(R.string.notification_skip_to_previous),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS))
-    private val playAction = NotificationCompat.Action(
+            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_PREVIOUS)).build()
+    private val playAction = NotificationCompat.Action.Builder(
             R.drawable.exo_controls_play,
             context.getString(R.string.notification_play),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY))
-    private val pauseAction = NotificationCompat.Action(
+            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PLAY)).build()
+    private val pauseAction = NotificationCompat.Action.Builder(
             R.drawable.exo_controls_pause,
             context.getString(R.string.notification_pause),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE))
-    private val skipToNextAction = NotificationCompat.Action(
+            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_PAUSE)).build()
+    private val skipToNextAction = NotificationCompat.Action.Builder(
             R.drawable.exo_controls_next,
             context.getString(R.string.notification_skip_to_next),
-            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT))
+            MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_SKIP_TO_NEXT)).build()
     private val stopPendingIntent =
             MediaButtonReceiver.buildMediaButtonPendingIntent(context, ACTION_STOP)
 
-    fun buildNotification(sessionToken: SessionToken): Notification {
+    fun buildNotification(sessionToken: MediaSessionCompat.Token): Notification {
         if (shouldCreateNowPlayingChannel()) {
             createNowPlayingChannel()
         }
@@ -88,10 +94,10 @@ class NotificationBuilder(private val context: Context) {
             builder.addAction(skipToNextAction)
         }
 
-        val mediaStyle = MediaStyle()
-                .setCancelButtonIntent(stopPendingIntent)
+        val mediaStyle = androidx.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(sessionToken)
                 .setShowActionsInCompactView(playPauseIndex)
+                .setCancelButtonIntent(stopPendingIntent)
                 .setShowCancelButton(true)
 
         return builder.setContentIntent(controller.sessionActivity)
@@ -125,4 +131,3 @@ class NotificationBuilder(private val context: Context) {
         platformNotificationManager.createNotificationChannel(notificationChannel)
     }
 }
-*/

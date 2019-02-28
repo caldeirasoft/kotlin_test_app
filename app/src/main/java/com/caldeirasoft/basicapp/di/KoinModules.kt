@@ -3,14 +3,11 @@ package com.caldeirasoft.basicapp.di
 import android.content.ComponentName
 import android.content.Context
 import android.support.v4.media.MediaBrowserCompat
-import androidx.media2.MediaItem
-import androidx.media2.MediaMetadata
 import com.caldeirasoft.basicapp.BuildConfig
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.data.datasources.local.DatabaseApi
 import com.caldeirasoft.castly.data.datasources.remote.FeedlyApi
 import com.caldeirasoft.castly.data.datasources.remote.ITunesApi
-import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.domain.repository.FeedlyRepository
@@ -30,7 +27,7 @@ import com.caldeirasoft.castly.data.repository.FeedlyRepositoryImpl
 import com.caldeirasoft.castly.data.repository.ItunesRepositoryImpl
 import com.caldeirasoft.castly.data.repository.PodcastRepositoryImpl
 import com.caldeirasoft.castly.domain.usecase.*
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService
+import com.caldeirasoft.castly.service.playback.MediaService
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -75,7 +72,7 @@ val usecaseModule = module {
 
 val mediaModule = module {
     single { MediaSessionConnection.getInstance(
-            context = get(),  serviceComponent = ComponentName(get(), PodcastLibraryService::class.java))}
+            context = get(),  serviceComponent = ComponentName(get(), MediaService::class.java))}
 }
 
 val presentationModule = module {
@@ -92,7 +89,7 @@ val presentationModule = module {
                 podcastRepository = get(),
                 episodeRepository = get(),
                 mediaSessionConnection = get())}
-    viewModel { (mediaItem: MediaItem) -> EpisodeInfoViewModel(
+    viewModel { (mediaItem: MediaBrowserCompat.MediaItem) -> EpisodeInfoViewModel(
             mediaItem = mediaItem,
             episodeRepository = get(),
             mediaSessionConnection = get())}

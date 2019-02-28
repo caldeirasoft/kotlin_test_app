@@ -3,13 +3,13 @@ package com.caldeirasoft.basicapp.presentation.ui.base
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.provider.Settings
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
-import androidx.media2.*
-import com.caldeirasoft.basicapp.media.MediaBrowserConnectionCallback
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -31,38 +31,23 @@ abstract class MediaItemViewModel<T>(
     // data items
     abstract val dataItems: LiveData<List<T>>
 
-    // subscriptions callback
-    private val browserCallback = object : MediaBrowserConnectionCallback() { }
-
-    // media browser
-    val mediaBrowser : MediaBrowser
-
     init {
         // init media browser
-        mediaBrowser = mediaSessionConnection.getMediaBrowser(browserCallback).also {
-            GlobalScope.launch {
-                if (!it.isConnected)
-                    browserCallback.connectLatch.await()
-
-                // And subscribe the media ID to watch.
-                Log.d("Refresh", mediaId)
-                refresh()
+        mediaSessionConnection.subscribe(mediaId,  object : MediaBrowserCompat.SubscriptionCallback() {
+            override fun onChildrenLoaded(parentId: String, children: MutableList<MediaItem>) {
+                _mediaItems.postValue(children)
             }
-        }
+        })
     }
 
     fun refresh() {
         Log.d("refresh", mediaId)
-        if (mediaBrowser.isConnected) {
-            // load children
-            GlobalScope.launch {
-                mediaBrowser.getChildren(mediaId, 0, 200, MediaLibraryService.LibraryParams.Builder().build())
-                        .get()
-                        .mediaItems
-                        .let {
-                            _mediaItems.postValue(it)
-                        }
-            }
+        if (mediaSessionConnection.isConnected.value == true) {
+            //mediaSessionConnection.
         }
+    }
+
+    override fun onCleared() {
+        mediaSessionConnection.unsubscribe(mediaId, object : MediaBrowserCompat.SubscriptionCallback(){})
     }
 }

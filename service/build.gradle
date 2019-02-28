@@ -30,6 +30,9 @@ dependencies {
     implementation project(path: ':domain')
     implementation project(path: ':data')
 
+    // Android
+    implementation "androidx.core:core:1.0.1"
+    implementation "androidx.appcompat:appcompat:1.0.2"
     implementation 'androidx.annotation:annotation:1.0.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
@@ -42,14 +45,12 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
 
     // Media
-    implementation "androidx.media2:media2:1.0.0-alpha04"
+    implementation "androidx.media:media:1.0.1"
 
-    // Media - Exo player
-    implementation "androidx.media2:media2-exoplayer:1.0.0-alpha01"
-
-    //api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
-    //api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
-    //api "com.google.android.exoplayer:extension-mediasession:$exoplayer_version"
+    // Exoplayer
+    api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
+    api "com.google.android.exoplayer:extension-mediasession:$exoplayer_version"
 
     // Koin
     implementation 'org.koin:koin-android:1.0.2'

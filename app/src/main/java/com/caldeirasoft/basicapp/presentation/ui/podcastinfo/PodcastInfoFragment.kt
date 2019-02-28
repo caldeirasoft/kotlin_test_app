@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
-import androidx.media2.MediaItem
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.versionedparcelable.ParcelUtils
@@ -25,7 +25,10 @@ import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DATE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DURATION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
 import com.marozzi.roundbutton.RoundButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -76,14 +79,14 @@ class PodcastInfoFragment :
     private fun initObservers() {
         // podcast media item
         mViewModel.mediaItemData.observeK(this) {
-            it?.metadata?.let {
-                val inDb = it.extras?.getBoolean(METADATA_KEY_IN_DATABASE)
+            it?.description?.metadata?.let {
+                val inDb = it.inDatabaseStatus == STATUS_IN_DATABASE
                 mBinding.apply {
-                    title = it.title
-                    artist = it.artist
-                    displayDescription = it.displayDescription
-                    albumArtUri = it.albumArtUri.toString()
-                    inDatabase = inDb
+                        title = it.title
+                        artist = it.artist
+                        displayDescription = it.displayDescription
+                        albumArtUri = it.albumArtUri.toString()
+                        inDatabase = inDb
                 }
             }
 
@@ -139,7 +142,7 @@ class PodcastInfoFragment :
 
     private fun setButtonSubscribeText() {
         mIsSubscribing = false
-        val inDb = mViewModel.mediaItemData.value?.metadata?.extras?.getBoolean(METADATA_KEY_IN_DATABASE)
+        val inDb = mViewModel.mediaItemData.value?.description?.metadata?.inDatabaseStatus == STATUS_IN_DATABASE
         mButtonSubscribe.apply {
             val textButton =
                     if (inDb == true) context.getString(R.string.menu_unsubscribe)
@@ -175,20 +178,14 @@ class PodcastInfoFragment :
                 override fun buildItemModel(currentPosition: Int, item: MediaItem?): EpoxyModel<*> {
                     item?.let {
                         return ItemEpisodePodcastBindingModel_().apply {
-                            id(item.metadata?.id)
-                            title(item.metadata?.title.toString())
-                            imageUrl(item.metadata?.albumArtUri.toString())
-                            duration(item.metadata?.duration.toString())
-                            publishedDate(it.metadata?.date)
+                            id(item.mediaId)
+                            title(item.description.metadata.title)
+                            imageUrl(item.description.metadata.albumArtUri.toString())
+                            duration(item.description.metadata.duration.toString())
+                            publishedDate(it.description.metadata.date)
                             onEpisodeClick { model, parentView, clickedView, position ->
-
                                 val episodeInfoDialog =
-                                        EpisodeInfoDialogFragment().apply {
-                                            Bundle().apply {
-                                                ParcelUtils.putVersionedParcelable(this, EPISODE_ARG, item)
-                                                arguments = this
-                                            }
-                                        }
+                                        EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to item)
                                 episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
                             }
                         }

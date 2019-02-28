@@ -1,6 +1,6 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodelist
 
-import androidx.media2.MediaItem
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.epoxy.EpoxyModel
@@ -16,10 +16,8 @@ import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFr
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.basicapp.presentation.utils.extensions.withArgs
-import com.caldeirasoft.castly.service.playback.extensions.albumArtUri
-import com.caldeirasoft.castly.service.playback.extensions.duration
-import com.caldeirasoft.castly.service.playback.extensions.id
-import com.caldeirasoft.castly.service.playback.extensions.title
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DURATION
+import com.caldeirasoft.castly.service.playback.extensions.*
 import kotlinx.android.synthetic.main.fragment_episodelist.*
 
 
@@ -51,10 +49,10 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
                     data ?: return
                     data.forEach { item ->
                         itemEpisode {
-                            id(item.metadata?.id)
-                            title(item.metadata?.title.toString())
-                            imageUrl(item.metadata?.albumArtUri.toString())
-                            duration(item.metadata?.duration.toString())
+                            id(item.mediaId)
+                            title(item.description.metadata.title)
+                            imageUrl(item.description.metadata.albumArtUri.toString())
+                            duration(item.description.metadata.duration.toString())
                             onEpisodeClick { model, parentView, clickedView, position ->
 
                                 val episodeInfoDialog =

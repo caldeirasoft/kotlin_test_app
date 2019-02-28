@@ -1,12 +1,13 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.view.*
 import androidx.core.content.ContextCompat
-import androidx.media2.MediaItem
 import androidx.versionedparcelable.ParcelUtils
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.castly.domain.model.Episode
@@ -16,6 +17,7 @@ import com.caldeirasoft.basicapp.presentation.utils.extensions.lazyArg
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.basicapp.presentation.utils.extensions.setSupportActionBar
 import com.caldeirasoft.basicapp.presentation.utils.widget.RoundedBottomSheetDialogFragment
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DATE
 import com.caldeirasoft.castly.service.playback.extensions.*
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -26,13 +28,13 @@ class EpisodeInfoDialogFragment :
         RoundedBottomSheetDialogFragment()
 {
     // arguments
-    private val mediaItem: MediaItem? by lazy { ParcelUtils.getVersionedParcelable<MediaItem>(arguments, EPISODE_ARG) }
+    private val mediaItem: MediaItem by lazyArg(EPISODE_ARG)
 
     // binding
     protected lateinit var mBinding: FragmentEpisodedetailBinding
 
     // viewmodel
-    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem!!) }
+    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem) }
 
     // override
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -120,7 +122,7 @@ class EpisodeInfoDialogFragment :
         }
 
         mViewModel.mediaData.observeK(this) {
-            it?.metadata?.let {
+            it?.description?.metadata?.let {
                 mBinding.title = it.title
                 mBinding.albumArtUri = it.albumArtUri.toString()
                 mBinding.podcastTitle = it.album

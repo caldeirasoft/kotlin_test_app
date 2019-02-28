@@ -16,6 +16,7 @@
 
 package com.caldeirasoft.castly.service.playback.extensions
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import java.net.URLEncoder
@@ -28,7 +29,8 @@ import java.nio.charset.Charset
 /**
  * Helper method to check if a [String] contains another in a case insensitive way.
  */
-fun <T> LiveData<T>.observeForeverAndReturnObserver(observer: Observer<T>): Observer<T> {
-    this.observeForever(observer)
-    return observer
+fun String?.tryParseUri(): Uri {
+    if (this.isNullOrEmpty())
+        return Uri.EMPTY
+    return Uri.parse(this)
 }

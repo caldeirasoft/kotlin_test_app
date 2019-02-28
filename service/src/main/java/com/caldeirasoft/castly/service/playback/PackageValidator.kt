@@ -59,6 +59,12 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
 
     private val callerChecked = mutableMapOf<String, Pair<Int, Boolean>>()
 
+    companion object {
+        private const val TAG = "PackageValidator"
+        private const val ANDROID_PLATFORM = "android"
+        private val WHITESPACE_REGEX = "\\s|\\n".toRegex()
+    }
+
     init {
         val parser = context.resources.getXml(xmlResId)
         this.context = context.applicationContext
@@ -347,7 +353,3 @@ class PackageValidator(context: Context, @XmlRes xmlResId: Int) {
             internal val permissions: Set<String>
     )
 }
-
-private const val TAG = "PackageValidator"
-private const val ANDROID_PLATFORM = "android"
-private val WHITESPACE_REGEX = "\\s|\\n".toRegex()

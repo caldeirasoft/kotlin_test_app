@@ -16,23 +16,18 @@
 
 package com.caldeirasoft.basicapp.media
 
-import android.annotation.SuppressLint
-import androidx.lifecycle.MutableLiveData
 import android.content.ComponentName
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Bundle
-import android.os.HandlerThread
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaDescriptionCompat
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import androidx.media2.*
-import androidx.media2.SessionPlayer.*
-import com.caldeirasoft.castly.service.playback.const.Constants
-import com.caldeirasoft.castly.service.playback.utils.SyncHandler
-import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import androidx.lifecycle.MutableLiveData
+import com.caldeirasoft.basicapp.media.MediaSessionConnection.MediaBrowserConnectionCallback
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.
@@ -54,73 +49,138 @@ import java.util.concurrent.TimeUnit
  */
 class MediaSessionConnection(val context: Context, val serviceComponent: ComponentName)
 {
-    private val ioExecutor: Executor by lazy { getExecutor() }
-    private val sessionToken = SessionToken(context, serviceComponent)
-    private var mediaBrowserProxyCallbacksList: MutableList<MediaBrowser.BrowserCallback> = arrayListOf()
-
     val isConnected = MutableLiveData<Boolean>()
             .apply { postValue(false) }
 
-    val playbackState = MutableLiveData<Int>()
-            .apply { postValue(PLAYER_STATE_IDLE) }
-    val nowPlaying = MutableLiveData<MediaItem>()
-            .apply { postValue(null) }
+    val rootMediaId: String get() = mediaBrowser.root
 
-    fun getMediaBrowser(callback: MediaBrowserConnectionCallback, connectedAction: (() -> Unit)? = null): MediaBrowser {
-        callback.setConnectionAction(connectedAction)
-        return MediaBrowser(context, sessionToken, ioExecutor, callback)
-    }
+    val playbackState = MutableLiveData<PlaybackStateCompat>()
+            .apply { postValue(EMPTY_PLAYBACK_STATE) }
+    val nowPlaying = MutableLiveData<MediaMetadataCompat>()
+            .apply { postValue(NOTHING_PLAYING) }
 
-    private fun subscribe(parentId: String, params: MediaLibraryService.LibraryParams) {
+    val transportControls: MediaControllerCompat.TransportControls
+        get() = mediaController.transportControls
+
+    val queue: MutableList<MediaSessionCompat.QueueItem>
+        get() = mediaController.queue
+
+    private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
+    private val mediaBrowser = MediaBrowserCompat(context,
+            serviceComponent,
+            mediaBrowserConnectionCallback, null)
+            .apply { connect() }
+    private lateinit var mediaController: MediaControllerCompat
+
+    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         Log.d("Subscribe", parentId)
-        //mediaBrowser.subscribe(parentId, params)
+        mediaBrowser.subscribe(parentId, callback)
     }
 
-    private fun unsubscribe(parentId: String) {
+    fun subscribe(parentId: String, extra: Bundle, callback: MediaBrowserCompat.SubscriptionCallback) {
+        Log.d("Subscribe", parentId)
+        mediaBrowser.subscribe(parentId, extra, callback)
+    }
+
+    fun unsubscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
         Log.d("Unsubscribe", parentId)
-        //mediaBrowser.unsubscribe(parentId)
+        mediaBrowser.unsubscribe(parentId, callback)
     }
 
-    private fun getExecutor(): Executor {
-        val handlerThread = HandlerThread("MediaSessionConnection")
-        handlerThread.start()
-        val sHandler = SyncHandler(handlerThread.looper)
+    fun getItem(mediaId: String, callback: MediaBrowserCompat.ItemCallback) {
+        Log.d("GetItem", mediaId)
+        mediaBrowser.getItem(mediaId, callback)
+    }
 
-        val executor =  object : Executor {
-            override fun execute(command: Runnable?) {
-                val handler: SyncHandler?
-                synchronized(MediaSessionConnection.javaClass) {
-                    handler = sHandler
-                }
-                handler?.post(command)
+    fun sendCustomAction(action:String, extras: Bundle, callback: MediaBrowserCompat.CustomActionCallback) {
+        Log.d("sendCustomAction", action)
+        mediaBrowser.sendCustomAction(action, extras, callback)
+    }
+
+    fun addQueueItem(description: MediaDescriptionCompat) {
+        println("addQueueItem")
+        mediaController.addQueueItem(description)
+    }
+
+    fun addQueueItem(description: MediaDescriptionCompat, index:Int) {
+        println("addQueueItem")
+        mediaController.addQueueItem(description, index)
+    }
+
+    fun removeQueueItem(description: MediaDescriptionCompat) {
+        println("removeQueueItem")
+        mediaController.removeQueueItem(description)
+    }
+
+    private inner class MediaBrowserConnectionCallback(private val context: Context)
+        : MediaBrowserCompat.ConnectionCallback() {
+
+        /**
+         * Invoked after [MediaBrowserCompat.connect] when the request has successfully
+         * completed.
+         */
+        override fun onConnected() {
+            // Get a MediaController for the MediaSession.
+            mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
+                registerCallback(MediaControllerCallback())
+                //mediaControlCallback.onPlaybackStateChanged(playbackState)
+                //mediaControlCallback.onMetadataChanged(metadata)
             }
+
+            isConnected.postValue(true)
         }
-        return executor
+
+        /**
+         * Invoked when the client is disconnected from the media browser.
+         */
+        override fun onConnectionSuspended() {
+            isConnected.postValue(false)
+        }
+
+        /**
+         * Invoked when the connection to the media browser failed.
+         */
+        override fun onConnectionFailed() {
+            isConnected.postValue(false)
+        }
     }
 
-    private inner class MediaControllerCallback : MediaController.ControllerCallback() {
+    private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
-        //                @SessionPlayer.PlayerState int state) { }
-        override fun onPlayerStateChanged(controller: MediaController, state: Int) {
-            //PLAYER_STATE_IDLE
-            //PLAYER_STATE_PLAYING
-            //PLAYER_STATE_PAUSED
-            //PLAYER_STATE_ERROR
-            playbackState.postValue( state)
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
         }
 
-        override fun onCurrentMediaItemChanged(controller: MediaController, item: MediaItem?) {
-            nowPlaying.postValue(item)
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            nowPlaying.postValue(metadata ?: NOTHING_PLAYING)
         }
 
-        override fun onPlaylistChanged(controller: MediaController, list: MutableList<MediaItem>?, metadata: MediaMetadata?) {
+        override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
         }
 
-        override fun onDisconnected(controller: MediaController) {
+        /**
+         * Normally if a [MediaBrowserServiceCompat] drops its connection the callback comes via
+         * [MediaControllerCompat.Callback] (here). But since other connection status events
+         * are sent to [MediaBrowserCompat.ConnectionCallback], we catch the disconnect here and
+         * send it on to the other callback.
+         */
+        override fun onSessionDestroyed() {
+            mediaBrowserConnectionCallback.onConnectionSuspended()
         }
     }
 
     companion object {
+        @Suppress("PropertyName")
+        val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
+                .build()
+
+        @Suppress("PropertyName")
+        val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
+                .build()
+
         // For Singleton instantiation.
         @Volatile
         private var instance: MediaSessionConnection? = null
@@ -130,35 +190,6 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
                     instance ?: MediaSessionConnection(context, serviceComponent)
                             .also { instance = it }
                 }
-    }
-}
-
-abstract class MediaBrowserConnectionCallback()
-    : MediaBrowser.BrowserCallback() {
-
-    val isConnected = MutableLiveData<Boolean>()
-            .apply { postValue(false) }
-    var onConnectedAction: (() -> Unit)? = null
-    val connectLatch: CountDownLatch = CountDownLatch(1)
-
-    fun setConnectionAction(connectedAction: (() -> Unit)?) {
-        this.onConnectedAction = connectedAction
-    }
-
-    @SuppressLint("RestrictedApi")
-    override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
-        // Get a MediaController for the MediaSession.
-        isConnected.postValue(true)
-        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_GET_DESCRIPTION, Bundle()))
-        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_SUBSCRIBE, Bundle()))
-        allowedCommands.addCommand(SessionCommand(Constants.COMMAND_CODE_PODCAST_UNSUBSCRIBE, Bundle()))
-
-        connectLatch.countDown()
-        onConnectedAction?.invoke()
-    }
-
-    override fun onDisconnected(controller: MediaController) {
-        isConnected.postValue(false)
     }
 }
 

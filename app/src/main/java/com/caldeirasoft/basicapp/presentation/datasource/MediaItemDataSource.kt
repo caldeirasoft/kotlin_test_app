@@ -4,15 +4,13 @@ import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.media2.*
-import androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.paging.*
-import androidx.versionedparcelable.ParcelUtils
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.domain.model.SectionState
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_CONTINUATION
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_PODCAST
-import com.caldeirasoft.castly.service.playback.PodcastLibraryService.Companion.EXTRA_RELOAD_ALL
+import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_CONTINUATION
+import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_PODCAST
+import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_RELOAD_ALL
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -22,8 +20,7 @@ class MediaItemDataSource(
         private val parentId: String,
         private val mediaItem: MediaItem?,
         private val sectionData: LiveData<SectionState>,
-        private val mediaBrowser: MediaBrowser,
-        private val connectLatch: CountDownLatch,
+        private val mediaSessionConnection: MediaSessionConnection,
         private val dataProvider: MediaItemDataProvider
 ) : PositionalDataSource<MediaItem>()
 {
@@ -44,24 +41,15 @@ class MediaItemDataSource(
         val extra = getInitialPageBundle(params)
         isLoading.postValue(true)
 
-        if (!mediaBrowser.isConnected)
-            connectLatch.await()
-
-        val libraryParams = MediaLibraryService.LibraryParams.Builder().setExtras(extra).build()
-        val result = mediaBrowser.getChildren(parentId, 0, params.pageSize, libraryParams).get()
-        if (result.resultCode == RESULT_CODE_SUCCESS)
-        {
-            loadedPages.add(0)
-            result.mediaItems.orEmpty().apply {
-                dataProvider.retrievedMediaItemsCount = this.size
-                callback.onResult(this, params.requestedStartPosition)
+        mediaSessionConnection.subscribe(parentId, extra, object : MediaBrowserCompat.SubscriptionCallback() {
+            override fun onChildrenLoaded(parentId: String, children: MutableList<MediaItem>, options: Bundle) {
+                loadedPages.add(0)
+                dataProvider.retrievedMediaItemsCount = children.size
+                callback.onResult(children, params.requestedStartPosition)
+                isLoading.postValue(false)
+                mediaSessionConnection.unsubscribe(parentId, this)
             }
-            continuation = result.libraryParams?.extras?.getString(EXTRA_CONTINUATION)
-        }
-        else {
-            callback.onResult(mutableListOf<MediaItem>(), params.requestedStartPosition)
-        }
-        isLoading.postValue(false)
+        })
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<MediaItem>) {
@@ -80,29 +68,24 @@ class MediaItemDataSource(
 
         val extra = getRangeBundle(params)
         isLoading.postValue(true)
-        val libraryParams = MediaLibraryService.LibraryParams.Builder().setExtras(extra).build()
-        val result = mediaBrowser.getChildren(parentId, pageIndex, params.loadSize, libraryParams).get()
-        if (result.resultCode == RESULT_CODE_SUCCESS)
-        {
-            loadedPages.add(pageIndex)
-            result.mediaItems.orEmpty().apply {
-                dataProvider.retrievedMediaItemsCount = (dataProvider.retrievedMediaItemsCount ?: 0) + this.size
-                callback.onResult(this)
+        mediaSessionConnection.subscribe(parentId, extra, object : MediaBrowserCompat.SubscriptionCallback() {
+            override fun onChildrenLoaded(parentId: String, children: MutableList<MediaItem>, options: Bundle) {
+                loadedPages.add(0)
+                dataProvider.retrievedMediaItemsCount = dataProvider.retrievedMediaItemsCount ?: 0 + children.size
+                callback.onResult(children)
+                isLoading.postValue(false)
+                mediaSessionConnection.unsubscribe(parentId, this)
             }
-            continuation = result.libraryParams?.extras?.getString(EXTRA_CONTINUATION)
-        }
-        else {
-            callback.onResult(mutableListOf<MediaItem>())
-        }
-        isLoading.postValue(false)
+        })
     }
 
     private fun getInitialPageBundle(params: PositionalDataSource.LoadInitialParams): Bundle {
         return Bundle().apply {
-            mediaItem?.let {
-                ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, it)
-            }
+            putInt(MediaBrowserCompat.EXTRA_PAGE, 0)
             putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, params.pageSize)
+            mediaItem?.let {
+                this.putParcelable(EXTRA_PODCAST, it)
+            }
             dataProvider.retrievedMediaItemsCount?.let {
                 putBoolean(EXTRA_RELOAD_ALL, true)
             }
@@ -111,11 +94,12 @@ class MediaItemDataSource(
 
     private fun getRangeBundle(params: PositionalDataSource.LoadRangeParams): Bundle {
         return Bundle().apply {
-            mediaItem?.let {
-                ParcelUtils.putVersionedParcelable(this, EXTRA_PODCAST, it)
-            }
-            putString(EXTRA_CONTINUATION, continuation)
+            putInt(MediaBrowserCompat.EXTRA_PAGE, getPageIndex(params))
             putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, params.loadSize)
+            putString(EXTRA_CONTINUATION, continuation)
+            mediaItem?.let {
+                this.putParcelable(EXTRA_PODCAST, it)
+            }
         }
     }
 

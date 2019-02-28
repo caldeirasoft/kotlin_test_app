@@ -5,8 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
-import androidx.media2.MediaItem
-import androidx.media2.MediaMetadata
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import com.airbnb.epoxy.DataBindingEpoxyModel
 import com.airbnb.epoxy.TypedEpoxyController
@@ -19,7 +17,6 @@ import com.caldeirasoft.basicapp.presentation.ui.base.MediaItemViewModel
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
 import com.caldeirasoft.castly.domain.model.MediaID
 import com.caldeirasoft.castly.domain.model.SectionState
-import com.caldeirasoft.castly.service.playback.extensions.mediaMetadata
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class DiscoverFragment :
@@ -76,13 +73,7 @@ class DiscoverFragment :
                                         val imageView: ImageView = rootView.findViewById(R.id.imageview_background)
                                         ViewCompat.setTransitionName(imageView, transitionName)
 
-                                        val id = MediaID(SectionState.PODCAST, it.podcast.feedUrl).asString()
-                                        val direction =
-                                                DiscoverFragmentDirections.openPodcast(id, transitionName).apply {
-                                                    podcast = it.podcast
-                                                }
-                                        val extras = FragmentNavigatorExtras(imageView to transitionName)
-                                        navigateTo(direction, extras)
+                                        navigateToPodcast(it.podcast, transitionName, imageView)
                                     }
                         }
                     }
@@ -118,6 +109,12 @@ class DiscoverFragment :
         val imageView: ImageView = rootView.findViewById(R.id.img_row)
         ViewCompat.setTransitionName(imageView, transitionName)
 
+        navigateToPodcast(podcast, transitionName, imageView)
+    }
+
+    private fun navigateToPodcast(podcast: Podcast,
+                                  transitionName: String,
+                                  imageView: ImageView) {
         val id = MediaID(SectionState.PODCAST, podcast.feedUrl).asString()
         val direction =
                 DiscoverFragmentDirections.openPodcast(id, transitionName).also{
