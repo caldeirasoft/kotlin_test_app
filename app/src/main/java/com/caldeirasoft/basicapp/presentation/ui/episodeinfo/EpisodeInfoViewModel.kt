@@ -8,7 +8,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.SectionState
@@ -16,6 +18,7 @@ import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.service.playback.MediaService.Companion.EXTRA_PODCAST
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_QUEUE_ADD_ITEM
 import com.caldeirasoft.castly.service.playback.extensions.id
+import com.caldeirasoft.castly.service.playback.extensions.isPlaying
 import com.caldeirasoft.castly.service.playback.extensions.isPrepared
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -34,6 +37,12 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
         this.value = mediaItem
     }
 
+    // episode playing
+    var isPlayingEpisode: MediatorLiveData<Boolean> = MediatorLiveData()
+
+    // now playing
+    var isNowPlaying: MediatorLiveData<Boolean> = MediatorLiveData()
+
     // episode section
     val _sectionData: MediatorLiveData<Int> = MediatorLiveData()
     val sectionData: LiveData<Int> = _sectionData
@@ -45,6 +54,19 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
         _sectionData.addSource(episodeDb) { episode ->
             _sectionData.postValue(episode?.section ?: SectionState.ARCHIVE.value)
         }
+
+        isNowPlaying.apply {
+                addSource(mediaSessionConnection.nowPlaying) { nowPlaying ->
+                    postValue(getIsNowPlaying(nowPlaying, mediaSessionConnection.playbackState.value))
+                }
+                addSource(mediaSessionConnection.playbackState) { playbackState ->
+                    postValue(getIsNowPlaying(mediaSessionConnection.nowPlaying.value, playbackState))
+                }
+        }
+
+        isPlayingEpisode.addSource(mediaSessionConnection.nowPlaying) { nowPlaying ->
+            isPlayingEpisode.postValue(mediaItem.mediaId == nowPlaying?.id)
+        }
     }
 
     fun playEpisode() {
@@ -54,20 +76,14 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
 
         val isPrepared = mediaSessionConnection.playbackState.value?.isPrepared ?: false
         if (isPrepared && (mediaItem.mediaId == nowPlaying?.id)) {
-
+            if (mediaSessionConnection.playbackState.value?.isPlaying == true)
+                transportControls.pause()
+            else
+                transportControls.play()
         }
         else {
-            val extra = Bundle().apply {
-                putParcelable(EXTRA_PODCAST, mediaItem)
-            }
-            /*
-            mediaSessionConnection.sendCustomAction(
-                    COMMAND_CODE_QUEUE_ADD_ITEM,
-                    extra,
-                    object : MediaBrowserCompat.CustomActionCallback() {})
-            */
+            // add to queue item
             mediaSessionConnection.addQueueItem(mediaItem.description)
-            //transportControls.playFromUri(mediaItem.description.mediaUri, null)
         }
     }
 
@@ -90,4 +106,7 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
     fun archiveEpisode() {
 
     }
+
+    fun getIsNowPlaying(nowPlaying: MediaMetadataCompat?, playbackState: PlaybackStateCompat?): Boolean =
+            nowPlaying?.id == mediaItem.mediaId && playbackState?.isPlaying == true
 }

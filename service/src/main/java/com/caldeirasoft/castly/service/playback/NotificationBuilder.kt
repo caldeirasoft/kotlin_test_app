@@ -76,7 +76,6 @@ class NotificationBuilder(private val context: Context) {
         val controller = MediaControllerCompat(context, sessionToken)
         val description = controller.metadata.description
         val playbackState = controller.playbackState
-
         val builder = NotificationCompat.Builder(context, NOW_PLAYING_CHANNEL)
 
         // Only add actions for skip back, play/pause, skip forward, based on what's enabled.

@@ -148,10 +148,12 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+            println("onPlaybackStateChanged")
             playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            println("onMetadataChanged")
             nowPlaying.postValue(metadata ?: NOTHING_PLAYING)
         }
 

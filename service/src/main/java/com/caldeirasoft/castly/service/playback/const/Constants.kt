@@ -34,6 +34,9 @@ class Constants {
         const val COMMAND_CODE_PODCAST_GET_DESCRIPTION = "command.podcast.get_description"
         const val COMMAND_CODE_PODCAST_REFRESH = "command.podcast.refresh"
 
+        // playback command
+        const val COMMAND_PLAYBACK_UPDATE_INFO = "command.playback.update_info"
+
         // queue commands
         const val COMMAND_CODE_QUEUE_CLEAR = "command.queue.clear"
         const val COMMAND_CODE_QUEUE_ADD_ITEM = "command.queue.add_item"
@@ -46,5 +49,13 @@ class Constants {
         const val COMMAND_CODE_EPISODE_MARK_FAVORITE = "command.episodes.markFavorite"
         const val COMMAND_CODE_EPISODE_MARK_UNFAVORITE = "command.episodes.markUnfavorite"
         const val COMMAND_CODE_EPISODE_ARCHIVE = "command.episodes.archive"
+
+        // constants
+        const val UPDATE_INFO = "UPDATE_INFO"
+        const val PROGRESS_UPDATE_EVENT = "PROGRESS_UPDATE_EVENT"
+        const val CURRENT_PROGRESS = "CURRENT_PROGRESS"
+        const val PLAYLIST_INFO_EVENT = "PLAYLIST_INFO_EVENT"
+        const val HAS_NEXT = "HAS_NEXT"
+        const val HAS_PREV = "HAS_PREV"
     }
 }

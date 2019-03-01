@@ -21,6 +21,7 @@ import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_
 import com.caldeirasoft.castly.service.playback.extensions.*
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -35,6 +36,9 @@ class EpisodeInfoDialogFragment :
 
     // viewmodel
     private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem) }
+
+    // fab
+    private var fab: FloatingActionButton? = null
 
     // override
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +55,8 @@ class EpisodeInfoDialogFragment :
 
             val bottomAppBar: BottomAppBar = it.root.findViewById(R.id.bottom_appbar_episodedetail)
             setSupportActionBar(bottomAppBar)
+
+            fab = it.root.findViewById(R.id.fab_episode_info)
 
             return it.root
         }
@@ -93,6 +99,10 @@ class EpisodeInfoDialogFragment :
             SectionState.QUEUE.value -> playNextItem.isVisible = false
         }
 
+        if (mViewModel.isPlayingEpisode.value == true) {
+            playNextItem.isVisible = false
+        }
+
         mViewModel.episodeData.value?.let {
             favoriteItem.icon = ContextCompat.getDrawable(activity!!,
                     if (it.isFavorite) R.drawable.ic_favorite_border_24dp
@@ -118,6 +128,10 @@ class EpisodeInfoDialogFragment :
 
     private fun initObservers() {
         mViewModel.sectionData.observeK(this) {
+            activity?.invalidateOptionsMenu()
+        }
+
+        mViewModel.isPlayingEpisode.observeK(this) {
             activity?.invalidateOptionsMenu()
         }
 

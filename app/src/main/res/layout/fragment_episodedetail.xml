@@ -144,7 +144,7 @@
             android:layout_height="?actionBarSize"
             android:layout_gravity="bottom"
             app:navigationIcon="@null"
-            app:fabAlignmentMode="end"
+            app:fabAlignmentMode="center"
             app:hideOnScroll="true"
             app:layout_scrollFlags="scroll|enterAlways"
             style="@style/Widget.MaterialComponents.BottomAppBar"
@@ -154,7 +154,7 @@
             android:id="@+id/fab_episode_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_play_24dp"
+            android:src="@{viewModel.isNowPlaying() ? @drawable/ic_pause_24dp : @drawable/ic_play_24dp}"
             app:layout_anchor="@id/bottom_appbar_episodedetail"
             android:onClick="@{() -> viewModel.playEpisode()}"/>
 

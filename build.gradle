@@ -11,8 +11,8 @@ buildscript {
         // SDK and tools
         targetSdkVersion = 28
         compileSdkVersion = 28
-        minSdkVersion = 21
-        minTvSdkVersion = 21
+        minSdkVersion = 23
+        minTvSdkVersion = 23
         roomVersion = "1.0.0"
         lifecycleVersion = "1.1.1"
 
