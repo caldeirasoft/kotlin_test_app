@@ -42,6 +42,17 @@
           app:layout_constraintBottom_toBottomOf="parent"
           style = "@style/TextAppearance.MaterialComponents.Headline4"/>
 
+      <ImageButton
+          android:id="@+id/imagebutton_play"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:layout_marginEnd="@dimen/activity_horizontal_margin"
+          android:src="@drawable/avd_equalizer"
+          android:contentDescription="@null"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:animating="@{1==1}"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -25,8 +25,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaDescriptionCompat.EXTRA_DOWNLOAD_STATUS
-import android.support.v4.media.MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
+import android.support.v4.media.MediaDescriptionCompat.*
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS
 import com.caldeirasoft.castly.domain.model.*
@@ -36,6 +35,7 @@ import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_FAVORITE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_FAVORITE_STATUS
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_SECTION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_FAVORITE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_FAVORITE
@@ -135,6 +135,11 @@ inline val MediaMetadataCompat.inDatabaseStatus
     @SuppressLint("WrongConstant")
     get() = this.getLong(METADATA_KEY_IN_DATABASE).toInt()
 
+@MediaBrowserCompat.MediaItem.Flags
+inline val MediaMetadataCompat.section
+    @SuppressLint("WrongConstant")
+    get() = this.getLong(METADATA_KEY_SECTION).toInt()
+
 /**
  * Useful extensions for [MediaMetadataCompat.Builder].
  */
@@ -161,6 +166,13 @@ inline var MediaMetadataCompat.Builder.artist: String?
     get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
     set(value) {
         putString(MediaMetadataCompat.METADATA_KEY_ARTIST, value)
+    }
+
+inline var MediaMetadataCompat.Builder.author: String?
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    set(value) {
+        putString(MediaMetadataCompat.METADATA_KEY_AUTHOR, value)
     }
 
 inline var MediaMetadataCompat.Builder.album: String?
@@ -261,6 +273,20 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
 
+inline var MediaMetadataCompat.Builder.currentPosition: Long
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    set(value) {
+        putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
+    }
+
+inline var MediaMetadataCompat.Builder.timePlayed: Long
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    set(value) {
+        putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
+    }
+
 /**
  * Custom property for storing whether a [MediaMetadataCompat] item represents an
  * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
@@ -285,6 +311,18 @@ inline var MediaMetadataCompat.Builder.favoriteStatus: Int
     @SuppressLint("WrongConstant")
     set(value) {
         putLong(METADATA_KEY_FAVORITE_STATUS, value.toLong())
+    }
+
+/**
+ * Custom property for storing a [MediaMetadataCompat] item section.
+ */
+@MediaBrowserCompat.MediaItem.Flags
+inline var MediaMetadataCompat.Builder.section: Int
+    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
+    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
+    @SuppressLint("WrongConstant")
+    set(value) {
+        putLong(METADATA_KEY_SECTION, value.toLong())
     }
 
 /**
@@ -349,25 +387,35 @@ fun List<MediaMetadataCompat>.toMediaSource(
  */
 inline val Episode.mediaDescription: MediaDescriptionCompat
     @SuppressLint("WrongConstant")
-    get() = MediaMetadataCompat.Builder().also {
-            // The duration from the JSON is given in seconds, but the rest of the code works in
-            // milliseconds. Here's where we convert to the proper units.
-            val durationMs = TimeUnit.SECONDS.toMillis(duration ?: 0)
+    get() = MediaDescriptionCompat.Builder().also {
+        // The duration from the JSON is given in seconds, but the rest of the code works in
+        // milliseconds. Here's where we convert to the proper units.
+        it.id = episodeId
+        it.title = title
+        it.subtitle = podcastTitle
+        it.description = description
+        it.mediaUri = mediaUrl.tryParseUri()
+        it.iconUri = imageUrl.tryParseUri()
+        it.extras = Bundle()
+    }.build().also {
+        val durationMs = TimeUnit.SECONDS.toMillis(duration ?: 0)
 
-            it.id = episodeId
-            it.title = title
-            it.displayTitle = title
-            it.album = podcastTitle
-            it.displaySubtitle = podcastTitle
-            it.displayIconUri = imageUrl
-            it.albumArtUri = imageUrl
-            it.displayDescription = description
-            it.mediaUri = mediaUrl
-            it.date = publishedFormat()
-            it.duration = durationMs
-            it.downloadStatus = STATUS_NOT_DOWNLOADED
-            it.favoriteStatus = if(isFavorite) STATUS_FAVORITE else STATUS_NOT_FAVORITE
-        }.build().fullDescription
+        it.displayTitle = title
+        it.album = podcastTitle
+        it.displaySubtitle = podcastTitle
+        it.author = feedUrl
+        it.displayIconUri = imageUrl.tryParseUri()
+        it.albumArtUri = imageUrl.tryParseUri()
+        it.displayDescription = description
+        it.date = published.toString()
+        it.duration = durationMs
+        it.downloadStatus = STATUS_NOT_DOWNLOADED
+        it.favoriteStatus = if(isFavorite) STATUS_FAVORITE else STATUS_NOT_FAVORITE
+        it.section = section
+        it.trackNumber = queuePosition?.toLong() ?: -1
+        it.timePlayed = timePlayed ?: 0L
+        it.currentPosition = playbackPosition ?: 0
+    }
 
 
 /**
@@ -419,9 +467,7 @@ fun MediaBrowserCompat.MediaItem.toPodcast(): Podcast {
             podcast.authors = it.subtitle?.toString().orEmpty()
             podcast.description = it.description?.toString().orEmpty()
             podcast.imageUrl = it.iconUri?.toString().orEmpty()
-            it.extras?.let {
-                podcast.updated = it.getLong(EXTRA_DATE)
-            }
+            podcast.updated = it.date?.toLong()
         }
     }
 }

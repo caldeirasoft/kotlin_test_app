@@ -20,6 +20,9 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import java.util.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -37,26 +40,31 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class SingleLiveEvent<T> : MutableLiveData<T>() {
 
-    private val pending = AtomicBoolean(false)
+    private val hashMapPending = ConcurrentHashMap<String, AtomicBoolean>()
 
     @MainThread
     override fun observe(owner: LifecycleOwner, observer: Observer<in T>) {
+        observe(owner, "", observer)
+    }
 
-        if (hasActiveObservers()) {
-            Log.w(TAG, "Multiple observers registered but only one will be notified of changes.")
-        }
+    @MainThread
+    fun observe(owner: LifecycleOwner, tag:String, observer: Observer<in T>) {
+        val internalTag = owner::class.java.name + "#" + tag
+        hashMapPending.put(internalTag, AtomicBoolean(false))
 
         // Observe the internal MutableLiveData
         super.observe(owner, Observer<T> { t ->
-            if (pending.compareAndSet(true, false)) {
-                observer.onChanged(t)
+            hashMapPending.get(internalTag)?.let { pending ->
+                if (pending.compareAndSet(true, false)) {
+                    observer.onChanged(t)
+                }
             }
         })
     }
 
     @MainThread
     override fun setValue(t: T?) {
-        pending.set(true)
+        hashMapPending.entries.forEach { tu -> tu.value.set(true)}
         super.setValue(t)
     }
 

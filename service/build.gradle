@@ -33,10 +33,17 @@ dependencies {
     // Android
     implementation "androidx.core:core:1.0.1"
     implementation "androidx.appcompat:appcompat:1.0.2"
-    implementation 'androidx.annotation:annotation:1.0.1'
+    implementation 'androidx.annotation:annotation:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+
+    // Android-LiveData
+    implementation "android.arch.lifecycle:livedata-core:1.1.1"
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    // Android-Paging
+    implementation "android.arch.paging:common:1.0.1"
 
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -56,9 +63,6 @@ dependencies {
     implementation 'org.koin:koin-android:1.0.2'
     implementation 'org.koin:koin-androidx-viewmodel:1.0.2'
 
-    // Android-LiveData
-    implementation "android.arch.lifecycle:livedata-core:1.1.1"
-    implementation "android.arch.lifecycle:extensions:1.1.1"
-    // Android-Paging
-    implementation "android.arch.paging:common:1.0.1"
+    // ThreeTenABP (Java Time)
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
 }

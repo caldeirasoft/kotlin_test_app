@@ -28,6 +28,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.caldeirasoft.basicapp.media.MediaSessionConnection.MediaBrowserConnectionCallback
+import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
 
 /**
  * Class that manages a connection to a [MediaBrowserServiceCompat] instance.
@@ -59,11 +60,14 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
     val nowPlaying = MutableLiveData<MediaMetadataCompat>()
             .apply { postValue(NOTHING_PLAYING) }
 
+    val playbackStateChangedEvent = SingleLiveEvent<PlaybackStateCompat>()
+    val metadataChangedEvent = SingleLiveEvent<MediaMetadataCompat>()
+
     val transportControls: MediaControllerCompat.TransportControls
         get() = mediaController.transportControls
 
-    val queue: MutableList<MediaSessionCompat.QueueItem>
-        get() = mediaController.queue
+    val queueList: MutableLiveData<List<MediaSessionCompat.QueueItem>>
+            = MutableLiveData()
 
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
     private val mediaBrowser = MediaBrowserCompat(context,
@@ -90,6 +94,11 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
     fun getItem(mediaId: String, callback: MediaBrowserCompat.ItemCallback) {
         Log.d("GetItem", mediaId)
         mediaBrowser.getItem(mediaId, callback)
+    }
+
+    fun sendCustomAction(action:String, extras: Bundle) {
+        Log.d("sendCustomAction", action)
+        mediaBrowser.sendCustomAction(action, extras, null)
     }
 
     fun sendCustomAction(action:String, extras: Bundle, callback: MediaBrowserCompat.CustomActionCallback) {
@@ -125,6 +134,7 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
                 registerCallback(MediaControllerCallback())
                 //mediaControlCallback.onPlaybackStateChanged(playbackState)
                 //mediaControlCallback.onMetadataChanged(metadata)
+                queueList.postValue(this.queue)
             }
 
             isConnected.postValue(true)
@@ -150,14 +160,21 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             println("onPlaybackStateChanged")
             playbackState.postValue(state ?: EMPTY_PLAYBACK_STATE)
+            playbackStateChangedEvent.postValue(state ?: EMPTY_PLAYBACK_STATE)
         }
 
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             println("onMetadataChanged")
             nowPlaying.postValue(metadata ?: NOTHING_PLAYING)
+            metadataChangedEvent.postValue(metadata)
         }
 
         override fun onQueueChanged(queue: MutableList<MediaSessionCompat.QueueItem>?) {
+            queueList.postValue(queue)
+        }
+
+        override fun onSessionEvent(event: String?, extras: Bundle?) {
+            super.onSessionEvent(event, extras)
         }
 
         /**

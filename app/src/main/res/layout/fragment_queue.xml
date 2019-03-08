@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <data>
+    <variable name="title" type="String"/>
+  </data>
+
+  <androidx.coordinatorlayout.widget.CoordinatorLayout
+      android:id="@+id/coordinatorLayout_root"
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="?android:attr/windowBackground">
+
+    <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
+        android:id="@+id/appbar_layout_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+      <include layout="@layout/fragment_list_header"
+              app:title="@{title}"/>
+
+    </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
+
+    <com.airbnb.epoxy.EpoxyRecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+  </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

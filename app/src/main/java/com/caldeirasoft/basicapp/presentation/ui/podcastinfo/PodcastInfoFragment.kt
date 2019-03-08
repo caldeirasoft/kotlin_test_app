@@ -8,16 +8,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.versionedparcelable.ParcelUtils
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
 import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
-import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
@@ -25,9 +24,6 @@ import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DATE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DURATION
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
 import com.marozzi.roundbutton.RoundButton
@@ -40,6 +36,14 @@ class PodcastInfoFragment :
     // private property
     private var mIsSubscribing:Boolean = false
     private var showHeader:Boolean = true
+    private val mediaItemDiffCallback: DiffUtil.ItemCallback<MediaItem> =
+            object : DiffUtil.ItemCallback<MediaItem>() {
+                override fun areItemsTheSame(oldItem: MediaItem, newItem: MediaItem) =
+                    areContentsTheSame(oldItem, newItem)
+
+                override fun areContentsTheSame(oldItem: MediaItem, newItem: MediaItem) =
+                    oldItem.mediaId == newItem.mediaId
+            }
 
     // arguments
     private val args by lazy { PodcastInfoFragmentArgs.fromBundle(arguments!!) }
@@ -79,10 +83,10 @@ class PodcastInfoFragment :
     private fun initObservers() {
         // podcast media item
         mViewModel.mediaItemData.observeK(this) {
-            it?.description?.metadata?.let {
+            it?.description?.let {
                 val inDb = it.inDatabaseStatus == STATUS_IN_DATABASE
                 mBinding.apply {
-                        title = it.title
+                        title = it.title.toString()
                         artist = it.artist
                         displayDescription = it.displayDescription
                         albumArtUri = it.albumArtUri.toString()
@@ -124,8 +128,21 @@ class PodcastInfoFragment :
 
         //
         mViewModel.dataItems.observeK(this) {
+            it?.let {
+                mViewModel.refresh(it)
+            }
+        }
+
+        // observe playback state changed
+        mViewModel.playbackStateChangedEvent.observeK(this) {
             mViewModel.refresh()
         }
+
+        // observe now playing changed
+        mViewModel.metadataChangedEvent.observeK(this) {
+            mViewModel.refresh()
+        }
+
     }
 
     private fun initUi() {
@@ -142,7 +159,7 @@ class PodcastInfoFragment :
 
     private fun setButtonSubscribeText() {
         mIsSubscribing = false
-        val inDb = mViewModel.mediaItemData.value?.description?.metadata?.inDatabaseStatus == STATUS_IN_DATABASE
+        val inDb = mViewModel.mediaItemData.value?.description?.inDatabaseStatus == STATUS_IN_DATABASE
         mButtonSubscribe.apply {
             val textButton =
                     if (inDb == true) context.getString(R.string.menu_unsubscribe)
@@ -179,10 +196,12 @@ class PodcastInfoFragment :
                     item?.let {
                         return ItemEpisodePodcastBindingModel_().apply {
                             id(item.mediaId)
-                            title(item.description.metadata.title)
-                            imageUrl(item.description.metadata.albumArtUri.toString())
-                            duration(item.description.metadata.duration.toString())
-                            publishedDate(it.description.metadata.date)
+                            title(item.description.title.toString())
+                            imageUrl(item.description.albumArtUri.toString())
+                            duration(item.description.duration.toString())
+                            publishedDate(it.description.date)
+                            playbackState(it.description.playbackStatus)
+                            timePlayed(it.description.timePlayed)
                             onEpisodeClick { model, parentView, clickedView, position ->
                                 val episodeInfoDialog =
                                         EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to item)

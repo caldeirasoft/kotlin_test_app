@@ -16,20 +16,14 @@
 
 package com.caldeirasoft.castly.service.playback
 
-import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
-import android.media.AudioTrack
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.*
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
@@ -38,11 +32,10 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.MediaSessionCompat.*
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
-import androidx.media.MediaBrowserServiceCompat
+import androidx.lifecycle.LiveData
 import androidx.media.session.MediaButtonReceiver
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.MediaID
@@ -53,28 +46,18 @@ import com.caldeirasoft.castly.domain.repository.FeedlyRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import com.caldeirasoft.castly.service.R
 import com.caldeirasoft.castly.service.playback.NotificationBuilder.Companion.NOW_PLAYING_NOTIFICATION
-import com.caldeirasoft.castly.service.playback.const.Constants
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_ARCHIVE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_TOGGLE_FAVORITE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_GET_DESCRIPTION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_SUBSCRIBE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_PODCAST_UNSUBSCRIBE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_QUEUE_ADD_ITEM
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_PLAYBACK_UPDATE_INFO
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.CURRENT_PROGRESS
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DATE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_EPISODE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_PODCAST
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.MEDIA_ROOT
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.PROGRESS_UPDATE_EVENT
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_FAVORITE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_FAVORITE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
-import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.Player.*
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.google.android.exoplayer2.upstream.*
-import com.google.android.exoplayer2.util.Util
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -92,139 +75,18 @@ import org.koin.android.ext.android.inject
  * visit [https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html](https://developer.android.com/guide/topics/media-apps/audio-app/building-a-mediabrowserservice.html).
  */
 class MediaService : androidx.media.MediaBrowserServiceCompat() {
-    private lateinit var mediaSession: MediaSessionCompat
-    //private lateinit var mediaController: MediaControllerCompat
-    private lateinit var exoPlayer: SimpleExoPlayer
-    private lateinit var audioManager: AudioManager
-    private lateinit var audioFocusRequest: AudioFocusRequest
-    private lateinit var mediaSessionCallback: MediaSessionCallback
-
-    private var audioFocusRequested = false
-    private var lastInitializedTrack: MediaDescriptionCompat? = null
-    private var metadataBuilder = MediaMetadataCompat.Builder()
-    private var becomingNoisyReceiverRegistered = false
-    private val updateIntervalMs = 1000L
-    private val progressHandler = Handler()
-    private var needUpdateProgress = false
-
-    private val stateBuilder: PlaybackStateCompat.Builder = PlaybackStateCompat.Builder()
-            .setActions(
-                    PlaybackStateCompat.ACTION_PLAY
-                            or PlaybackStateCompat.ACTION_STOP
-                            or PlaybackStateCompat.ACTION_PAUSE
-                            or PlaybackStateCompat.ACTION_PLAY_PAUSE
-                            or PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-                            or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS)
-
+    private lateinit var mediaPlaybackSession: MediaPlaybackSession
     private lateinit var becomingNoisyReceiver: BecomingNoisyReceiver
     private lateinit var notificationManager: NotificationManagerCompat
     private lateinit var notificationBuilder: NotificationBuilder
-    //private lateinit var mediaSessionConnectorMananger: MediaSessionConnectorMananger
-    private lateinit var packageValidator: PackageValidator
 
     private val podcastRepository: PodcastRepository by inject()
     private val episodeRepository: EpisodeRepository by inject()
     private val feedlyRepository: FeedlyRepository by inject()
 
-    // Episodes loaded Pages
-    private val loadedPages = hashMapOf<Int, String>()
-    // Episodes backend
-    private val mediaItemsBackstore: HashMap<String, MutableList<MediaItem>> = hashMapOf()
-
-    private val updateProgressTask = Runnable {
-        if (needUpdateProgress) {
-            val bundle = Bundle().apply {
-                putLong(CURRENT_PROGRESS, exoPlayer.currentPosition)
-            }
-            mediaSession.sendSessionEvent(PROGRESS_UPDATE_EVENT, bundle)
-            startUpdateProgress(true)
-        }
-    }
-
-    // player listener
-    private val playerListener = object : Player.EventListener {
-        override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-            println("onPlayerStateChanged")
-            when (playbackState) {
-                STATE_READY -> {
-                    val duration = exoPlayer.duration
-                    if (duration >= 0) {
-                        metadataBuilder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, duration)
-                        mediaSession.setMetadata(metadataBuilder.build())
-                        mediaSessionCallback.onUpdateCurrentTrackDuration(duration)
-                    }
-                }
-                STATE_ENDED -> {
-                    if (playWhenReady) {
-                        mediaSessionCallback.onSkipToNext()
-                    }
-                }
-            }
-        }
-
-        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-            println("onPlaybackParametersChanged")
-        }
-
-        override fun onSeekProcessed() {
-            println("onSeekProcessed")
-        }
-
-        override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-            println("onTracksChanged")
-        }
-
-        override fun onPlayerError(error: ExoPlaybackException?) {
-            println("onPlayerError")
-        }
-
-        override fun onLoadingChanged(isLoading: Boolean) {
-            println("onLoadingChanged")
-        }
-
-        override fun onPositionDiscontinuity(reason: Int) {
-            println("onPositionDiscontinuity + $reason")
-            when (reason) {
-                DISCONTINUITY_REASON_PERIOD_TRANSITION -> mediaSessionCallback.onPlayNext()
-                else -> {}
-            }
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            println("onRepeatModeChanged")
-        }
-
-        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-            println("onShuffleModeEnabledChanged")
-        }
-
-        override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-            println("onTimelineChanged")
-        }
-    }
-
-    private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
-        when (focusChange) {
-            AudioManager.AUDIOFOCUS_GAIN -> mediaSessionCallback.onPlay()
-            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> mediaSessionCallback.onPause()
-            else -> mediaSessionCallback.onPause()
-        }
-    }
-
-    // player media source
-    private val mediaSource = ConcatenatingMediaSource()
-
     companion object {
-        const val ID = "TEST"
-
-        const val EXTRA_MEDIA_ID = "android.media.browse.extra.media_id"
-        const val EXTRA_PODCAST = "android.media.browse.extra.podcast"
         const val EXTRA_CONTINUATION = "android.media.browse.extra.continuation"
         const val EXTRA_SECTION = "android.media.browse.extra.section"
-        const val EXTRA_RELOAD_ALL = "android.media.browse.extra.reload"
-
-        const val NOTIFICATION_ID = 888
-
         const val MEDIA_ID_GET_ITEM = "media_id_get_item"
     }
 
@@ -235,76 +97,19 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
 
-        // audio focus
-        audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val audioAttributes = AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .build()
+        mediaPlaybackSession = MediaPlaybackSession(this, podcastRepository, episodeRepository, feedlyRepository)
+        sessionToken = mediaPlaybackSession.token
 
-            audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setOnAudioFocusChangeListener(audioFocusChangeListener)
-                    .setAcceptsDelayedFocusGain(false)
-                    .setWillPauseWhenDucked(true)
-                    .setAudioAttributes(audioAttributes)
-                    .build()
-        }
-
-        // Build a PendingIntent that can be used to launch the UI.
-        val sessionIntent = packageManager?.getLaunchIntentForPackage(packageName)
-        val sessionActivityPendingIntent = PendingIntent.getActivity(this, 0, sessionIntent, 0)
-        val mediaButtonIntent = Intent(Intent.ACTION_MEDIA_BUTTON, null, applicationContext, MediaButtonReceiver::class.java)
-
-        // Initialize ExoPlayer
-        exoPlayer = ExoPlayerFactory.newSimpleInstance(this, DefaultRenderersFactory(this), DefaultTrackSelector(), DefaultLoadControl())
-        exoPlayer.addListener(playerListener)
-
-        val userAgent =  Util.getUserAgent(this, this.getString(R.string.app_name))
-
-        // Default parameters, except allowCrossProtocolRedirects is true
-        val httpDataSourceFactory = DefaultHttpDataSourceFactory(
-                userAgent, null,
-                DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS, DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-                true)
-
-        // Produces DataSource instances through which media data is loaded.
-        val dataSourceFactory = DefaultDataSourceFactory(this, DefaultBandwidthMeter(), httpDataSourceFactory)
-
-        // Media session callback
-        mediaSessionCallback = MediaSessionCallback(dataSourceFactory)
-
-        // Create a new MediaSession.
-        mediaSession = MediaSessionCompat(this, "MediaService").apply{
-            setFlags(FLAG_HANDLES_MEDIA_BUTTONS or FLAG_HANDLES_TRANSPORT_CONTROLS or FLAG_HANDLES_QUEUE_COMMANDS)
-            setCallback(mediaSessionCallback)
-            setMediaButtonReceiver(PendingIntent.getBroadcast(applicationContext, 0, mediaButtonIntent, 0))
-            controller.registerCallback(ControllerCallback())
-        }
-
-        /**
-         * In order for [MediaBrowserCompat.ConnectionCallback.onConnected] to be called,
-         * a [MediaSessionCompat.Token] needs to be set on the [MediaBrowserServiceCompat].
-         *
-         * It is possible to wait to set the session token, if required for a specific use-case.
-         * However, the token *must* be set by the time [MediaBrowserServiceCompat.onGetRoot]
-         * returns, or the connection will fail silently. (The system will not even call
-         * [MediaBrowserCompat.ConnectionCallback.onConnectionFailed].)
-         */
-        sessionToken = mediaSession.sessionToken
+        mediaPlaybackSession.controller.registerCallback(ControllerCallback())
 
         // Sets the notification manager
         notificationBuilder = NotificationBuilder(this)
         notificationManager = NotificationManagerCompat.from(this)
-        becomingNoisyReceiver = BecomingNoisyReceiver(context = this, sessionToken = mediaSession.sessionToken)
+        becomingNoisyReceiver = BecomingNoisyReceiver(context = this, sessionToken = mediaPlaybackSession.token)
     }
 
     override fun onDestroy() {
-        exoPlayer.release()
-        mediaSession.run {
-            isActive = false
-            release()
-        }
+        mediaPlaybackSession.release()
     }
 
     /**
@@ -356,7 +161,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
             SectionState.HISTORY -> {
                 result.detach()
                 GlobalScope.launch {
-                    mediaItems.addAll(this@MediaService.onLoadEpisodes(parentId, episodeRepository.fetchSync(mediaType.value)))
+                    mediaItems.addAll(this@MediaService.onLoadEpisodes(episodeRepository.fetchSync(mediaType.value)))
                     result.sendResult(mediaItems)
                 }
             }
@@ -364,31 +169,21 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                 val podcastUrl = mediaId
                 val page = options.getInt(MediaBrowserCompat.EXTRA_PAGE)
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
-                val reloadAll = options.getBoolean(EXTRA_RELOAD_ALL)
 
                 result.detach()
                 GlobalScope.launch {
-                    if (reloadAll != true) {
-                        if (page == 0)
-                            mediaItemsBackstore.clear()
-
-                        val section = options.getInt(EXTRA_SECTION)
-                        when (section) {
-                            SectionState.QUEUE.value,
-                            SectionState.INBOX.value,
-                            SectionState.FAVORITE.value,
-                            SectionState.HISTORY.value -> {
-                                mediaItems.addAll(onLoadEpisodes(parentId, episodeRepository.fetchSync(section, podcastUrl), true))
-                            }
-                            else -> {
-                                val continuation = loadedPages.get(page - 1)
-                                val episodes: List<Episode> = onLoadEpisodesFromFeedly(podcastUrl, options, page, pageSize, continuation)
-                                mediaItems.addAll(onLoadEpisodes(parentId, episodes, true))
-                            }
+                    val section = options.getInt(EXTRA_SECTION)
+                    when (section) {
+                        SectionState.QUEUE.value,
+                        SectionState.INBOX.value,
+                        SectionState.FAVORITE.value,
+                        SectionState.HISTORY.value -> {
+                            mediaItems.addAll(onLoadEpisodes(episodeRepository.fetchSync(section, podcastUrl)))
                         }
-                    } else {
-                        val episodesFromDb = episodeRepository.fetchSync(podcastUrl)
-                        mediaItems.addAll(mediaItemsBackstore[parentId].orEmpty())
+                        else -> {
+                            val episodes: List<Episode> = onLoadEpisodesFromFeedly(podcastUrl, options, page, pageSize)
+                            mediaItems.addAll(onLoadEpisodes(episodes))
+                        }
                     }
 
                     result.sendResult(mediaItems)
@@ -399,7 +194,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        MediaButtonReceiver.handleIntent(mediaSession, intent)
+        MediaButtonReceiver.handleIntent(mediaPlaybackSession.session, intent)
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -445,6 +240,8 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                         Log.d("notifyChildrenChanged", it.mediaId.orEmpty())
                         notifyChildrenChanged(it.mediaId.orEmpty())
 
+                        //mediaPlaybackSession.session.sendSessionEvent()
+
                         result.sendResult(bundleResult)
                     }
                 }
@@ -476,81 +273,44 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                 }
             }
 
+            COMMAND_CODE_EPISODE_TOGGLE_FAVORITE -> {
+                result.detach()
+                GlobalScope.launch {
+                    extras?.getString(EXTRA_MEDIA_ID)?.let { mediaId ->
+                        episodeRepository.getSync(mediaId)?.let { episode ->
+                            episode.isFavorite = !episode.isFavorite
+                            episodeRepository.update(episode)
+                            val mediaItem = MediaItem(episode.mediaDescription, FLAG_PLAYABLE)
+                            bundleResult.putParcelable(EXTRA_EPISODE, mediaItem)
+
+                            result.sendResult(bundleResult)
+                        }
+                    }
+                }
+            }
+
+            COMMAND_CODE_EPISODE_ARCHIVE -> {
+                result.detach()
+                GlobalScope.launch {
+                    extras?.getString(EXTRA_MEDIA_ID)?.let { mediaId ->
+                        episodeRepository.getSync(mediaId)?.let { episode ->
+                            // archive in database
+                            episode.section = SectionState.ARCHIVE.value
+                            episodeRepository.update(episode)
+
+                            val mediaItem = MediaItem(episode.mediaDescription, FLAG_PLAYABLE)
+                            // remove from queue
+                            mediaPlaybackSession.onRemoveQueueItem(mediaItem.description)
+                            bundleResult.putParcelable(EXTRA_EPISODE, mediaItem)
+                            result.sendResult(bundleResult)
+                        }
+                    }
+                }
+            }
+
             else -> {
                 result.detach()
             }
-        }
-    }
-
-    private fun initTrack(track: MediaDescriptionCompat?) {
-        track?.let {
-            metadataBuilder.apply {
-                id = it.metadata.id.orEmpty()
-                title = it.metadata.title
-                artist = it.metadata.artist
-                album = it.metadata.album
-                albumArtUri = it.metadata.albumArtUri.toString()
-                mediaUri = it.metadata.mediaUri.toString()
-                date = it.metadata.date
-                duration = -1
-            }
-
-            mediaSession.setMetadata(metadataBuilder.build())
-            lastInitializedTrack = it
-        }
-
-        sendPlaylistInfoEvent()
-    }
-
-    private fun play(track: MediaDescriptionCompat?) {
-        if (track == null)
-            return
-
-        var trackChanged = false
-        if (lastInitializedTrack?.mediaUri != track.mediaUri) {
-            initTrack(track)
-            trackChanged = true
-        }
-
-        if (!requestAudioFocus())
-            return
-
-        val currentPosition = if (trackChanged) 0L else exoPlayer.currentPosition
-        mediaSession?.apply {
-            isActive = true
-            setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, currentPosition, 1F).build())
-            //notificationManager
-            sendSessionEvent("eee", null)
-        }
-
-        exoPlayer.playWhenReady = true
-        startUpdateProgress()
-    }
-
-    private fun requestAudioFocus(): Boolean {
-        if (!audioFocusRequested) {
-            audioFocusRequested = true
-
-            val audioFocusResult: Int =
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) audioManager.requestAudioFocus(audioFocusRequest)
-                    else audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
-
-            if (audioFocusResult != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                return false
-            }
-        }
-        return true
-    }
-
-    private fun abandonAudioFocus() {
-        if (!audioFocusRequested) {
-            return
-        }
-        audioFocusRequested = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            audioManager.abandonAudioFocusRequest(audioFocusRequest)
-        } else {
-            audioManager.abandonAudioFocus(audioFocusChangeListener)
         }
     }
 
@@ -567,17 +327,9 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
     /**
      * Return episodes
      */
-    private fun onLoadEpisodes(parentId: String, episodes: List<Episode>, addToBackstore: Boolean = false): MutableList<MediaItem> {
+    private fun onLoadEpisodes(episodes: List<Episode>): MutableList<MediaItem> {
         val mediaItems =
                 episodes.map { MediaItem(it.mediaDescription, FLAG_PLAYABLE) }.toMutableList()
-        if (addToBackstore) {
-            this.mediaItemsBackstore.apply {
-                if (this.contains(parentId))
-                    this.get(parentId)?.addAll(mediaItems)
-                else
-                    this.put(parentId, mediaItems.toMutableList())
-            }
-        }
         return mediaItems
     }
 
@@ -589,15 +341,16 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
             params: Bundle,
             page: Int,
             pageSize: Int,
-            continuation: String?,
             alreadyRetrievedEpisodes: MutableList<Episode> = java.util.ArrayList()): List<Episode> {
 
         val episodes: MutableList<Episode> = arrayListOf()
-        val podcast: Podcast? =
-                params.getParcelable<MediaItem>(EXTRA_PODCAST)?.toPodcast()
-                        ?: podcastRepository.getSync(podcastUrl)
+        val podcast = params.getParcelable<MediaItem>(EXTRA_PODCAST)?.toPodcast()
+                ?: podcastRepository.getSync(podcastUrl)
+        val continuation = params.getString(EXTRA_CONTINUATION)
         podcast?.let {
-            episodes.addAll(onLoadEpisodesFromFeedly(it, page, pageSize, continuation, alreadyRetrievedEpisodes))
+            onLoadEpisodesFromFeedly(it, params, page, pageSize, continuation, alreadyRetrievedEpisodes).let {
+                episodes.addAll(it)
+            }
         }
         return episodes
     }
@@ -607,6 +360,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
      */
     private fun onLoadEpisodesFromFeedly(
             podcast: Podcast,
+            params: Bundle,
             page: Int,
             pageSize: Int,
             continuation: String?,
@@ -620,9 +374,9 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                     alreadyRetrievedEpisodes.addAll(it.data)
                     if (!it.continuation.isNullOrEmpty() &&
                             (it.data.size < pageSize - alreadyRetrievedEpisodes.size)) {
-                        episodes.addAll(onLoadEpisodesFromFeedly(podcast, page, pageSize - alreadyRetrievedEpisodes.size, it.continuation, alreadyRetrievedEpisodes))
+                        episodes.addAll(onLoadEpisodesFromFeedly(podcast, params, page, pageSize - alreadyRetrievedEpisodes.size, it.continuation, alreadyRetrievedEpisodes))
                     } else {
-                        loadedPages.put(page, it.continuation.orEmpty())
+                        params.putString(EXTRA_CONTINUATION, it.continuation)
                         episodes.addAll(alreadyRetrievedEpisodes)
                     }
                 }
@@ -640,9 +394,9 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                     .getPodcastFromFeedlyApi(url)
                     ?.let {
                         // mediaItem url
-                        it.title = mediaItem.description.metadata?.title.orEmpty()
-                        it.authors = mediaItem.description.metadata?.artist
-                        it.imageUrl = mediaItem.description.metadata?.albumArtUri.toString()
+                        it.title = mediaItem.description.title.toString()
+                        it.authors = mediaItem.description.artist
+                        it.imageUrl = mediaItem.description.albumArtUri.toString()
 
                         // insert podcast
                         podcastRepository.insert(it)
@@ -677,7 +431,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
         episodeRepository.deleteByPodcast(podcast.feedUrl)
 
         // remove database tag
-        mediaItem.description.extras?.remove(METADATA_KEY_IN_DATABASE)
+        mediaItem.description.inDatabaseStatus = STATUS_NOT_IN_DATABASE
     }
 
     /**
@@ -713,16 +467,14 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                             val newMediaDescription =
                                     MediaMetadataCompat.Builder().also {
                                         it.id = mediaDescription.mediaId.orEmpty()
-                                        mediaDescription.metadata?.apply {
-                                            it.title = title
-                                            it.artist = artist
-                                            it.displayTitle = displayTitle
-                                            it.displayDescription = podcast.description
-                                            it.albumArtUri = albumArtUri.toString()
-                                            it.displayIconUri = displayIconUri.toString()
-                                            it.date = podcast.updated.toString()
-                                            it.inDatabaseStatus = inDatabaseStatus
-                                        }
+                                        it.title = mediaDescription.title.toString()
+                                        it.artist = mediaDescription.artist
+                                        it.displayTitle = mediaDescription.displayTitle
+                                        it.displayDescription = podcast.description
+                                        it.albumArtUri = mediaDescription.albumArtUri.toString()
+                                        it.displayIconUri = mediaDescription.displayIconUri.toString()
+                                        it.date = podcast.updated.toString()
+                                        it.inDatabaseStatus = mediaDescription.inDatabaseStatus
                                     }.build().fullDescription
                             val newMediaItem = MediaItem(newMediaDescription, FLAG_BROWSABLE)
                             return newMediaItem
@@ -742,6 +494,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
             this?.apply {
                 // get value from db
                 episode.section = this.section
+                episode.queuePosition = this.queuePosition
                 episode.isFavorite = this.isFavorite
                 episode.duration = this.duration
                 episode.playbackPosition = this.playbackPosition
@@ -753,27 +506,6 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
             episode.section = SectionState.ARCHIVE.value
             //retrieveEpisodeDuration(episode)
         }
-    }
-
-    private fun startUpdateProgress(fromRunnable: Boolean = false) {
-        if (!fromRunnable && needUpdateProgress) {
-            return
-        }
-        needUpdateProgress = true
-        progressHandler.postDelayed(updateProgressTask, updateIntervalMs)
-    }
-
-    private fun stopUpdateProgress() {
-        needUpdateProgress = false
-        progressHandler.removeCallbacks(updateProgressTask)
-    }
-
-    private fun sendPlaylistInfoEvent() {
-        val bundle = Bundle().apply {
-            //putBoolean(HAS_NEXT, musicRepo?.hasNext == true)
-            //putBoolean(HAS_PREV, musicRepo?.hasPrev == true)
-        }
-        //mediaSession?.sendSessionEvent(PLAYLIST_INFO_EVENT, bundle)
     }
 
     /**
@@ -842,7 +574,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
      */
     private inner class ControllerCallback : MediaControllerCompat.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            mediaSession.controller.playbackState?.let { updateNotification(it) }
+            mediaPlaybackSession.controller.playbackState?.let { updateNotification(it) }
         }
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -851,13 +583,13 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
 
         private fun updateNotification(state: PlaybackStateCompat) {
             val updatedState = state.state
-            if (mediaSession.controller.metadata == null) {
+            if (mediaPlaybackSession.controller.metadata == null) {
                 return
             }
 
             // Skip building a notification when state is "none".
             val notification = if (updatedState != PlaybackStateCompat.STATE_NONE) {
-                notificationBuilder.buildNotification(mediaSession.sessionToken)
+                notificationBuilder.buildNotification(mediaPlaybackSession.token)
             } else {
                 null
             }
@@ -937,146 +669,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
         }
     }
 
-    /**
-     * Inner class to receive callbacks about session changes to the [MediaSessionCompat]. In response
-     * to those callbacks, this class:
-     */
-    private inner class MediaSessionCallback(val dataSourceFactory: DataSource.Factory) : MediaSessionCompat.Callback() {
 
-        private var curIndex = -1
-        private val playList = ArrayList<MediaDescriptionCompat>()
-        private val currentTrack: MediaDescriptionCompat?
-            get() = playList.getOrNull(curIndex)
+    //endregion
 
-        override fun onPlay() {
-            println("onPlay")
-            play(currentTrack)
-        }
-
-        override fun onPause() {
-            println("onPause")
-            exoPlayer.playWhenReady = false
-
-            stopUpdateProgress()
-            abandonAudioFocus()
-
-            mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, exoPlayer.currentPosition, 1F).build())
-        }
-
-        override fun onStop() {
-            println("onStop")
-            exoPlayer.stop()
-
-            stopUpdateProgress()
-            abandonAudioFocus()
-
-            mediaSession.apply {
-                isActive = false
-                setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_STOPPED, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
-            }
-        }
-
-        fun onClear() {
-            println("onClear")
-            exoPlayer.stop()
-
-            stopUpdateProgress()
-            abandonAudioFocus()
-
-            playList.clear()
-            mediaSource.clear()
-            curIndex = -1
-            lastInitializedTrack = null
-
-            mediaSession.apply {
-                isActive = false
-                setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_NONE, PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, 1F).build())
-                setMetadata(null)
-            }
-        }
-
-        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
-            println("onCommand")
-            when (command) {
-                COMMAND_PLAYBACK_UPDATE_INFO -> {
-                    mediaSession.setMetadata(metadataBuilder.build())
-                    sendPlaylistInfoEvent()
-                }
-            }
-        }
-
-        override fun onCustomAction(action: String?, extras: Bundle?) {
-            println("onCustomAction")
-        }
-
-        override fun onSkipToNext() {
-            println("onSkipToNext")
-            if (curIndex == mediaSource.size - 1) {
-                 onClear()
-            }
-            else {
-                curIndex++
-                onPlay()
-            }
-        }
-
-        fun onPlayNext() {
-            curIndex++
-            onPlay()
-        }
-
-        override fun onSkipToPrevious() {
-            println("onSkipToPrevious")
-        }
-
-        override fun onAddQueueItem(description: MediaDescriptionCompat) {
-            println("onAddQueueItem")
-
-            playList.add(description)
-            mediaSource.addMediaSource(buildMediaSource(description, dataSourceFactory))
-            if (mediaSource.size == 1) {
-                curIndex = 0
-                exoPlayer.prepare(mediaSource)
-                play(currentTrack)
-            }
-        }
-
-        override fun onAddQueueItem(description: MediaDescriptionCompat, index: Int) {
-            println("onAddQueueItem")
-
-            playList.add(index, description)
-            mediaSource.addMediaSource(index, buildMediaSource(description, dataSourceFactory))
-        }
-
-        override fun onRemoveQueueItem(description: MediaDescriptionCompat) {
-            println("onRemoveQueueItem")
-
-            val index = playList.indexOfFirst { it.mediaId == description.mediaId }
-            playList.removeAt(index)
-            mediaSource.removeMediaSource(index)
-        }
-
-        fun onUpdateCurrentTrackDuration(duration: Long) {
-            currentTrack?.let {
-                GlobalScope.launch {
-                    episodeRepository.getSync(it.mediaId.orEmpty())?.let { episode ->
-                        if (episode.duration != duration)
-                        {
-                            episode.duration = duration
-                            episodeRepository.update(episode)
-                        }
-                    }
-
-                }
-            }
-        }
-
-        private fun buildMediaSource(mediaDescription: MediaDescriptionCompat, dataSourceFactory: DataSource.Factory): MediaSource {
-            val uri = mediaDescription.mediaUri
-            val type = Util.inferContentType(uri)
-            return ExtractorMediaSource.Factory(dataSourceFactory)
-                    .setTag(mediaDescription)
-                    .createMediaSource(uri)
-        }
-    }
 }

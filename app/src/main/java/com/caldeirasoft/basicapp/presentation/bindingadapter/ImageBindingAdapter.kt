@@ -1,5 +1,6 @@
 package com.caldeirasoft.basicapp.presentation.bindingadapter
 
+import android.graphics.drawable.Animatable
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.view.View
@@ -62,6 +63,16 @@ fun FloatingActionButton.imageDrawable(drawable: Drawable) {
 @BindingAdapter("android:src")
 fun ImageButton.imageDrawable(drawable: Drawable) {
     this.setImageDrawable(drawable)
+}
+
+@BindingAdapter("app:animating")
+fun ImageButton.animating(animating: Boolean) {
+    val drawable = this.drawable
+    if (drawable is Animatable) {
+        if (animating)
+            drawable.start()
+        else drawable.stop()
+    }
 }
 
 

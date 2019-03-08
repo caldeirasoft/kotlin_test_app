@@ -33,7 +33,7 @@ data class EpisodeEntity @JvmOverloads constructor(
 {
     override var description: String? = null
     override var duration: Long? = null
-    override var playbackPosition: Int? = null
+    override var playbackPosition: Long? = null
     override var imageUrl: String? = null
     override var bigImageUrl: String? = null
     override var podcastTitle: String = ""
@@ -53,12 +53,12 @@ data class EpisodeEntity @JvmOverloads constructor(
     //@get:com.google.firebase.firestore.ServerTimestamp
     override var timeCreated: Date? = null
     //@get:com.google.firebase.firestore.ServerTimestamp
-    override var timeUpdate: Date? = null
+    override var timeUpdate: Long? = null
     //@get:com.google.firebase.firestore.ServerTimestamp
-    override var timePlayed: Date? = null
+    override var timePlayed: Long? = null
 
     override fun publishedFormat():String =
-            SimpleDateFormat("dd/MM/yyyy").let {
+            SimpleDateFormat("d/M/yyyy[' ']['T'][H:mm[:ss[.S]]][X]").let {
                 val epoch = Date(published)
                 return it.format(epoch)
             }

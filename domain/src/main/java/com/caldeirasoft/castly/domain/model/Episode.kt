@@ -12,7 +12,7 @@ interface Episode : Parcelable
 
     var description: String?
     var duration: Long?
-    var playbackPosition: Int?
+    var playbackPosition: Long?
     var imageUrl: String?
     var bigImageUrl: String?
     var podcastTitle: String
@@ -32,9 +32,9 @@ interface Episode : Parcelable
     //@get:com.google.firebase.firestore.ServerTimestamp
     var timeCreated: Date?
     //@get:com.google.firebase.firestore.ServerTimestamp
-    var timeUpdate: Date?
+    var timeUpdate: Long?
     //@get:com.google.firebase.firestore.ServerTimestamp
-    var timePlayed: Date?
+    var timePlayed: Long?
 
     fun publishedFormat():String
 

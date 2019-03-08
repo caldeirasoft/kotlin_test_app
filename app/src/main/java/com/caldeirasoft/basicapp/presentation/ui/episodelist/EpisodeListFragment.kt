@@ -50,11 +50,10 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
                     data.forEach { item ->
                         itemEpisode {
                             id(item.mediaId)
-                            title(item.description.metadata.title)
-                            imageUrl(item.description.metadata.albumArtUri.toString())
-                            duration(item.description.metadata.duration.toString())
+                            title(item.description.title.toString())
+                            imageUrl(item.description.albumArtUri.toString())
+                            duration(item.description.duration.toString())
                             onEpisodeClick { model, parentView, clickedView, position ->
-
                                 val episodeInfoDialog =
                                         EpisodeInfoDialogFragment()
                                                 .withArgs(EPISODE_ARG to item)

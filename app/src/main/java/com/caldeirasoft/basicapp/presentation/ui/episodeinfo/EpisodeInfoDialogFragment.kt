@@ -112,9 +112,18 @@ class EpisodeInfoDialogFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return  when(item.itemId) {
-            R.id.action_play_next -> { true }
-            R.id.action_archive -> { true }
-            R.id.action_favorite -> { true }
+            R.id.action_play_next -> {
+                mViewModel.addToPlayNext()
+                true
+            }
+            R.id.action_archive -> {
+                mViewModel.archiveEpisode()
+                true
+            }
+            R.id.action_favorite -> {
+                mViewModel.toggleFavorite()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -136,8 +145,8 @@ class EpisodeInfoDialogFragment :
         }
 
         mViewModel.mediaData.observeK(this) {
-            it?.description?.metadata?.let {
-                mBinding.title = it.title
+            it?.description?.let {
+                mBinding.title = it.title.toString()
                 mBinding.albumArtUri = it.albumArtUri.toString()
                 mBinding.podcastTitle = it.album
                 mBinding.date = it.date
