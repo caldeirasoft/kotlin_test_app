@@ -82,6 +82,9 @@ dependencies {
     // Android debug database
     debugImplementation "com.amitshekhar.android:debug-db:1.0.3"
 
+    // Circular progressbar
+    implementation 'com.mikhaellopez:circularprogressbar:2.0.0'
+
     // Epoxy
     implementation 'com.airbnb.android:epoxy:3.1.0'
     implementation 'com.airbnb.android:epoxy-databinding:3.1.0'

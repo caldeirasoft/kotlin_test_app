@@ -53,6 +53,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintDimensionRatio="W,1:1"/>
 
+        <ImageButton
+            android:id="@+id/imagebutton_play_"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/avd_equalizer : @drawable/ic_play_24dp}"
+            app:animating="@{playbackState == PlaybackStateCompat.STATE_PLAYING}"
+            android:background="@drawable/roundshape_button"
+            android:tint="@color/white"
+            android:contentDescription="@null"
+            app:layout_constraintStart_toStartOf="@id/imageview_thumbnail"
+            app:layout_constraintEnd_toEndOf="@id/imageview_thumbnail"
+            app:layout_constraintTop_toTopOf="@id/imageview_thumbnail"
+            app:layout_constraintBottom_toBottomOf="@id/imageview_thumbnail"
+            android:visibility="@{playbackState != PlaybackStateCompat.STATE_NONE || timePlayed == 0}"/>
+
         <TextView android:id="@+id/textview_pubDate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -105,12 +120,39 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/avd_equalizer : @drawable/ic_play_24dp}"
             app:animating="@{playbackState == PlaybackStateCompat.STATE_PLAYING}"
-            android:background="@drawable/roundshape_button"
+            android:background="@android:color/transparent"
             android:contentDescription="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="@{playbackState != PlaybackStateCompat.STATE_NONE || timePlayed == 0}"/>
+
+        <com.mikhaellopez.circularprogressbar.CircularProgressBar
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="@id/imagebutton_play"
+            app:layout_constraintEnd_toEndOf="@id/imagebutton_play"
+            app:layout_constraintTop_toTopOf="@id/imagebutton_play"
+            app:layout_constraintBottom_toBottomOf="@id/imagebutton_play"
+            android:background="@android:color/transparent"
+            app:cpb_background_progressbar_width="3dp"
+            app:cpb_background_progressbar_color="@android:color/transparent"
+            app:cpb_progressbar_color="@color/gray"
+            app:cpb_progressbar_width="3dp"
+            android:rotation="180"
+            app:cpb_progress="75"/>
+
+        <ImageButton
+            android:id="@+id/imagebutton_play3"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
+            android:src="@drawable/ic_check_24dp"
+            android:tint="@color/black"
+            android:background="@color/yellow"
+            android:scaleType="fitCenter"
+            android:contentDescription="@null"
+            app:layout_constraintEnd_toEndOf="@id/imagebutton_play"
+            app:layout_constraintBottom_toBottomOf="@id/imagebutton_play"/>
 
         <!--android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/equalizer : @drawable/ic_play_24dp}"-->
 
