@@ -13,15 +13,15 @@ interface ItunesRepository {
     /**
      * Get all podcasts from Lookup query
      */
-    fun lookup(ids: List<Int>): Deferred<List<Podcast>>
+    suspend fun lookup(ids: List<Int>): List<Podcast>
 
     /**
      * Get store front
      */
-    fun getStore(storeFront: String): Deferred<ItunesStore>
+    suspend fun getStore(storeFront: String): ItunesStore
 
     /**
      * Get top podcasts Ids from a category
      */
-    fun top(category: Int): Deferred<List<Int>>
+    suspend fun top(category: Int): List<Int>
 }

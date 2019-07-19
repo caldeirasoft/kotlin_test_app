@@ -36,7 +36,7 @@ open class ItunesBaseDataSource(
             try {
                 _isLoading.postValue(true)
                 // request Ids
-                val podcasts = loadPodcasts(0, 1, params.requestedLoadSize).await()
+                val podcasts = loadPodcasts(0, 1, params.requestedLoadSize)
                 callback.onResult(podcasts, null, 1)
             }
             catch (e:Throwable) {
@@ -55,7 +55,7 @@ open class ItunesBaseDataSource(
                 val page = params.key
                 _isLoading.postValue(true)
                 // request Ids
-                val podcasts = loadPodcasts( page, page+1, params.requestedLoadSize).await()
+                val podcasts = loadPodcasts( page, page+1, params.requestedLoadSize)
                 callback.onResult(podcasts, page + 1)
             }
             catch (e:Throwable) {
@@ -70,31 +70,31 @@ open class ItunesBaseDataSource(
     override fun loadBefore(params: LoadParams<Int> , callback: LoadCallback<Int, Podcast>) {
     }
 
-    fun loadPodcasts(requestedPage:Int, adjacentPage:Int, requestedLoadSize:Int): Deferred<List<Podcast>> =
-        GlobalScope.async {
-            val podcastsList: ArrayList<Podcast> = arrayListOf()
-            val startPosition = requestedPage * requestedLoadSize
-            if (startPosition > ids.size - 1) {
-                return@async podcastsList
-            }
 
-            val idsSubset = ids.subList(startPosition, Math.min(ids.size - 1, startPosition + requestedLoadSize))
-            // request Podcasts from Ids
-            if (idsSubset.isNotEmpty()) {
-                itunesRepository.lookup(idsSubset).await().let { list ->
-                    //TODO: check if podcast is in database
-                    podcastsList.addAll(list)
-
-                    /*
-            // test podcasts on db
-            doAsync {
-                val podcastsFromDb = podcastDao.getPodcasts()
-                podcast.isInDatabase = podcastsFromDb.value!!.any { cast -> cast.feedId == podcast.feedId }
-                //podcast.isInDatabase = true
-            }
-            */
-                }
-            }
-            podcastsList
+    protected suspend fun loadPodcasts(requestedPage:Int, adjacentPage:Int, requestedLoadSize:Int): List<Podcast> {
+        val podcastsList: ArrayList<Podcast> = arrayListOf()
+        val startPosition = requestedPage * requestedLoadSize
+        if (startPosition > ids.size - 1) {
+            return podcastsList
         }
+
+        val idsSubset = ids.subList(startPosition, Math.min(ids.size - 1, startPosition + requestedLoadSize))
+        // request Podcasts from Ids
+        if (idsSubset.isNotEmpty()) {
+            itunesRepository.lookup(idsSubset).let { list ->
+                //TODO: check if podcast is in database
+                podcastsList.addAll(list)
+
+                /*
+        // test podcasts on db
+        doAsync {
+            val podcastsFromDb = podcastDao.getPodcasts()
+            podcast.isInDatabase = podcastsFromDb.value!!.any { cast -> cast.feedId == podcast.feedId }
+            //podcast.isInDatabase = true
+        }
+        */
+            }
+        }
+        return podcastsList
+    }
 }

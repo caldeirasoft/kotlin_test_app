@@ -10,12 +10,12 @@
         <KeyFrameSet>
 
             <KeyAttribute
-                app:target="@id/layout_title"
+                app:motionTarget="@id/layout_title"
                 app:framePosition="50"
                 android:alpha="1"/>
 
             <KeyAttribute
-                app:target="@id/details_appbar"
+                app:motionTarget="@id/details_appbar"
                 app:framePosition="80"
                 android:alpha="0"/>
 

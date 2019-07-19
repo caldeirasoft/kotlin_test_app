@@ -9,12 +9,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
 class GetPodcastFromFeedlyUseCase(val feedlyRepository: FeedlyRepository)
-    : BaseDeferredUseCase<GetPodcastFromFeedlyUseCase.Params, Podcast?>() {
+    : BaseDeferredUseCase<GetPodcastFromFeedlyUseCase.Params, Podcast>() {
 
-    override suspend fun run(params: Params): Deferred<Podcast?> =
-            GlobalScope.async {
+    override suspend fun run(params: Params): Podcast =
                 feedlyRepository.getPodcastFromFeedlyApi(params.url)
-            }
 
     data class Params(val url:String)
 }

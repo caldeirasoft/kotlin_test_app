@@ -9,5 +9,5 @@ import retrofit2.http.Url
  */
 interface RssApi {
     @GET
-    fun getItems(@Url url:String): Deferred<String>;
+    suspend fun getItems(@Url url:String): String;
 }

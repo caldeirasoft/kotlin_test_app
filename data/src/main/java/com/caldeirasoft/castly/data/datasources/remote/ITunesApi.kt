@@ -14,7 +14,7 @@ interface ITunesApi {
      * Search podcast by term
      */
     @GET("search")
-    fun search(@Query("media") mediaType:String, @Query("term") searchTerm:String):Deferred<SearchResultDto>
+    suspend fun search(@Query("media") mediaType:String, @Query("term") searchTerm:String): SearchResultDto
 
     //@GET("WebObjects/MZStoreServices.woa/ws/charts?g=26&Name=Podcasts")
     //fun top(@Query("cc") country:String, @Query("limit") limit:Int):Call<ResultIdDto>
@@ -23,22 +23,22 @@ interface ITunesApi {
      * Top podcasts by genre
      */
     @GET("WebObjects/MZStoreServices.woa/ws/charts?name=Podcasts")
-    fun top(@Query("cc") country:String, @Query("limit") limit:Int, @Query("g") genre:Int = 26):Deferred<ResultIdDto>
+    suspend fun top(@Query("cc") country:String, @Query("limit") limit:Int, @Query("g") genre:Int = 26): ResultIdDto
 
     /**
      * Top podcasts by genre
      */
     @GET("WebObjects/MZStore.woa/wa/viewGrouping?id=78")
-    fun viewGrouping(@Header("X-Apple-Store-Front") storeFront:String):Deferred<StoreResultDto>
+    suspend fun viewGrouping(@Header("X-Apple-Store-Front") storeFront:String): StoreResultDto
 
 
     @Headers("X-Apple-Store-Front: 143442-3,30")
     @GET("/WebObjects/MZStore.woa/wa/viewGrouping?id=78")
-    fun viewGrouping2(): Deferred<String>;
+    suspend fun viewGrouping2(): String;
 
     /**
      * Lookup podcast info from ID
      */
     @GET("lookup")
-    fun lookup(@Query("id") resultIds: String):Deferred<SearchResultDto>
+    suspend fun lookup(@Query("id") resultIds: String): SearchResultDto
 }

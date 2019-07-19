@@ -13,29 +13,29 @@ import retrofit2.http.*
  */
 interface FeedlyApi {
     @GET("v3/feeds/{feedId}")
-    fun getFeed(@Path("feedId") feedId:String): Call<FeedDto>
+    suspend fun getFeed(@Path("feedId") feedId:String): FeedDto
 
     @POST("v3/feeds/.mget")
-    fun getFeeds(@Body feeds:List<String>):List<FeedDto>
+    suspend fun getFeeds(@Body feeds:List<String>):List<FeedDto>
 
     @GET("v3/streams/{streamId}/contents")
-    fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int):Call<StreamEntriesDto>
+    suspend fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int): StreamEntriesDto
 
     @GET("v3/streams/{streamId}/contents")
-    fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int, @Query("continuation")continuation: String): Call<StreamEntriesDto>
+    suspend fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int, @Query("continuation")continuation: String): StreamEntriesDto
 
     @GET("v3/streams/{streamId}/contents")
-    fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int, @Query("newerThan")newerThan: Long, @Query("continuation")continuation: String): Call<StreamEntriesDto>
+    suspend fun getStreamEntries(@Path("streamId") streamId:String, @Query("count") count:Int, @Query("newerThan")newerThan: Long, @Query("continuation")continuation: String): StreamEntriesDto
 
     @GET("v3/streams/ids")
-    fun getStreamEntryIds(@Query("streamId") streamId:String, @Query("count") count:Int, @Query("continuation")continuation: String?): Call<StreamEntryIdsDto>
+    suspend fun getStreamEntryIds(@Query("streamId") streamId:String, @Query("count") count:Int, @Query("continuation")continuation: String?): StreamEntryIdsDto
 
     @GET("v3/streams/ids")
-    fun getStreamEntryIds(@Query("streamId") streamId:String, @Query("count") count:Int, @Query("newerThan")newerThan: Long?, @Query("continuation")continuation: String?): Call<StreamEntryIdsDto>
+    suspend fun getStreamEntryIds(@Query("streamId") streamId:String, @Query("count") count:Int, @Query("newerThan")newerThan: Long?, @Query("continuation")continuation: String?): StreamEntryIdsDto
 
     @GET("/v3/entries/{entryId}")
-    fun getEntry(@Path("entryId") entryId:String): Call<EntryDto>
+    suspend fun getEntry(@Path("entryId") entryId:String): EntryDto
 
     @POST("/v3/entries/.mget")
-    fun getEntries(@Body ids:List<String>): Call<List<EntryDto>>
+    suspend fun getEntries(@Body ids:List<String>): List<EntryDto>
 }

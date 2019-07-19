@@ -28,7 +28,6 @@ import com.caldeirasoft.castly.data.repository.ItunesRepositoryImpl
 import com.caldeirasoft.castly.data.repository.PodcastRepositoryImpl
 import com.caldeirasoft.castly.domain.usecase.*
 import com.caldeirasoft.castly.service.playback.MediaService
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
@@ -129,7 +128,6 @@ fun createRetrofit(baseURL: String, okHttpClient: OkHttpClient) : Retrofit =
             .client(okHttpClient)
             .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(MoshiConverterFactory.create())
-            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .build()
 
 inline fun <reified T> createWebService(retrofit: Retrofit) : T =

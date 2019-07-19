@@ -24,15 +24,3 @@ inline fun <T> CarouselModelBuilder.withModelsFrom(
 ) {
     models(items.map { modelBuilder(it) })
 }
-
-/**
- * Easily add models to an EpoxyRecyclerView, the same way you would in a buildModels method of EpoxyController
- */
-fun EpoxyRecyclerView.withModels(buildModelsCallback: EpoxyController.() -> Unit) {
-    setControllerAndBuildModels(object : EpoxyController() {
-        override fun buildModels() {
-            buildModelsCallback()
-        }
-    })
-}
-

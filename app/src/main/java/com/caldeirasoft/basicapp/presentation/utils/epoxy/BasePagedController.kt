@@ -10,7 +10,6 @@ import com.caldeirasoft.basicapp.presentation.utils.defaultItemDiffCallback
 abstract class BasePagedController<T>(
         itemDiffCallback: DiffUtil.ItemCallback<T> = defaultItemDiffCallback())
     : PagedListEpoxyController<T>(
-                modelBuildingHandler = EpoxyAsyncUtil.getAsyncBackgroundHandler(),
                 diffingHandler = EpoxyAsyncUtil.getAsyncBackgroundHandler(),
                 itemDiffCallback = itemDiffCallback
         )

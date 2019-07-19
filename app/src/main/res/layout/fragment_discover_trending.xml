@@ -17,28 +17,28 @@
         android:orientation="vertical"
         android:background="?android:attr/windowBackground">
 
-        <!-- header -->
-        <com.google.android.material.appbar.AppBarLayout
+        <!-- placeholder -->
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
+            android:visibility="@{viewModel.isLoading}"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/mainToolbar"
+            <include
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="match_parent"
+                layout="@layout/shimmer_discover"
+                android:layout_gravity="top|fill_horizontal"/>
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/mainTabLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+        </FrameLayout>
 
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <com.alfianyusufabdullah.SPager
-            android:id="@+id/mainPage"
+        <!-- list -->
+        <com.airbnb.epoxy.EpoxyRecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:visibility="@{!viewModel.isLoading}"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -34,7 +34,6 @@ fun TextView.textMonth(date: Long?) {
 
 @BindingAdapter("android:drawableTint")
 fun TextView.setDrawableTint(color: Int) {
-    var i: Int = 0
     val compounds = this.compoundDrawables
     val wrappedCompounds = ArrayList<Drawable>(compounds.size)
     for (i in 0..compounds.size) {

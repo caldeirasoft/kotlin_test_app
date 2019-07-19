@@ -35,7 +35,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.LiveData
 import androidx.media.session.MediaButtonReceiver
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.MediaID
@@ -54,12 +53,12 @@ import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAN
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_EPISODE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_PODCAST
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.MEDIA_ROOT
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_FAVORITE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_FAVORITE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.extensions.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
 
@@ -171,23 +170,22 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
                 val pageSize = options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)
 
                 result.detach()
-                GlobalScope.launch {
-                    val section = options.getInt(EXTRA_SECTION)
-                    when (section) {
-                        SectionState.QUEUE.value,
-                        SectionState.INBOX.value,
-                        SectionState.FAVORITE.value,
-                        SectionState.HISTORY.value -> {
+                val section = options.getInt(EXTRA_SECTION)
+                when (section) {
+                    SectionState.QUEUE.value,
+                    SectionState.INBOX.value,
+                    SectionState.FAVORITE.value,
+                    SectionState.HISTORY.value -> {
+                        GlobalScope.launch {
                             mediaItems.addAll(onLoadEpisodes(episodeRepository.fetchSync(section, podcastUrl)))
-                        }
-                        else -> {
-                            val episodes: List<Episode> = onLoadEpisodesFromFeedly(podcastUrl, options, page, pageSize)
-                            mediaItems.addAll(onLoadEpisodes(episodes))
+                            result.sendResult(mediaItems)
                         }
                     }
-
-                    result.sendResult(mediaItems)
+                    else -> {
+                        onLoadEpisodesFromFeedly(podcastUrl, options, page, pageSize, result)
+                    }
                 }
+
             }
         }
     }
@@ -341,24 +339,27 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
             params: Bundle,
             page: Int,
             pageSize: Int,
-            alreadyRetrievedEpisodes: MutableList<Episode> = java.util.ArrayList()): List<Episode> {
-
-        val episodes: MutableList<Episode> = arrayListOf()
-        val podcast = params.getParcelable<MediaItem>(EXTRA_PODCAST)?.toPodcast()
-                ?: podcastRepository.getSync(podcastUrl)
-        val continuation = params.getString(EXTRA_CONTINUATION)
-        podcast?.let {
-            onLoadEpisodesFromFeedly(it, params, page, pageSize, continuation, alreadyRetrievedEpisodes).let {
-                episodes.addAll(it)
+            result: Result<MutableList<MediaItem>>)
+    {
+        GlobalScope.launch {
+            val episodes: MutableList<Episode> = arrayListOf()
+            val alreadyRetrievedEpisodes: MutableList<Episode> = arrayListOf()
+            val podcast = params.getParcelable<MediaItem>(EXTRA_PODCAST)?.toPodcast()
+                    ?: podcastRepository.getSync(podcastUrl)
+            val continuation = params.getString(EXTRA_CONTINUATION)
+            podcast?.let {
+                onLoadEpisodesFromFeedlyWithContinuation(it, params, page, pageSize, continuation, alreadyRetrievedEpisodes).let { list ->
+                    episodes.addAll(list)
+                    result.sendResult(onLoadEpisodes(episodes))
+                }
             }
         }
-        return episodes
     }
 
     /**
      * Get episodes from feedly
      */
-    private fun onLoadEpisodesFromFeedly(
+    private suspend fun onLoadEpisodesFromFeedlyWithContinuation(
             podcast: Podcast,
             params: Bundle,
             page: Int,
@@ -369,12 +370,12 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
         val episodes: MutableList<Episode> = arrayListOf()
         val responseEntries = feedlyRepository.getStreamEntries(podcast, pageSize, continuation.orEmpty())
         responseEntries
-                ?.apply { data.forEach { episode -> retrieveEpisodeDataFromDb(episode) }}
-                ?.let {
+                .apply { data.forEach { episode -> retrieveEpisodeDataFromDb(episode) }}
+                .let {
                     alreadyRetrievedEpisodes.addAll(it.data)
                     if (!it.continuation.isNullOrEmpty() &&
                             (it.data.size < pageSize - alreadyRetrievedEpisodes.size)) {
-                        episodes.addAll(onLoadEpisodesFromFeedly(podcast, params, page, pageSize - alreadyRetrievedEpisodes.size, it.continuation, alreadyRetrievedEpisodes))
+                        episodes.addAll(onLoadEpisodesFromFeedlyWithContinuation(podcast, params, page, pageSize - alreadyRetrievedEpisodes.size, it.continuation, alreadyRetrievedEpisodes))
                     } else {
                         params.putString(EXTRA_CONTINUATION, it.continuation)
                         episodes.addAll(alreadyRetrievedEpisodes)
@@ -386,7 +387,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
     /**
      * Subscribe to a new podcast
      */
-    private fun subscribeToPodcast(mediaItem: MediaItem): MediaItem {
+    private suspend fun subscribeToPodcast(mediaItem: MediaItem): MediaItem {
         // get podcast info
         val podcastUrl = MediaID().fromString(mediaItem.mediaId.orEmpty()).id
         podcastUrl.let { url ->
@@ -456,7 +457,7 @@ class MediaService : androidx.media.MediaBrowserServiceCompat() {
     /**
      * Get description of a podcast
      */
-    private fun getPodcastDescription(mediaItem: MediaItem): MediaItem {
+    private suspend fun getPodcastDescription(mediaItem: MediaItem): MediaItem {
         // get podcast info
         val mediaDescription = mediaItem.description
         if (mediaDescription.description == null) {

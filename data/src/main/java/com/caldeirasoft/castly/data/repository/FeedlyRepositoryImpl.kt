@@ -6,9 +6,6 @@ import com.caldeirasoft.castly.data.dto.feedly.StreamEntriesDto
 import com.caldeirasoft.castly.domain.model.*
 import com.caldeirasoft.castly.domain.model.feedly.FeedlyEntries
 import com.caldeirasoft.castly.domain.repository.FeedlyRepository
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -19,12 +16,11 @@ class FeedlyRepositoryImpl(
     /**
      * Select a podcast by id
      */
-    override fun getPodcastFromFeedlyApi(feedUrl: String): Podcast? {
+    override suspend fun getPodcastFromFeedlyApi(feedUrl: String): Podcast {
         // request Ids
         val feedId = "feed/" + feedUrl
-        val response = feedlyApi.getFeed(feedId).execute()
-        val feed = response.body()
-        feed?.let {
+        val feed = feedlyApi.getFeed(feedId)
+        feed.let {
             val podcast = PodcastEntity()
             //podcast.imageUrl = feed.artwork
             podcast.feedUrl = feedUrl
@@ -32,21 +28,18 @@ class FeedlyRepositoryImpl(
             podcast.description = feed.description
             return podcast
         }
-        return null
     }
 
     /**
      * Get stream entries from feed
      */
-    override fun getStreamEntries(podcast: Podcast, pageSize: Int, continuation: String): FeedlyEntries? {
-        val responseEntries = feedlyApi.getStreamEntries(podcast.feedId, pageSize, continuation).execute()
-        responseEntries.body()?.let {
-            val feedlyEntries = FeedlyEntries(
+    override suspend fun getStreamEntries(podcast: Podcast, pageSize: Int, continuation: String): FeedlyEntries {
+        val responseEntries = feedlyApi.getStreamEntries(podcast.feedId, pageSize, continuation)
+        responseEntries.let {
+            return FeedlyEntries(
                     data = getEpisodesFromEntries(podcast, it),
                     continuation = it.continuation)
-            return feedlyEntries
         }
-        return null
     }
 
     /**
@@ -62,29 +55,29 @@ class FeedlyRepositoryImpl(
     /**
      * Get last episode of a podcast
      */
-    override fun getLastEpisode(podcast: Podcast): Episode? {
-        val streamEntries = feedlyApi.getStreamEntries(podcast.feedId, 1, "").execute()
-        return streamEntries.body()
-                ?.items
-                ?.filter { entry ->
+    override suspend fun getLastEpisode(podcast: Podcast): Episode? {
+        val streamEntries = feedlyApi.getStreamEntries(podcast.feedId, 1, "")
+        return streamEntries
+                .items
+                .filter { entry ->
                     entry.enclosure.firstOrNull()?.href != null
                 }
-                ?.map { entry ->
+                .map { entry ->
                     getEpisodeFromEntry(entry, podcast)
                 }
-                ?.firstOrNull()
+                .firstOrNull()
     }
 
     /**
      * Update podcast
      */
-    override fun updatePodcastFromFeedlyApi(podcast: Podcast): Boolean {
+    override suspend fun updatePodcastFromFeedlyApi(podcast: Podcast): Boolean {
         val result = getPodcastFromFeedlyApi(podcast.feedUrl)
-        return result?.let {
+        return result.let {
             podcast.updated = it.updated
             podcast.description = it.description
             true
-        } ?: false
+        }
     }
 
 

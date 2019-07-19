@@ -79,15 +79,13 @@ fun ImageButton.animating(animating: Boolean) {
 private fun setImageCallback(imageView: ImageView, scrimView: View?): Callback {
     return object : Callback {
         override fun onSuccess() {
-            val bitmap = (imageView.getDrawable() as BitmapDrawable).bitmap
-            Palette.from(bitmap).generate(object : Palette.PaletteAsyncListener {
-                override fun onGenerated(palette: Palette?) {
-                    val defaultColor = imageView.resources.getColor(R.color.black)
-                    val vibrantColor = palette?.getDarkVibrantColor(defaultColor)?.let {
-                        //scrimView?.setBackgroundColor(it)
-                    }
+            val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+            Palette.from(bitmap).generate { palette ->
+                val defaultColor = imageView.resources.getColor(R.color.black)
+                val vibrantColor = palette?.getDarkVibrantColor(defaultColor)?.let {
+                    //scrimView?.setBackgroundColor(it)
                 }
-            })
+            }
         }
 
         override fun onError() {

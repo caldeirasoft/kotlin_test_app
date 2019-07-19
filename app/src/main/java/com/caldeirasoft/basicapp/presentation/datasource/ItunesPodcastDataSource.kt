@@ -20,9 +20,9 @@ class ItunesPodcastDataSource(
             try {
                 _isLoading.postValue(true)
                 // request Ids
-                this@ItunesPodcastDataSource.ids = itunesRepository.top(genre).await()
+                this@ItunesPodcastDataSource.ids = itunesRepository.top(genre)
                 // request podcasts
-                val podcasts = loadPodcasts(0, 1, params.requestedLoadSize).await()
+                val podcasts = loadPodcasts(0, 1, params.requestedLoadSize)
                 callback.onResult(podcasts, null, 1)
             }
             catch (e:Throwable) {

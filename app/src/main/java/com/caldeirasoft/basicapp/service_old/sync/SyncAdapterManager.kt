@@ -22,10 +22,10 @@ class SyncAdapterManager(context: Context) {
     }
 
     private val TAG = SyncAdapterManager::class.java.simpleName
-    private lateinit final var authority:String
-    private lateinit final var type:String
-    private lateinit var account:Account
-    private lateinit var context:Context
+    private var authority:String
+    private var type:String
+    private var account:Account
+    private var context:Context
 
     init {
         type = context.getString(R.string.account_type)
@@ -76,7 +76,7 @@ class SyncAdapterManager(context: Context) {
 
     private fun addPeriodicSync() {
         val settingsBundle = Bundle()
-        val syncRequest = SyncRequest.Builder()
+        SyncRequest.Builder()
                 .syncPeriodic(INTERVAL, FLEX_TIME)
                 .setSyncAdapter(account, authority)
                 .setExtras(settingsBundle)

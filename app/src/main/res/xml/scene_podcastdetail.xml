@@ -9,40 +9,40 @@
         <KeyFrameSet>
             <!-- move image behind background -->
             <KeyPosition
-                app:target="@id/imageview_artwork"
+                app:motionTarget="@id/imageview_artwork"
                 app:framePosition="10"
                 app:percentX="-0.4"
                 app:keyPositionType="pathRelative"/>
 
             <KeyAttribute
-                app:target="@id/imageview_artwork"
+                app:motionTarget="@id/imageview_artwork"
                 app:framePosition="11"
                 android:elevation="0dp"/>
 
             <KeyPosition
-                app:target="@id/imageview_artwork"
+                app:motionTarget="@id/imageview_artwork"
                 app:framePosition="20"
                 app:percentY="0.20"
                 app:keyPositionType="deltaRelative"/>
 
             <KeyAttribute
-                app:target="@id/imageview_artwork"
+                app:motionTarget="@id/imageview_artwork"
                 app:framePosition="20"
                 android:alpha="1"/>
 
             <KeyAttribute
-                app:target="@id/imageview_artwork"
+                app:motionTarget="@id/imageview_artwork"
                 app:framePosition="70"
                 android:alpha="0"/>
 
             <KeyPosition
-                app:target="@id/details_appbar"
+                app:motionTarget="@id/details_appbar"
                 app:framePosition="80"
                 app:percentY="1"
                 app:keyPositionType="deltaRelative"/>
 
             <KeyAttribute
-                app:target="@id/details_appbar"
+                app:motionTarget="@id/details_appbar"
                 app:framePosition="80"
                 android:alpha="0"/>
 

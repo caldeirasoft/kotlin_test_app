@@ -27,7 +27,6 @@ class DiscoverViewModel(val getItunesStoreUseCase: GetItunesStoreUseCase) : View
 
                 val r = getItunesStoreUseCase
                         .execute("143442-3,31")
-                        .await()
                         .data
                         ?.let {
                             itunesStore.postValue(it)

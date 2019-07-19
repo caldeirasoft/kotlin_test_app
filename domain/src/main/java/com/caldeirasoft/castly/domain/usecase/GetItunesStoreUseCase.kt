@@ -13,8 +13,6 @@ class GetItunesStoreUseCase(val podcastRepository: PodcastRepository,
                             val itunesRepository: ItunesRepository)
     : BaseDeferredUseCase<String, ItunesStore>() {
 
-    override suspend fun run(params: String): Deferred<ItunesStore> = GlobalScope.async {
-        val store = itunesRepository.getStore("143442-3,31").await()
-        store
-    }
+    override suspend fun run(params: String): ItunesStore =
+        itunesRepository.getStore("143442-3,33")
 }
