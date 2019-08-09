@@ -12,7 +12,7 @@
         type="Boolean"/>
   </data>
 
-  <com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar
+  <com.caldeirasoft.basicapp.presentation.views.CollapsibleToolbar
       android:id="@+id/motionLayout_root"
       android:layout_width="match_parent"
       android:layout_height="250dp"
@@ -86,5 +86,5 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-  </com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar>
+  </com.caldeirasoft.basicapp.presentation.views.CollapsibleToolbar>
 </layout>

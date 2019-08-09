@@ -1,52 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.flexbox.FlexboxLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:flexWrap="wrap"
-    app:flexDirection="column"
-    app:alignItems="stretch"
-    app:alignContent="stretch"
     tools:context="com.caldeirasoft.basicapp.presentation.ui.MainActivity">
 
     <fragment
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:id="@+id/nav_host_fragment"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_centerInParent="true"
         app:navGraph="@navigation/nav_graph"
         app:defaultNavHost="true"
-        app:layout_order="0"
-        app:layout_flexGrow="1"
-        app:layout_flexShrink="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 
     <fragment
         android:name="com.caldeirasoft.basicapp.presentation.ui.mediaplayback.MediaPlaybackControlsFragment"
         android:id="@+id/fragment_playback_controls"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         tools:layout="@layout/fragment_playback_controls"
-        app:layout_order="1"
-        app:layout_flexGrow="0"
-        app:layout_flexShrink="1"/>
+        app:layout_constraintBottom_toBottomOf="@id/nav_host_fragment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_marginEnd="0dp"
         android:layout_marginStart="0dp"
         android:background="?android:attr/windowBackground"
-        app:layout_order="2"
-        app:layout_flexGrow="0"
-        app:layout_flexShrink="1"
         app:itemHorizontalTranslationEnabled="false"
         app:labelVisibilityMode="unlabeled"
-        app:menu="@menu/navigation" />
+        app:menu="@menu/navigation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
 
-</com.google.android.flexbox.FlexboxLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

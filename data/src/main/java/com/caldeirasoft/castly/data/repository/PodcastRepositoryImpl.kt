@@ -1,14 +1,11 @@
 package com.caldeirasoft.castly.data.repository
 
-import androidx.lifecycle.*
-import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.castly.domain.model.Podcast
+import androidx.lifecycle.LiveData
 import com.caldeirasoft.castly.data.datasources.local.dao.PodcastDao
 import com.caldeirasoft.castly.data.extensions.convert
+import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.model.PodcastEntity
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import com.caldeirasoft.castly.domain.repository.PodcastRepository
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -26,17 +23,17 @@ class PodcastRepositoryImpl(val podcastDao: PodcastDao) : PodcastRepository {
     /**
      * Select all podcasts from the database
      */
-    override fun fetchSync(): List<Podcast> = podcastDao.fetchSync().map { it as Podcast }
+    override fun fetchSync(): List<Podcast> = podcastDao.fetchSync()
 
     /**
      * Select a podcast by id
      */
-    override fun get(feedUrl: String): LiveData<Podcast> = podcastDao.get(feedUrl).convert()
+    override fun get(podcastId: Long): LiveData<Podcast> = podcastDao.get(podcastId).convert()
 
     /**
      * Select a podcast by id
      */
-    override fun getSync(feedUrl: String): Podcast? = podcastDao.getSync(feedUrl)
+    override fun getSync(podcastId: Long): Podcast? = podcastDao.getSync(podcastId)
 
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it

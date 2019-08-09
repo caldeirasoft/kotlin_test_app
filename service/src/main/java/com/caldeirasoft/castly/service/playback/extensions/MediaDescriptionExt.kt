@@ -17,31 +17,18 @@
 package com.caldeirasoft.castly.service.playback.extensions
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
-import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.MediaMetadataCompat.*
+import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS
 import android.support.v4.media.session.PlaybackStateCompat.STATE_NONE
-import com.caldeirasoft.castly.domain.model.*
-import com.caldeirasoft.castly.service.playback.const.Constants
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_FAVORITE
-import com.google.android.exoplayer2.source.ConcatenatingMediaSource
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDate
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.ZoneOffset
-import org.threeten.bp.format.DateTimeFormatter
-import java.text.SimpleDateFormat
-import java.util.concurrent.TimeUnit
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_CURRENT_POSITION
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_FAVORITE_STATUS
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_PLAYBACK_STATUS
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_SECTION
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_TIME_PLAYED
 
 /**
  * Useful extensions for [MediaDescriptionCompat].
@@ -183,49 +170,41 @@ inline var MediaDescriptionCompat.downloadStatus
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaDescriptionCompat.favoriteStatus
     @SuppressLint("WrongConstant")
-    get() = extras?.getLong(Constants.METADATA_KEY_FAVORITE_STATUS)?.toInt() ?: 0
+    get() = extras?.getLong(METADATA_KEY_FAVORITE_STATUS)?.toInt() ?: 0
     set(value) {
-        extras?.putLong(Constants.METADATA_KEY_FAVORITE_STATUS, value.toLong())
-    }
-
-@MediaBrowserCompat.MediaItem.Flags
-inline var MediaDescriptionCompat.inDatabaseStatus
-    @SuppressLint("WrongConstant")
-    get() = extras?.getLong(Constants.METADATA_KEY_IN_DATABASE)?.toInt() ?: 0
-    set(value) {
-        extras?.putLong(Constants.METADATA_KEY_IN_DATABASE, value.toLong())
+        extras?.putLong(METADATA_KEY_FAVORITE_STATUS, value.toLong())
     }
 
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaDescriptionCompat.section
     @SuppressLint("WrongConstant")
-    get() = extras?.getLong(Constants.METADATA_KEY_SECTION)?.toInt() ?: 0
+    get() = extras?.getLong(METADATA_KEY_SECTION)?.toInt() ?: 0
     set(value) {
-        extras?.putLong(Constants.METADATA_KEY_SECTION, value.toLong())
+        extras?.putLong(METADATA_KEY_SECTION, value.toLong())
     }
 
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaDescriptionCompat.currentPosition
     @SuppressLint("WrongConstant")
-    get() = extras?.getLong(Constants.METADATA_KEY_CURRENT_POSITION) ?: 0
+    get() = extras?.getLong(METADATA_KEY_CURRENT_POSITION) ?: 0
     set(value) {
-        extras?.putLong(Constants.METADATA_KEY_CURRENT_POSITION, value)
+        extras?.putLong(METADATA_KEY_CURRENT_POSITION, value)
     }
 
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaDescriptionCompat.timePlayed
     @SuppressLint("WrongConstant")
-    get() = extras?.getLong(Constants.METADATA_KEY_TIME_PLAYED) ?: 0
+    get() = extras?.getLong(METADATA_KEY_TIME_PLAYED) ?: 0
     set(value) {
-        extras?.putLong(Constants.METADATA_KEY_TIME_PLAYED, value)
+        extras?.putLong(METADATA_KEY_TIME_PLAYED, value)
     }
 
 @MediaBrowserCompat.MediaItem.Flags
 inline var MediaDescriptionCompat.playbackStatus
     @SuppressLint("WrongConstant")
-    get() = extras?.getInt(Constants.METADATA_KEY_PLAYBACK_STATUS) ?: STATE_NONE
+    get() = extras?.getInt(METADATA_KEY_PLAYBACK_STATUS) ?: STATE_NONE
     set(value) {
-        extras?.putInt(Constants.METADATA_KEY_PLAYBACK_STATUS, value)
+        extras?.putInt(METADATA_KEY_PLAYBACK_STATUS, value)
     }
 
 /**
@@ -281,54 +260,4 @@ inline var MediaDescriptionCompat.Builder.extras: Bundle?
     set(value) {
         setExtras(value)
     }
-
-/**
- * Custom property for retrieving a [MediaDescriptionCompat] which also includes
- * all of the keys from the [MediaMetadataCompat] object in its extras.
- *
- * These keys are used by the ExoPlayer MediaSession extension when announcing metadata changes.
- */
-inline val MediaDescriptionCompat.metadata2
-    get() =
-        MediaMetadataCompat.Builder().also {
-            it.id = mediaId.orEmpty()
-            it.title = title.toString()
-            it.displayTitle = title.toString()
-            it.artist = artist
-            it.author = author
-            it.album = album
-            it.duration = duration
-            it.trackNumber = trackNumber
-            it.date = date
-            it.albumArtUri = albumArtUri.toString()
-            it.displayDescription = displayDescription
-            it.mediaUri = mediaUri.toString()
-            it.downloadStatus = downloadStatus
-            it.favoriteStatus = favoriteStatus
-            it.inDatabaseStatus = inDatabaseStatus
-            it.section = section
-        }.build()
-
-/**
- * Extension method for building a [MediaMetadataCompat] from a [Episode] object
- */
-fun MediaDescriptionCompat.toEpisode(): Episode? {
-    return EpisodeEntity(
-            episodeId = mediaId.orEmpty(),
-            feedUrl = author.orEmpty(),
-            title = title.toString(),
-            published = date?.toLong() ?: 0
-            //LocalDateTime.parse(date, DateTimeFormatter.ofPattern("d/M/yyyy[' ']['T'][H:mm[:ss[.S]]][X]")).toEpochSecond(ZoneOffset.UTC)
-            // d/M/yyyy[' ']['T'][H:mm[:ss[.S]]][X]
-    ).also { episode ->
-        episode.podcastTitle = album.toString()
-        episode.imageUrl = albumArtUri.toString()
-        episode.description = displayDescription
-        episode.mediaUrl = mediaUri.toString()
-        episode.duration = duration
-        episode.isFavorite = (favoriteStatus == STATUS_FAVORITE)
-        episode.section = section
-        episode.queuePosition = trackNumber.toInt()
-    }
-}
 

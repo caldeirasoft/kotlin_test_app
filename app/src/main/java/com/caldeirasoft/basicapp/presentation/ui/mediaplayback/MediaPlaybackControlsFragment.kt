@@ -75,7 +75,7 @@ class MediaPlaybackControlsFragment : Fragment() {
         }
         title.text = metadata.description.title
 
-        Picasso.with(activity)
+        Picasso.get()
                 .load(metadata.description.iconUri.toString() + "?w=" + getWeekOfTheYear())
                 .resize(200, 200)
                 .placeholder(R.drawable.default_rac1)

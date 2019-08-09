@@ -26,8 +26,8 @@ android {
         enabled = true
     }
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     packagingOptions {
         pickFirst 'META-INF/*'
@@ -44,125 +44,78 @@ kapt {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     // Local project
     implementation project(path: ':roundbutton')
     implementation project(path: ':domain')
     implementation project(path: ':data')
     implementation project(path: ':service')
-
-    // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1'
-
     // Android
-    implementation "androidx.appcompat:appcompat:1.0.2"
-    implementation "com.google.android.material:material:1.1.0-alpha08"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta2'
-    implementation 'com.android.support:coordinatorlayout:28.0.0'
-    implementation "androidx.cardview:cardview:1.0.0"
-    implementation "androidx.palette:palette:1.0.0"
-
+    implementation deps.support.core
+    implementation deps.support.core_ktx
+    implementation deps.support.appcompat
+    implementation deps.support.constraintlayout
+    implementation deps.support.palette
+    implementation deps.support.material
+    implementation deps.support.media
+    // Kotlin
+    implementation deps.kotlin.stdlib
+    implementation deps.kotlin.reflect
+    implementation deps.kotlin.coroutines
     // Android-Room
-    implementation "android.arch.persistence.room:runtime:1.1.1"
-    kapt "android.arch.persistence.room:compiler:1.1.1"
-
-    // Android-LiveData
-    implementation "android.arch.lifecycle:livedata-core:1.1.1"
-    implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation deps.room.runtime
+    implementation deps.room.ktx
+    kapt deps.room.compiler
     // Android-Paging
-    implementation "android.arch.paging:runtime:1.0.1"
+    implementation deps.paging.runtime
+    // Android-LiveData
+    implementation deps.lifecycle.extensions
+    kapt deps.lifecycle.compiler
     // Android-Navigation
-    implementation 'android.arch.navigation:navigation-fragment-ktx:1.0.0'
-    implementation 'android.arch.navigation:navigation-ui-ktx:1.0.0'
-
-    // Anko
-    implementation "org.jetbrains.anko:anko:0.10.5"
-    implementation "org.jetbrains.anko:anko-commons:0.10.5"
-
+    implementation deps.navigation.fragment
+    implementation deps.navigation.ui
+    // Circular progressbar
+    implementation deps.circularprogressbar
+    // Epoxy
+    implementation deps.epoxy.runtime
+    implementation deps.epoxy.databinding
+    implementation deps.epoxy.paging
+    kapt deps.epoxy.processor
+    // Internationalisation
+    implementation deps.i18n
+    // Koin
+    implementation deps.koin.runtime
+    implementation deps.koin.viewmodel
+    // Kotlin XML databinding DSL
+    implementation deps.xmlbind
+    // KotPref
+    implementation deps.kotpref.runtime
+    implementation deps.kotpref.enum
+    // OkHttp
+    implementation deps.okhttp.runtime
+    implementation deps.okhttp.dns
+    implementation deps.okhttp.logging
+    // Picasso
+    implementation deps.picasso.runtime
+    implementation deps.picasso.blur
+    // Retrofit
+    implementation deps.retrofit.runtime
+    implementation deps.retrofit.converter_moshi
+    implementation deps.retrofit.converter_scalar
+    implementation deps.retrofit.converter_xml
+    // RoundedImageView
+    implementation deps.roundedimageview
+    // Shimmer
+    implementation deps.shimmerlayout
+    // SuperBottomSheet
+    // implementation deps.superbottomsheet
+    // ThreeTenABP (Java Time)
+    implementation deps.threeten
     // Android debug database
     debugImplementation "com.amitshekhar.android:debug-db:1.0.3"
-
-    // Circular progressbar
-    implementation 'com.mikhaellopez:circularprogressbar:2.0.0'
-
-    // Epoxy
-    implementation 'com.airbnb.android:epoxy:3.7.0'
-    implementation 'com.airbnb.android:epoxy-databinding:3.7.0'
-    implementation 'com.airbnb.android:epoxy-paging:3.7.0'
-    kapt 'com.airbnb.android:epoxy-processor:3.7.0'
-
-    // Expendable Layout
-    implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
-
-    // Fabolous filter
-    implementation 'com.allattentionhere:fabulousfilter:0.0.5'
-
-    // FlexboxLayout
-    implementation "com.google.android:flexbox:1.0.0"
-
-    // GravitySnapHelper
-    implementation 'com.github.rubensousa:gravitysnaphelper:2.0'
-
-    // Internationalisation
-    implementation 'com.neovisionaries:nv-i18n:1.22'
-
     // JUnit
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-
-    // Koin
-    implementation 'org.koin:koin-android:1.0.2'
-    implementation 'org.koin:koin-androidx-viewmodel:1.0.2'
-
-    // Kodein
-    implementation 'com.github.salomonbrys.kodein:kodein:4.1.0'
-
-    // Kotlin XML databinding DSL
-    implementation "org.jonnyzzz.kotlin.xml.bind:jdom:0.2.0"
-
-    // Picasso
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-
-    // Picasso blur
-    implementation 'jp.wasabeef:picasso-transformations:2.2.1'
-
-    // KotPref
-    implementation 'com.chibatching.kotpref:kotpref:2.5.0'
-    implementation 'com.chibatching.kotpref:enum-support:2.5.0'
-
-    // Retrofit
-    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-scalars:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-simplexml:$retrofit_version"
-
-    // RoundedImageView
-    implementation 'com.makeramen:roundedimageview:2.3.0'
-
-    // Skeleton
-    implementation 'com.ethanhua:skeleton:1.1.1'
-    implementation 'io.supercharge:shimmerlayout:2.1.0'
-
-    // Skeleton Layout
-    implementation 'com.faltenreich:skeletonlayout:1.0.1'
-
-    // SPager : viewpager without adapter
-    implementation 'com.github.alfianyusufabdullah:spager:1.2.0'
-
-    // Sticky header decoration
-    implementation 'com.github.qdxxxx:StickyHeaderDecoration:1.0.1'
-
-    // SuperBottomSheet
-    implementation 'com.github.andrefrsousa:SuperBottomSheet:1.2.3'
-
-    // ThreeTenABP (Java Time)
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
 }
 
 def createSyncAdapterRes(variant) {

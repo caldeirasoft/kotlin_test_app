@@ -9,8 +9,9 @@ import android.support.v4.media.session.MediaSessionCompat
 import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.Podcast
-import org.jetbrains.anko.doAsyncResult
-import java.util.ArrayList
+import kotlinx.coroutines.runBlocking
+import org.threeten.bp.ZoneOffset
+import java.util.*
 
 /**
  * Created by Edmond on 15/03/2018.
@@ -92,11 +93,9 @@ class QueueManager(private val episodeDao: EpisodeDao)
 
     private fun setCurrentQueue(mediaId: String?) {
         var episodes = arrayListOf<Episode>().apply {
-            mediaId?.let {
-                doAsyncResult { episodeDao.getSync(it) }.let {
-                    it.get()?.let { ep ->
-                        this.add(ep)
-                    }
+            mediaId?.toLong()?.let {
+                runBlocking { episodeDao.getSync(it) }?.let { episode ->
+                    this.add(episode)
                 }
             }
         }
@@ -147,15 +146,15 @@ class QueueManager(private val episodeDao: EpisodeDao)
         val extras = Bundle()
         //extras.putSerializable(Podcast.PODCAST_STATE, episode.state)
         extras.putString(Podcast.PODCAST_PROGRAM_ID, episode.feedUrl)
-        extras.putString(Podcast.PODCAST_BIG_IMAGE_URL, episode.bigImageUrl)
+        extras.putString(Podcast.PODCAST_BIG_IMAGE_URL, episode.getArtwork(600))
         extras.putLong(Podcast.PODCAST_DURATION, episode.duration?.toLong() ?: 0)
-        extras.putLong(Podcast.PODCAST_DATE, episode.published)
+        extras.putLong(Podcast.PODCAST_DATE, episode.releaseDate.toEpochSecond(ZoneOffset.UTC))
 
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(episode.mediaUrl)
-                .setTitle(episode.title)
+                .setTitle(episode.name)
                 .setMediaUri(Uri.parse(episode.mediaUrl))
-                .setIconUri(Uri.parse(episode.imageUrl))
+                .setIconUri(Uri.parse(episode.getArtwork(100)))
                 .setExtras(extras)
                 .build()
         return MediaBrowserCompat.MediaItem(description, MediaBrowserCompat.MediaItem.FLAG_PLAYABLE)

@@ -5,7 +5,7 @@ import com.caldeirasoft.castly.domain.model.SectionState
 
 class Constants {
     companion object {
-        val MEDIA_ROOT: String = MediaID(SectionState.ROOT).asString()
+        val MEDIAID_ROOT: String = MediaID(SectionState.ROOT).asString()
 
         // keys used to indicate extra values
         const val EXTRA_DATE = "android.media.extra.DATE"
@@ -16,21 +16,33 @@ class Constants {
         const val EXTRA_PODCAST = "android.media.browse.extra.podcast"
         const val EXTRA_EPISODE = "android.media.browse.extra.episode"
 
+        const val EXTRA_PAGE_SIZE = "android.media.browse.extra.pageSize"
+        const val EXTRA_RELOAD_ALL = "android.media.browse.extra.reloadAll"
 
         // metadata custom keys
-        const val METADATA_KEY_IN_DATABASE = "android.media.metadata.IN_DATABASE"
-        const val METADATA_KEY_FAVORITE_STATUS = "android.media.metadata.FAVORITE_STATUS"
+        const val METADATA_KEY_ID = "android.media.metadata.ID"
+        const val METADATA_KEY_SUBSCRIBED = "android.media.metadata.SUBSCRIBED"
+        const val METADATA_KEY_GENRES = "android.media.metadata.GENRES"
+        const val METADATA_KEY_OTHER_PODCASTS_BY_ARTIST = "android.media.metadata.OTHER_PODCASTS_BY_ARTIST"
+        const val METADATA_KEY_OTHER_PODCASTS_FOLLOWED = "android.media.metadata.OTHER_PODCASTS_FOLLOWED"
+        const val METADATA_KEY_WEBSITE_URL = "android.media.metadata.WEBSITE_URL"
+        const val METADATA_KEY_COPYRIGHT = "android.media.metadata.COPYRIGHT"
         const val METADATA_KEY_SECTION = "android.media.metadata.SECTION"
+
+        const val METADATA_KEY_FAVORITE_STATUS = "android.media.metadata.FAVORITE_STATUS"
+        const val METADATA_KEY_PLAY_STATUS = "android.media.metadata.PLAY_STATUS"
         const val METADATA_KEY_CURRENT_POSITION = "android.media.metadata.CURRENT_POSITION"
         const val METADATA_KEY_TIME_PLAYED = "android.media.metadata.TIME_PLAYED"
         const val METADATA_KEY_PLAYBACK_STATUS = "android.media.metadata.PLAYBACK_STATUS"
+        const val METADATA_KEY_TRACK_TYPE = "android.media.metadata.TRACK_TYPE"
+        const val METADATA_KEY_QUEUE_POSITION = "android.media.metadata.QUEUE_POSITION"
 
         // metadata custome values
-        const val STATUS_NOT_FAVORITE = 0;
-        const val STATUS_FAVORITE = 1;
+        const val STATUS_NOT_FAVORITE = 0
+        const val STATUS_FAVORITE = 1
 
-        const val STATUS_NOT_IN_DATABASE = 0;
-        const val STATUS_IN_DATABASE = 1;
+        const val STATUS_NOT_SUBSCRIBED = 0
+        const val STATUS_SUBSCRIBED = 1
 
         // podcast commands
         const val COMMAND_CODE_PODCAST_SUBSCRIBE = "command.podcast.subscribe"
@@ -48,6 +60,7 @@ class Constants {
         const val COMMAND_CODE_QUEUE_REMOVE_ITEM = "command.queue.remove_item"
 
         // episode commands
+        const val COMMAND_CODE_EPISODE_TOGGLE_PLAY = "command.episodes.togglePlay"
         const val COMMAND_CODE_EPISODE_TOGGLE_FAVORITE = "command.episodes.toggleFavorite"
         const val COMMAND_CODE_EPISODE_ARCHIVE = "command.episodes.archive"
 

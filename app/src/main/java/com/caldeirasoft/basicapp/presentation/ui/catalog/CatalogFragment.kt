@@ -3,22 +3,24 @@ package com.caldeirasoft.basicapp.presentation.ui.catalog
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.TypedEpoxyController
+import com.airbnb.epoxy.paging.PagedListEpoxyController
+import com.caldeirasoft.basicapp.ItemPodcastBindingModel_
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentCatalogBinding
 import com.caldeirasoft.basicapp.itemPodcast
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragmentDirections
+import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.castly.domain.model.Podcast
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-
 import kotlinx.android.synthetic.main.fragment_catalog.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -49,7 +51,7 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
         super.onViewCreated(view, savedInstanceState)
         setTitle()
         setHasOptionsMenu(true)
-        setupSwipeRefreshLayout()
+        //setupSwipeRefreshLayout()
     }
 
     private fun setTitle() {
@@ -68,13 +70,13 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
-    private fun setupSwipeRefreshLayout() =
+    /*private fun setupSwipeRefreshLayout() =
             with (catalog_swipeRefreshLayout) {
                 setOnRefreshListener {
                     mViewModel.refresh()
                     this.isRefreshing = false
                 }
-            }
+            }*/
 
     private fun initUi() {
         mBinding.recyclerView.setController(controller)
@@ -83,27 +85,57 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
 
     private fun initObservers() {
         mViewModel.data.observeK(this) {data ->
-            controller.setData(data)
+            controller.submitList(data)
         }
     }
 
-    private fun createEpoxyController(): TypedEpoxyController<List<Podcast>> =
-            object : TypedEpoxyController<List<Podcast>>() {
-                override fun buildModels(data: List<Podcast>?) {
-                    data ?: return
-                    data.forEach { podcast ->
-                        itemPodcast {
-                            id(podcast.feedId)
-                            title(podcast.title)
-                            imageUrl(podcast.imageUrl)
-                            onPodcastClick { _, parentView, clickedView, position ->
+    private fun createEpoxyController(): PagedListEpoxyController<Podcast> =
+            object : BasePagedController<Podcast>() {
+                override fun buildItemModel(currentPosition: Int, podcast: Podcast?): EpoxyModel<*> {
+                    podcast?.let {
+                        return ItemPodcastBindingModel_().apply {
+                            id(podcast.id)
+                            title(podcast.name)
+                            imageUrl(podcast.getArtwork(100))
+                            onPodcastClick { _, parentView, _, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
                                 val imageView: ImageView = rootView.findViewById(R.id.img_row)
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.openPodcast(podcast.feedId.orEmpty(), transitionName)
+                                        PodcastFragmentDirections.openPodcast(podcast.id)
+                                val extras = FragmentNavigatorExtras(
+                                        imageView to transitionName)
+                                navigateTo(direction, extras)
+                            }
+                        }
+                    }
+                    ?: run {
+                        return ItemPodcastBindingModel_().apply  {
+                            id(currentPosition)
+                        }
+                    }
+                }
+            }
+
+    private fun createEpoxyControllerList(): TypedEpoxyController<List<Podcast>> =
+            object : TypedEpoxyController<List<Podcast>>() {
+                override fun buildModels(data: List<Podcast>?) {
+                    data ?: return
+                    data.forEach { podcast ->
+                        itemPodcast {
+                            id(podcast.id)
+                            title(podcast.name)
+                            imageUrl(podcast.getArtwork(100))
+                            onPodcastClick { _, parentView, _, position ->
+                                val transitionName = "iv_podcast$position"
+                                val rootView = parentView.dataBinding.root
+                                val imageView: ImageView = rootView.findViewById(R.id.img_row)
+                                ViewCompat.setTransitionName(imageView, transitionName)
+
+                                val direction =
+                                        PodcastFragmentDirections.openPodcast(podcast.id)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)
@@ -130,7 +162,7 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
 
     private fun setupFabClick() {
         with(fab_filtersection_catalog) {
-            setOnClickListener { view ->
+            setOnClickListener {
                 mBottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }

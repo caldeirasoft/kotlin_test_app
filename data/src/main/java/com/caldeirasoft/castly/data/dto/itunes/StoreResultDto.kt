@@ -20,11 +20,6 @@ class StoreResultDto {
         class LockupResult {
             @Json(name = "results")
             lateinit var results:Map<String, LockupResultItem>
-            //lateinit var results:TestResultItem
-
-            class TestResultItem {
-                lateinit var results:Map<String, LockupResultItem>
-            }
 
             class LockupResultItem {
                 @Json(name = "name")
@@ -75,7 +70,7 @@ class StoreResultDto {
                 lateinit var artwork: Artwork
 
                 @Json(name = "link")
-                lateinit var link: ContentId
+                var link: ContentId = ContentId()
 
                 @Json(name = "content")
                 var content:List<ContentId> = ArrayList()
@@ -97,6 +92,9 @@ class StoreResultDto {
 
                     @Json(name = "contentId")
                     var contentId:String = ""
+
+                    @Json(name = "url")
+                    var url:String = ""
                 }
             }
         }

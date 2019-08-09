@@ -17,7 +17,6 @@
 package com.caldeirasoft.castly.service.playback
 
 import android.app.PendingIntent
-import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -35,7 +34,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.MediaSessionCompat.*
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.widget.MediaController
 import androidx.core.app.NotificationManagerCompat
 import androidx.media.session.MediaButtonReceiver
 import com.caldeirasoft.castly.domain.model.SectionState
@@ -44,7 +42,6 @@ import com.caldeirasoft.castly.domain.repository.FeedlyRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import com.caldeirasoft.castly.service.BuildConfig
 import com.caldeirasoft.castly.service.R
-import com.caldeirasoft.castly.service.playback.NotificationBuilder.Companion.NOW_PLAYING_NOTIFICATION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_PLAYBACK_UPDATE_INFO
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.CURRENT_PROGRESS
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.PROGRESS_UPDATE_EVENT
@@ -80,8 +77,7 @@ import org.threeten.bp.ZoneOffset
  */
 class MediaPlaybackSession(context: Context,
                            val podcastRepository: PodcastRepository,
-                           val episodeRepository: EpisodeRepository,
-                           val feedlyRepository: FeedlyRepository
+                           val episodeRepository: EpisodeRepository
 ) : MediaSessionCompat.Callback(), AudioManager.OnAudioFocusChangeListener, Player.EventListener {
 
     private var mediaSession: MediaSessionCompat = MediaSessionCompat(context, BuildConfig.APPLICATION_ID)
@@ -467,13 +463,15 @@ class MediaPlaybackSession(context: Context,
 
 
             GlobalScope.launch {
-                episodeRepository.getSync(it.mediaId.orEmpty())?.let { episode ->
-                    episode.duration = duration
-                    episode.playbackPosition = position
-                    episode.timePlayed?.let {
-                        episode.timePlayed = org.threeten.bp.LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+                it.mediaId?.toLong()?.let {
+                    episodeRepository.getSync(it)?.let { episode ->
+                        episode.duration = duration.toInt()
+                        episode.playbackPosition = position.toInt()
+                        episode.timePlayed?.let {
+                            episode.timePlayed = org.threeten.bp.LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)
+                        }
+                        episodeRepository.update(episode)
                     }
-                    episodeRepository.update(episode)
                 }
             }
         }
@@ -481,10 +479,12 @@ class MediaPlaybackSession(context: Context,
 
     fun upsertMediaItem(description: MediaDescriptionCompat, section: Int, index: Int?) {
         GlobalScope.launch {
-            description.toEpisode()?.let { episode ->
-                episode.section = section
-                episode.queuePosition = index
-                episodeRepository.upsert(episode)
+            description.id?.toLong()?.let {
+                episodeRepository.getSync(it)?.let { episode ->
+                    episode.section = section
+                    episode.queuePosition = index
+                    episodeRepository.update(episode)
+                }
             }
         }
     }
@@ -595,7 +595,7 @@ class MediaPlaybackSession(context: Context,
                 mediaUri = it.mediaUri.toString()
                 date = it.date
                 duration = it.duration
-                currentPosition = it.currentPosition
+                //currentPosition = it.currentPosition
                 trackNumber = it.trackNumber
 
             }
@@ -692,13 +692,5 @@ class MediaPlaybackSession(context: Context,
                 controller.transportControls.pause()
             }
         }
-    }
-
-    /**
-     * Inner class to receive callbacks about session changes to the [MediaSessionCompat]. In response
-     * to those callbacks, this class:
-     */
-    private inner class MediaSessionCallback(val dataSourceFactory: DataSource.Factory) : MediaSessionCompat.Callback() {
-
     }
 }

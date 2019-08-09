@@ -1,9 +1,9 @@
 package com.caldeirasoft.basicapp.presentation.utils.extensions
 
 import android.content.Context
-import androidx.annotation.ColorRes
-import androidx.annotation.DrawableRes
-import androidx.annotation.FontRes
+import android.graphics.Color
+import android.util.TypedValue
+import androidx.annotation.*
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -22,3 +22,15 @@ fun Context.font(@FontRes fontId: Int) =
 
 fun Context.animatedDrawable(@DrawableRes drawableId: Int) =
         AnimatedVectorDrawableCompat.create(this, drawableId)
+
+
+@ColorInt
+fun Context.getThemeColor(@AttrRes attributeName: Int): Int {
+    val typedValue = TypedValue()
+    val typedArray = obtainStyledAttributes(typedValue.data, intArrayOf(attributeName))
+    try {
+        return typedArray.getColor(0, Color.BLACK)
+    } finally {
+        typedArray.recycle()
+    }
+}

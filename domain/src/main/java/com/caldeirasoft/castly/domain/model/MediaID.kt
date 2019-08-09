@@ -2,7 +2,7 @@ package com.caldeirasoft.castly.domain.model
 
 import android.provider.MediaStore
 
-class MediaID(var type: SectionState = SectionState.ROOT, var id: String = "NA") {
+class MediaID(var type: SectionState = SectionState.ROOT, var id: Long = 0) {
 
     companion object {
         private const val TYPE = "type: "
@@ -13,7 +13,7 @@ class MediaID(var type: SectionState = SectionState.ROOT, var id: String = "NA")
                 MediaID().apply {
                     s?.let {
                         this.type = SectionState.valueOf(s.substring(6, s.indexOf(SEPARATOR)))
-                        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR))
+                        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR)).toLong()
                     }
                     return this
                 }
@@ -25,7 +25,7 @@ class MediaID(var type: SectionState = SectionState.ROOT, var id: String = "NA")
 
     fun fromString(s: String): MediaID {
         this.type = SectionState.valueOf(s.substring(6, s.indexOf(SEPARATOR)))
-        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR))
+        this.id = s.substring(s.indexOf(SEPARATOR) + 3 + 10, s.lastIndexOf(SEPARATOR)).toLong()
         return this
     }
 }

@@ -1,23 +1,34 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:fontFamily">@font/googlesans_regular</item>
         <item name="android:colorBackground">@color/white</item>
+
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:fitsSystemWindows">false</item>
+
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
 
     <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+    <style name="AppTheme.TransparentTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 
     <!-- Text styles -->
     <style name="Text" parent="TextAppearance.AppCompat" />
@@ -33,8 +44,22 @@
     <style name="Text.Subhead" parent="TextAppearance.AppCompat.Subhead"/>
     <style name="Text.Button" parent="TextAppearance.AppCompat.Button"/>
 
+    <!--
     <style name="Button" parent="Widget.AppCompat.Button">
         <item name="android:textAllCaps">false</item>
+    </style>
+    -->
+
+    <!-- Flat button -->
+    <style name="PrimaryFlatButton" parent="Theme.AppCompat.Light">
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Borderless.Colored</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="colorControlHighlight">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
+    <style name="BluePrimaryButton" parent="Theme.AppCompat.Light">
+        <item name="android:colorBackground">@android:color/black</item>
     </style>
 
     <!-- Style for header text in the order form -->
@@ -45,10 +70,6 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="BluePrimaryButton" parent="Theme.AppCompat.Light">
-        <item name="android:colorBackground">@android:color/black</item>
     </style>
 
     <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
@@ -100,5 +121,22 @@
 
     <style name="BottomSheetDialogTheme" parent="BaseBottomSheetDialog">
         <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textColor">?android:attr/foreground</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- custom catalog buttons -->
+    <style name="CatalogButtonIconAppareance" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="android:backgroundTint">@drawable/selector_button_catalog</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:shadowColor">@android:color/transparent</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:height">36dp</item>
+        <item name="cornerRadius">18dp</item>
     </style>
 </resources>

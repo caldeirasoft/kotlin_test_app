@@ -1,13 +1,11 @@
 package com.caldeirasoft.basicapp.presentation.ui
 
-import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
-import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
 import kotlinx.android.synthetic.main.activity_main.*
 

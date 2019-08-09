@@ -1,10 +1,5 @@
 package com.caldeirasoft.castly.domain.usecase.base
 
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import java.lang.Exception
-
 abstract class BaseUseCase<in Input, out Output> {
     var beforeExecute: (() -> Unit)? = null
     var afterExecute: (() -> Unit)? = null

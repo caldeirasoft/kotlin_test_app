@@ -23,8 +23,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.service_old.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
 import com.caldeirasoft.basicapp.presentation.ui.mediaplayback.MediaPlaybackFullScreenActivity
+import com.caldeirasoft.basicapp.service_old.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 
@@ -206,13 +206,13 @@ class NotificationManager(private val service: MediaPlaybackService): BroadcastR
         setNotificationPlaybackState(notificationBuilder)
 
         val placeholder = BitmapFactory.decodeResource(service.resources, R.drawable.default_rac1)
-        Picasso.with(service)
+        Picasso.get()
                 .load(description?.iconUri)
                 .into(object: Target {
                     override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
                     }
 
-                    override fun onBitmapFailed(errorDrawable: Drawable?) {
+                    override fun onBitmapFailed(e: Exception, errorDrawable: Drawable?) {
                         notificationBuilder.setLargeIcon(placeholder)
                         setNotificationPlaybackState(notificationBuilder)
                         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())

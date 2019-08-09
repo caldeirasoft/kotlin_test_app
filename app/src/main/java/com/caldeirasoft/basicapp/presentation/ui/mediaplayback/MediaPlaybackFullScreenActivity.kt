@@ -14,12 +14,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.SeekBar
 import com.caldeirasoft.basicapp.R
+import com.caldeirasoft.basicapp.presentation.ui.base.MediaBrowserProvider
+import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
 import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SET_SLEEP_TIMER
 import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_LABEL
 import com.caldeirasoft.basicapp.service_old.mediaplayback.PlaybackManager.Companion.SLEEP_TIMER_MILLISECONDS
 import com.caldeirasoft.basicapp.service_old.mediaplayback.QueueManager.Companion.METADATA_HAS_NEXT_OR_PREVIOUS
-import com.caldeirasoft.basicapp.presentation.ui.base.MediaBrowserProvider
-import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_media_playback.*
 
@@ -158,7 +158,7 @@ class MediaPlaybackFullScreenActivity : MediaPlayerBaseActivity(),
         metadata?.let {
             title = metadata.description.title
 
-            Picasso.with(this)
+            Picasso.get()
                     .load(metadata.description?.iconUri)
                     .resize(800, 800)
                     .placeholder(R.drawable.default_rac1)

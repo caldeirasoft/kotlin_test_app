@@ -1,31 +1,40 @@
 package com.caldeirasoft.castly.domain.model
 
 import android.os.Parcelable
+import org.threeten.bp.LocalDateTime
 import java.util.*
 
 interface Episode : Parcelable
 {
-    var episodeId: String
-    var feedUrl: String
-    var title: String
-    var published: Long
+    var id: Long
+    var name: String
+    var artistName: String
+    var podcastId: Long
+    var podcastName: String
+    var releaseDate: LocalDateTime
 
-    var description: String?
-    var duration: Long?
-    var playbackPosition: Long?
-    var imageUrl: String?
-    var bigImageUrl: String?
-    var podcastTitle: String
-    var guid: String?
-    var link: String?
+    var feedUrl: String
+    var description: String
+    var contentAdvisoryRating: String //🅴
+    var artwork: String
+    var artworkHeight: Int?
+    var artworkWidth: Int?
+
+    var podcastEpisodeSeason: Int?
+    var podcastEpisodeNumber: Int?
+    var podcastEpisodeWebsiteUrl: String?
+    var podcastEpisodeType: String  //full/trailer/bonus
 
     var mediaUrl: String
     var mediaType: String?
     var mediaLength: Long?
+    var duration: Int?
+    var playbackPosition: Int?
 
     var section: Int
     var queuePosition: Int?
     var isFavorite: Boolean
+    var isPlayed: Boolean
 
     //@get:com.google.firebase.firestore.Exclude
     var localStatus:Int
@@ -39,4 +48,6 @@ interface Episode : Parcelable
     fun publishedFormat():String
 
     fun durationFormat(): String?
+
+    fun getArtwork(width: Int): String = Podcast.getArtwork(artwork, width)
 }

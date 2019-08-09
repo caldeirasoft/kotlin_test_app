@@ -13,6 +13,7 @@
     <color name="grey_10">#e6e6e6</color>
     <color name="grey_800">#424242</color>
     <color name="grey_600">#747474</color>
+    <color name="grey_300">#e0e0e0</color>
     <color name="spacer_grey">#e0e0e0</color>
     <color name="white_90">#e6ffffff</color>
 
@@ -27,6 +28,11 @@
     <color name="colorPrimaryText">#767676</color>
     <color name="colorSecondaryText">#17262A</color>
     <color name="colorBackground">#EDF0F2</color>
+    <color name="colorError">#F44336</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#212121</color>
+    <color name="colorOnBackground">#212121</color>
 
 
     <color name="status_bar">#202124</color>
@@ -37,6 +43,7 @@
     <color name="scrim">#33000000</color> <!-- 20% black -->
     <color name="indigo_transparent">#e54768fd</color> <!-- 90% indigo -->
     <color name="dark_gray">#ff808080</color>
+    <color name="dark_transparent">#24000000</color>
 
 
     <!-- Colors -->

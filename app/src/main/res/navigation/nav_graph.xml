@@ -20,7 +20,7 @@
         android:label="PodcastFragment" >
         <action
             android:id="@+id/openPodcast"
-            app:destination="@id/podcastInfoFragment"
+            app:destination="@+id/podcastInfoFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -32,11 +32,7 @@
         android:label="PodcastInfoFragment" >
         <argument
             android:name="mediaId"
-            app:argType="string" />
-        <argument
-            android:name="transitionName"
-            app:argType="string"
-            app:nullable="true" />
+            app:argType="long" />
         <argument
             android:name="podcast"
             app:argType="com.caldeirasoft.castly.domain.model.Podcast"

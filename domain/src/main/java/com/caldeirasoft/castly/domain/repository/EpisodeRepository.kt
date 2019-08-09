@@ -3,10 +3,8 @@ package com.caldeirasoft.castly.domain.repository;
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import com.caldeirasoft.castly.domain.model.Episode
-
 import com.caldeirasoft.castly.domain.model.PodcastWithCount
 import com.caldeirasoft.castly.domain.model.SectionWithCount
-import kotlinx.coroutines.Deferred
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -17,17 +15,27 @@ interface EpisodeRepository {
     /**
      * Select all episodes by podcast id
      */
-    fun fetch(feedUrl: String): LiveData<List<Episode>>
+    fun fetch(podcastId: Long): LiveData<List<Episode>>
 
     /**
      * Select all episodes by podcast id
      */
-    fun fetchSync(feedUrl: String): List<Episode>
+    fun fetchSync(podcastId: Long): List<Episode>
+
+    /**
+     * Select all episodes by podcast id (with limit and offset)
+     */
+    fun fetchSync(podcastId: Long, limit: Int, offset: Int): List<Episode>
 
     /**
      * Select all episodes by podcast id
      */
-    fun fetchFactory(feedUrl: String): DataSource.Factory<Int, Episode>
+    fun fetchFactory(podcastId: Long): DataSource.Factory<Int, Episode>
+
+    /**
+     * Count all episodes by podcast id
+     */
+    fun count(podcastId: Long): Int
 
     /**
      * Select all episodes by section
@@ -57,17 +65,17 @@ interface EpisodeRepository {
     /**
      * Select all episodes by section
      */
-    fun fetch(section: Int, feedUrl: String): LiveData<List<Episode>>
+    fun fetch(section: Int, podcastId: Long): LiveData<List<Episode>>
 
     /**
      * Select all episodes by section
      */
-    fun fetchSync(section: Int, feedUrl: String): List<Episode>
+    fun fetchSync(section: Int, podcastId: Long): List<Episode>
 
     /**
      * Select all episodes by section
      */
-    fun fetchFactory(section: Int, feedUrl: String): DataSource.Factory<Int, Episode>
+    fun fetchFactory(section: Int, podcastId: Long): DataSource.Factory<Int, Episode>
 
     /**
      * Select inbox episodes count by podcasts
@@ -77,27 +85,27 @@ interface EpisodeRepository {
     /**
      * fetch episodes from by section
      */
-    fun fetchEpisodeCountBySection(feedUrl: String): LiveData<SectionWithCount>
-
-    /**
-     * Select an episode by url
-     */
-    fun getSync(feedUrl: String, mediaUrl:String): Episode?
+    fun fetchEpisodeCountBySection(podcastId: Long): LiveData<SectionWithCount>
 
     /**
      * Select an episode by id
      */
-    fun getSync(episodeId:String): Episode?
+    fun getSync(episodeId:Long): Episode?
 
     /**
      * Select an episode by id
      */
-    fun get(episodeId:String): LiveData<Episode>
+    fun get(episodeId:Long): LiveData<Episode>
 
     /**
      * Insert an episode in the database. If the podcast already exists, replace it
      */
     fun insert(episode: Episode)
+
+    /**
+     * Insert a list of episodes
+     */
+    fun insertIgore(episodes: List<Episode>)
 
     /**
      * Update an episode
@@ -117,7 +125,7 @@ interface EpisodeRepository {
     /**
      * Delete episodes of a podcast by its feedId
      */
-    fun deleteByPodcast(feedUrl: String)
+    fun deleteByPodcast(podcastId: Long)
 
     /**
      * Insert episode if not exists

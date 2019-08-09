@@ -23,12 +23,12 @@ interface PodcastRepository {
     /**
      * Select a podcast by id
      */
-    fun get(feedUrl: String): LiveData<Podcast>
+    fun get(id: Long): LiveData<Podcast>
 
     /**
      * Select a podcast by id
      */
-    fun getSync(feedUrl: String): Podcast?
+    fun getSync(id: Long): Podcast?
 
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it

@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
+        <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
             android:id="@+id/appbar_layout_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
                     android:layout_height="180dp"
                     android:layout_marginTop="4dp"
                     android:contentDescription="@null"
-                    app:imageUrl="@{viewModel.episodeData.imageUrl}"
+                    app:imageUrl="@{viewModel.episodeData.getArtwork(100)}"
                     android:src="@drawable/thumb_1_0"
                     app:riv_border_color="@color/light_gray"
                     app:riv_border_width="1dp"
@@ -66,7 +66,7 @@
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="@dimen/activity_vertical_margin"
                     android:fontFamily="@font/googlesans_bold"
-                    android:text="@{viewModel.episodeData.title}"
+                    android:text="@{viewModel.episodeData.name}"
                     android:textColor="#132629"
                     android:textSize="@dimen/text_very_huge"
                     app:layout_constraintTop_toBottomOf="@id/imageview_thumbnail"
@@ -81,7 +81,7 @@
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginTop="4dp"
                     android:fontFamily="@font/googlesans_regular"
-                    android:text="@{viewModel.episodeData.podcastTitle}"
+                    android:text="@{viewModel.episodeData.podcastName}"
                     android:textSize="@dimen/text_large"
                     android:textColor="#414344"
                     android:gravity="start"
@@ -107,7 +107,7 @@
                     app:layout_constraintStart_toStartOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
+        </com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

@@ -1,29 +1,25 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.EXTRA_MEDIA_ID
+import android.support.v4.media.MediaBrowserCompat.MediaItem
+import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
-import com.caldeirasoft.castly.service.playback.const.Constants
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_QUEUE_ADD_ITEM
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_ARCHIVE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_TOGGLE_FAVORITE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_EPISODE
 import com.caldeirasoft.castly.service.playback.extensions.id
 import com.caldeirasoft.castly.service.playback.extensions.isPlaying
 import com.caldeirasoft.castly.service.playback.extensions.isPrepared
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class EpisodeInfoViewModel(val mediaItem: MediaItem,
                            val episodeRepository: EpisodeRepository,
@@ -50,7 +46,7 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
 
     // init
     init {
-        episodeDb = episodeRepository.get(mediaItem.mediaId.orEmpty())
+        episodeDb = episodeRepository.get(mediaItem.mediaId?.toLong() ?: 0L)
 
         sectionData.addSource(episodeDb) { episode ->
             sectionData.postValue(episode?.section ?: SectionState.ARCHIVE.value)
@@ -97,11 +93,11 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
     }
 
     fun toggleFavorite() {
-        sendCustomMediaItemCommand(Constants.COMMAND_CODE_EPISODE_TOGGLE_FAVORITE)
+        sendCustomMediaItemCommand(COMMAND_CODE_EPISODE_TOGGLE_FAVORITE)
     }
 
     fun archiveEpisode() {
-        sendCustomMediaItemCommand(Constants.COMMAND_CODE_EPISODE_ARCHIVE)
+        sendCustomMediaItemCommand(COMMAND_CODE_EPISODE_ARCHIVE)
     }
 
     private fun sendCustomMediaItemCommand(customAction: String) {

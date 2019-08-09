@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
+        <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
             android:id="@+id/appbar_layout_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                     app:layout_constraintStart_toStartOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-        </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
+        </com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"

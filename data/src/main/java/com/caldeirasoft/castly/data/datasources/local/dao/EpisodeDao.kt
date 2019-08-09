@@ -3,7 +3,10 @@ package com.caldeirasoft.castly.data.datasources.local.dao;
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
-import com.caldeirasoft.castly.domain.model.*
+import com.caldeirasoft.castly.domain.model.EpisodeEntity
+import com.caldeirasoft.castly.domain.model.PodcastEntity
+import com.caldeirasoft.castly.domain.model.PodcastWithCountEntity
+import com.caldeirasoft.castly.domain.model.SectionWithCountEntity
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -15,31 +18,43 @@ interface EpisodeDao {
     /**
      * Select all episodes by podcast id
      */
-    @Query("SELECT * FROM Episodes Where feedUrl= :feedUrl ORDER BY published DESC")
-    fun fetch(feedUrl: String): LiveData<List<EpisodeEntity>>
+    @Query("SELECT * FROM Episodes Where podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetch(podcastId: Long): LiveData<List<EpisodeEntity>>
 
     /**
      * Select all episodes by podcast id
      */
-    @Query("SELECT * FROM Episodes Where feedUrl= :feedUrl ORDER BY published DESC")
-    fun fetchSync(feedUrl: String): List<EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetchSync(podcastId: Long): List<EpisodeEntity>
 
     /**
      * Select all episodes by podcast id
      */
-    @Query("SELECT * FROM Episodes Where feedUrl = :feedUrl ORDER BY published DESC")
-    fun fetchFactory(feedUrl: String): DataSource.Factory<Int, EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where podcastId = :podcastId ORDER BY releaseDate DESC LIMIT :limit OFFSET :offset")
+    fun fetchSync(podcastId: Long, limit: Int, offset: Int): List<EpisodeEntity>
+
+    /**
+     * Select all episodes by podcast id
+     */
+    @Query("SELECT * FROM Episodes Where podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetchFactory(podcastId: Long): DataSource.Factory<Int, EpisodeEntity>
+
+    /**
+     * Count episodes of a podcast
+     */
+    @Query("SELECT COUNT(id) FROM episodes WHERE podcastId = :podcastId")
+    fun count(podcastId: Long): Int
 
     /**
      * Select all episodes by section
      */
-    @Query("SELECT * FROM Episodes Where section = :section ORDER BY published DESC")
+    @Query("SELECT * FROM Episodes Where section = :section ORDER BY releaseDate DESC")
     fun fetch(section: Int): LiveData<List<EpisodeEntity>>
 
     /**
      * Select all episodes by section
      */
-    @Query("SELECT * FROM Episodes Where section = :section ORDER BY published DESC")
+    @Query("SELECT * FROM Episodes Where section = :section ORDER BY releaseDate DESC")
     fun fetchSync(section: Int): List<EpisodeEntity>
 
     /**
@@ -51,26 +66,26 @@ interface EpisodeDao {
      * section 4 : favorite
      * section 5 : history
      */
-    @Query("SELECT * FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END ORDER BY published DESC")
+    @Query("SELECT * FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END ORDER BY releaseDate DESC")
     fun fetchFactory(section: Int): DataSource.Factory<Int, EpisodeEntity>
 
     /**
      * Select all episodes by section and podcast
      */
-    @Query("SELECT * FROM Episodes Where section = :section AND feedUrl = :feedUrl ORDER BY published DESC")
-    fun fetch(section: Int, feedUrl: String): LiveData<List<EpisodeEntity>>
+    @Query("SELECT * FROM Episodes Where section = :section AND podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetch(section: Int, podcastId: Long): LiveData<List<EpisodeEntity>>
 
     /**
      * Select all episodes by section and podcast
      */
-    @Query("SELECT * FROM Episodes Where section = :section AND feedUrl = :feedUrl ORDER BY published DESC")
-    fun fetchSync(section: Int, feedUrl: String): List<EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where section = :section AND podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetchSync(section: Int, podcastId: Long): List<EpisodeEntity>
 
     /**
      * Select all episodes by section
      */
-    @Query("SELECT * FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END AND feedUrl = :feedUrl ORDER BY published DESC")
-    fun fetchFactory(section: Int, feedUrl: String): DataSource.Factory<Int, EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END AND podcastId = :podcastId ORDER BY releaseDate DESC")
+    fun fetchFactory(section: Int, podcastId: Long): DataSource.Factory<Int, EpisodeEntity>
 
     /**
      * Select all episodes from queue
@@ -87,7 +102,7 @@ interface EpisodeDao {
     /**
      * Select inbox episodes count by podcasts
      */
-    @Query("SELECT feedUrl, podcastTitle AS title, imageUrl, COUNT(mediaUrl) AS episodeCount FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END GROUP BY feedUrl, podcastTitle ORDER BY podcastTitle DESC")
+    @Query("SELECT podcastId AS id, podcastName AS title, artwork, COUNT(id) AS episodeCount FROM Episodes Where CASE :section WHEN 4 THEN isFavorite = 1 WHEN 5 THEN timePlayed != null WHEN 0 THEN 1 = 1 ELSE section = :section END GROUP BY podcastId, podcastName ORDER BY podcastName DESC")
     fun fetchEpisodesCountByPodcast(section: Int): LiveData<List<PodcastWithCountEntity>>
 
     /**
@@ -97,32 +112,26 @@ interface EpisodeDao {
      * section = 4 : favorite
      * section = 5 : history
      */
-    @Query("SELECT SUM(CASE section WHEN 1 THEN 1 ELSE 0 END) AS QueueCount, SUM(CASE section WHEN 2 THEN 1 ELSE 0 END) AS InboxCount, SUM(CASE isFavorite WHEN 1 THEN 1 ELSE 0 END) AS FavoritesCount, SUM(CASE timePlayed != NULL WHEN 0 THEN 1 ELSE 0 END) AS HistoryCount FROM Episodes Where feedUrl = :feedUrl")
-    fun fetchEpisodeCountBySection(feedUrl: String): LiveData<SectionWithCountEntity>
+    @Query("SELECT SUM(CASE section WHEN 1 THEN 1 ELSE 0 END) AS QueueCount, SUM(CASE section WHEN 2 THEN 1 ELSE 0 END) AS InboxCount, SUM(CASE isFavorite WHEN 1 THEN 1 ELSE 0 END) AS FavoritesCount, SUM(CASE timePlayed != NULL WHEN 0 THEN 1 ELSE 0 END) AS HistoryCount FROM Episodes Where podcastId = :podcastId")
+    fun fetchEpisodeCountBySection(podcastId: Long): LiveData<SectionWithCountEntity>
 
     /**
      * Select an episode by id
      */
-    @Query("SELECT * FROM Episodes Where episodeId = :episodeId")
-    fun getSync(episodeId: String): EpisodeEntity?
-
-    /**
-     * Select an episode by url
-     */
-    @Query("SELECT * FROM Episodes Where feedUrl = :feedUrl AND mediaUrl = :mediaUrl")
-    fun getSync(feedUrl: String, mediaUrl:String): EpisodeEntity?
+    @Query("SELECT * FROM Episodes Where id = :episodeId")
+    fun getSync(episodeId: Long): EpisodeEntity?
 
     /**
      * Select an episode by id
      */
-    @Query("SELECT * FROM Episodes Where episodeId = :episodeId")
-    fun get(episodeId:String): LiveData<EpisodeEntity>
+    @Query("SELECT * FROM Episodes Where id = :episodeId")
+    fun get(episodeId:Long): LiveData<EpisodeEntity>
 
     /**
      * Select a podcast by id
      */
-    @Query("SELECT * FROM podcasts Where feedUrl = :feedUrl")
-    fun getPodcastSync(feedUrl: String): PodcastEntity
+    @Query("SELECT * FROM podcasts Where id = :podcastId")
+    fun getPodcastSync(podcastId: Long): PodcastEntity
 
     /**
      * Insert an episode in the database. If the podcast already exists, replace it
@@ -131,10 +140,10 @@ interface EpisodeDao {
     fun insert(episode: EpisodeEntity)
 
     /**
-     * Insert episodes in the database. If the podcast already exists, replace it
+     * Insert episodes in the database. If the podcast already exists, ignore
      */
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(episodes: List<EpisodeEntity>)
+    fun insertIgore(episodes: List<EpisodeEntity>)
 
     /**
      * Update a podcast
@@ -163,6 +172,6 @@ interface EpisodeDao {
     /**
      * Delete episodes of a podcast by its feedId
      */
-    @Query("DELETE FROM Episodes Where feedUrl = :feedUrl")
-    fun deleteByPodcast(feedUrl: String)
+    @Query("DELETE FROM Episodes Where podcastId = :podcastId")
+    fun deleteByPodcast(podcastId: Long)
 }

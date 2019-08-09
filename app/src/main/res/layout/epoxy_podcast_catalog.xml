@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="title"
+            type="String"/>
+        <variable
+            name="authors"
+            type="String"/>
+        <variable
+            name="imageUrl"
+            type="String"/>
+        <variable
+            name="transitionName"
+            type="String" />
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{clickListener}"
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="@dimen/dp_5"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:id="@+id/img_row"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{imageUrl}"
+            app:riv_border_color="@color/light_gray"
+            app:riv_border_width="1dp"
+            app:riv_corner_radius="5dp"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="w,1:1"
+            android:transitionGroup="true"
+            android:transitionName="@{transitionName}"/>
+
+        <TextView
+            android:id="@+id/textView_podcast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:text="@{title}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_medium"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintStart_toEndOf="@id/img_row"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/img_row"/>
+
+        <TextView
+            android:id="@+id/textView_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{authors}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textColor="#616161"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="@id/textView_podcast"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_podcast"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

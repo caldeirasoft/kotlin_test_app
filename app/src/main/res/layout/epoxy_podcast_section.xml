@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="title"
+            type="String"/>
+        <variable
+            name="authors"
+            type="String"/>
+        <variable
+            name="imageUrl"
+            type="String"/>
+        <variable
+            name="isLoading"
+            type="Boolean" />
+        <variable
+            name="transitionName"
+            type="String" />
+        <variable
+            name="clickListener"
+            type="android.view.View.OnClickListener"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{clickListener}">
+
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/img_row"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{imageUrl}"
+            app:riv_border_color="@color/light_gray"
+            app:riv_border_width="1dp"
+            app:riv_corner_radius="5dp"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="w,1:1"
+            android:transitionGroup="true"
+            android:transitionName="@{transitionName}"/>
+
+        <TextView
+            android:id="@+id/textView_podcast"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{title}"
+            android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_tiny"
+            android:ellipsize="end"
+            android:lines="2"
+            android:maxLines="2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/img_row"/>
+
+        <TextView
+            android:id="@+id/textView_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{authors}"
+            android:textSize="@dimen/text_tinier"
+            android:textColor="#616161"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_podcast"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/materialButton_icon"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            style="@style/CatalogButtonIconAppareance"
+            app:icon="@drawable/ic_add_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textView_artist"
+            android:visibility="@{!isLoading}"/>
+
+        <com.caldeirasoft.basicapp.presentation.views.LoadingButton
+            android:id="@+id/materialButton2_icon"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            style="@style/CatalogButtonIconAppareance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/materialButton_icon"
+            app:loading="@{isLoading}"
+            app:isEnabled="@{true}"
+            android:visibility="@{isLoading}"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

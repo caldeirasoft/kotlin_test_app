@@ -7,5 +7,5 @@ import com.squareup.moshi.Json
  */
 class ResultIdDto {
     @Json(name = "resultIds")
-    lateinit var resultIds:List<Int>
+    lateinit var resultIds:List<Long>
 }

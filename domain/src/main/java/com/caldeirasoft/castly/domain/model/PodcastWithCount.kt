@@ -5,10 +5,8 @@ package com.caldeirasoft.castly.domain.model
  * Created by Edmond on 09/02/2018.
  */
 interface PodcastWithCount {
-    var feedUrl: String
+    var id: Long
     var title: String
-    var imageUrl: String?
+    var artwork: String
     var episodeCount: Int
-
-    fun isPodcast():Boolean
 }

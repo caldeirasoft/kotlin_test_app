@@ -7,11 +7,11 @@ import androidx.paging.DataSource
 //////////////////////////////////////// FLOWABLE EXTENSIONS ///////////////////////////////////////
 
 fun <IN : OUT, OUT : Any?> LiveData<IN>.convert(): LiveData<OUT> {
-    return Transformations.map(this) { item -> item as OUT ?: null }
+    return Transformations.map(this) { item -> item as OUT }
 }
 
 fun <IN : OUT, OUT : Any?> LiveData<List<IN>>.convertAll(): LiveData<List<OUT>> {
-    return Transformations.map(this) { list -> list.map { it as OUT }}
+    return Transformations.map(this) { list -> list }
 }
 
 

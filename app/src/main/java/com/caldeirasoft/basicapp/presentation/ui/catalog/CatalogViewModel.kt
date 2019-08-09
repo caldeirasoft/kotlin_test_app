@@ -2,18 +2,20 @@ package com.caldeirasoft.basicapp.presentation.ui.catalog
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
+import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
+import com.caldeirasoft.castly.domain.datasource.ItunesPodcastDataSource
 import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.NetworkState
 import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.basicapp.presentation.datasource.ItunesPodcastDataSourceFactory
-import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -31,8 +33,12 @@ class CatalogViewModel(
     var isLoading: LiveData<Boolean>
     var networkErrors: LiveData<String>
     var catalogCategory = MutableLiveData<Int>()
-    var itunesPodcastDataSourceFactory: ItunesPodcastDataSourceFactory
+    var itunesPodcastDataSourceFactory: DataSource.Factory<Int, Podcast>
     var data: LiveData<PagedList<Podcast>>
+    var dataItems: MutableLiveData<List<Podcast>> = MutableLiveData()
+
+    private var networkState = MutableLiveData<NetworkState>()
+    val networkStateLiveData = networkState as LiveData<NetworkState>
 
     internal val openPodcastEvent = SingleLiveEvent<Podcast>()
     internal val openLastEpisodeEvent = SingleLiveEvent<Episode>()
@@ -45,10 +51,10 @@ class CatalogViewModel(
      */
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
-        itunesPodcastDataSourceFactory = ItunesPodcastDataSourceFactory(itunesRepository, podcastRepository, category)
+        itunesPodcastDataSourceFactory = ItunesPodcastDataSource.Factory(itunesRepository, podcastRepository, category)
 
-        isLoading = Transformations.switchMap(itunesPodcastDataSourceFactory.sourceLiveData) { it.isLoading }
-        networkErrors = Transformations.switchMap(itunesPodcastDataSourceFactory.sourceLiveData) { it.networkErrors }
+        isLoading = MutableLiveData()
+        networkErrors = MutableLiveData()
 
         val pagedListConfig = PagedList.Config.Builder()
                 .setPageSize(PAGE_SIZE)
@@ -60,20 +66,16 @@ class CatalogViewModel(
                 //.setBoundaryCallback()
                 .setFetchExecutor(ioExecutor)
                 .build()
-    }
 
-    /**
-     * Set catalog category and set podcast catalog list
-     */
-    fun setCategory(code:Int) {
-        catalogCategory.postValue(code)
-        itunesPodcastDataSourceFactory.applyGenre(code)
+        runBlocking {
+        //    dataItems.postValue(itunesRepository.topPodcastsAsync(26))
+        }
     }
 
     /**
      * Refresh source factory
      */
-    fun refresh() = itunesPodcastDataSourceFactory.invalidate()
+    fun refresh() = itunesPodcastDataSourceFactory.create()
 
 
     fun onPodcastClick(podcast: Podcast)
@@ -91,16 +93,20 @@ class CatalogViewModel(
     {
         GlobalScope.launch {
             podcast.apply {
-                when (isInDatabase) {
-                    false -> { // not yet in database : subscribe
+                /*
+                when (savingStatus) {
+                    SavingState.AVAILABLE -> { // not yet in database : subscribe
+                        this.savingStatus = SavingState.LOADING
                         podcastRepository.insert(this)
-                        isInDatabase = true
+                        //isInDatabase = true
                     }
-                    true -> { // in database : remove
+                    SavingState.SAVED -> { // in database : remove
+                        this.savingStatus = SavingState.LOADING
                         podcastRepository.delete(this)
-                        isInDatabase = false
+                        this.savingStatus = SavingState.AVAILABLE
                     }
                 }
+                */
 
                 updatePodcastEvent.value = this
                 updatePodcastSubscriptionEvent.value = this

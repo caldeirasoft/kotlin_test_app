@@ -19,9 +19,7 @@ import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import com.caldeirasoft.basicapp.presentation.utils.extensions.bindView
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
-import com.caldeirasoft.castly.service.playback.extensions.albumArtUri
-import com.caldeirasoft.castly.service.playback.extensions.id
-import com.caldeirasoft.castly.service.playback.extensions.title
+import com.caldeirasoft.castly.domain.model.Podcast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @FragmentLayout(layoutId = R.layout.fragment_podcasts)
@@ -55,7 +53,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
     }
 
     private fun initObservers() {
-        viewModel.mediaItems.observeK(this) {data ->
+        viewModel.dataItems.observeK(this) {data ->
             controller.setData(data)
         }
 
@@ -64,15 +62,15 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
         }
     }
 
-    private fun createEpoxyController(): TypedEpoxyController<List<MediaItem>> =
-            object : TypedEpoxyController<List<MediaItem>>() {
-                override fun buildModels(data: List<MediaItem>?) {
+    private fun createEpoxyController(): TypedEpoxyController<List<Podcast>> =
+            object : TypedEpoxyController<List<Podcast>>() {
+                override fun buildModels(data: List<Podcast>?) {
                     data ?: return
                     data.forEach { content ->
                         itemPodcast {
-                            id(content.mediaId)
-                            title(content.description.title.toString())
-                            imageUrl(content.description.iconUri.toString())
+                            id(content.id)
+                            title(content.name)
+                            imageUrl(content.getArtwork(100))
                             onPodcastClick { model, parentView, clickedView, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
@@ -80,7 +78,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.openPodcast(content.mediaId.orEmpty(), transitionName)
+                                        PodcastFragmentDirections.openPodcast(content.id)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)

@@ -1,0 +1,136 @@
+def versions = [:]
+versions.android_gradle_plugin = '3.4.2'
+versions.kotlin = "1.3.41"
+versions.kotlin_coroutines = "1.3.0-RC"
+versions.appcompat = "1.0.2"
+versions.support = "1.1.0-rc03"
+versions.palette = "1.0.0"
+versions.material= "1.0.0"
+versions.annotation  = "1.1.0"
+versions.constraintlayout = "2.0.0-beta2"
+versions.room = "2.1.0"
+versions.paging = "2.1.0"
+versions.lifecycle = "2.0.0"
+versions.navigation = "1.0.0"
+versions.media = "1.1.0-rc01"
+versions.circularprogressbar = "2.0.0"
+versions.epoxy = "3.7.0"
+versions.exoplayer = "2.9.1"
+versions.i18n = "1.22"
+versions.koin = "1.0.2"
+versions.kotpref = "2.8.0"
+versions.moshi = "1.8.0"
+versions.okhttp = "4.0.1"
+versions.picasso = "2.71828"
+versions.picasso_blur = "2.2.1"
+versions.retrofit = "2.6.0"
+versions.stickyheader = "1.0.1"
+versions.shimmerlayout = "2.1.0"
+versions.superbottomsheet = "1.2.3"
+versions.threeten = "1.1.1"
+versions.xmlbind = "0.2.0"
+
+def support = [:]
+support.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
+support.core_ktx = "androidx.core:core-ktx:$versions.support"
+support.core = "androidx.core:core:$versions.support"
+support.palette = "androidx.palette:palette:$versions.palette"
+support.material = "com.google.android.material:material:$versions.material"
+support.constraintlayout = "androidx.constraintlayout:constraintlayout:$versions.constraintlayout"
+support.annotation = "androidx.annotation:annotation:$versions.annotation"
+support.media = "androidx.media:media:$versions.media"
+
+def kotlin = [:]
+kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
+kotlin.reflect = "org.jetbrains.kotlin:kotlin-reflect:$versions.kotlin"
+kotlin.coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$versions.kotlin_coroutines"
+kotlin.gradle_plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+
+def room = [:]
+room.runtime = "androidx.room:room-runtime:$versions.room"
+room.compiler =  "androidx.room:room-compiler:$versions.room"
+room.ktx = "androidx.room:room-ktx:$versions.room"
+
+def lifecycle = [:]
+lifecycle.extensions = "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+lifecycle.compiler = "androidx.lifecycle:lifecycle-compiler:$versions.lifecycle"
+
+def navigation = [:]
+navigation.fragment = "android.arch.navigation:navigation-fragment-ktx:$versions.navigation"
+navigation.ui = "android.arch.navigation:navigation-ui-ktx:$versions.navigation"
+//navigation.safe_args = "androidx.navigation:navigation-safe-args-gradle-plugin:$versions.navigation"
+navigation.safe_args = "android.arch.navigation:navigation-safe-args-gradle-plugin:1.0.0"
+
+def paging = [:]
+paging.common = "androidx.paging:paging-common:$versions.paging"
+paging.runtime = "androidx.paging:paging-runtime-ktx:$versions.paging"
+
+def exoplayer = [:]
+exoplayer.runtime = "com.google.android.exoplayer:exoplayer-core:$versions.exoplayer"
+exoplayer.ui = "com.google.android.exoplayer:exoplayer-ui:$versions.exoplayer"
+exoplayer.mediasession = "com.google.android.exoplayer:extension-mediasession:$versions.exoplayer"
+
+def epoxy = [:]
+epoxy.runtime = "com.airbnb.android:epoxy:$versions.epoxy"
+epoxy.databinding = "com.airbnb.android:epoxy-databinding:$versions.epoxy"
+epoxy.paging = "com.airbnb.android:epoxy-paging:$versions.epoxy"
+epoxy.processor = "com.airbnb.android:epoxy-processor:$versions.epoxy"
+
+def koin = [:]
+koin.runtime = "org.koin:koin-android:$versions.koin"
+koin.viewmodel = "org.koin:koin-androidx-viewmodel:$versions.koin"
+
+def kotpref = [:]
+kotpref.runtime = "com.chibatching.kotpref:kotpref:$versions.kotpref"
+kotpref.enum = "com.chibatching.kotpref:enum-support:$versions.kotpref"
+
+def moshi = [:]
+moshi.runtime = "com.squareup.moshi:moshi:$versions.moshi"
+
+def okhttp = [:]
+okhttp.runtime = "com.squareup.okhttp3:okhttp:$versions.okhttp"
+okhttp.dns = "com.squareup.okhttp3:okhttp-dnsoverhttps:$versions.okhttp"
+okhttp.logging = "com.squareup.okhttp3:logging-interceptor:$versions.okhttp"
+
+def picasso = [:]
+picasso.runtime = "com.squareup.picasso:picasso:$versions.picasso"
+picasso.blur = "jp.wasabeef:picasso-transformations:$versions.picasso_blur"
+
+def retrofit = [:]
+retrofit.runtime = "com.squareup.retrofit2:retrofit:$versions.retrofit"
+retrofit.converter_moshi = "com.squareup.retrofit2:converter-moshi:$versions.retrofit"
+retrofit.converter_scalar = "com.squareup.retrofit2:converter-scalars:$versions.retrofit"
+retrofit.converter_xml = "com.squareup.retrofit2:converter-simplexml:$versions.retrofit"
+
+def deps = [:]
+deps.android_gradle_plugin = "com.android.tools.build:gradle:$versions.android_gradle_plugin"
+deps.support = support
+deps.kotlin = kotlin
+deps.support = support
+deps.lifecycle = lifecycle
+deps.navigation = navigation
+deps.paging = paging
+deps.room = room
+deps.exoplayer = exoplayer
+deps.circularprogressbar = "com.mikhaellopez:circularprogressbar:$versions.circularprogressbar"
+deps.epoxy = epoxy
+deps.i18n = "com.neovisionaries:nv-i18n:$versions.i18n"
+deps.koin = koin
+deps.kotpref = kotpref
+deps.moshi = moshi
+deps.okhttp = okhttp
+deps.picasso = picasso
+deps.retrofit = retrofit
+deps.roundedimageview = "com.makeramen:roundedimageview:2.3.0"
+deps.shimmerlayout = "io.supercharge:shimmerlayout:$versions.shimmerlayout"
+deps.superbottomsheet = "com.github.andrefrsousa:SuperBottomSheet:$versions.superbottomsheet"
+deps.threeten = "com.jakewharton.threetenabp:threetenabp:$versions.threeten"
+deps.xmlbind = "org.jonnyzzz.kotlin.xml.bind:jdom:$versions.xmlbind"
+
+static def addRepos(RepositoryHandler handler) {
+    handler.google()
+    handler.jcenter()
+}
+
+ext.deps = deps
+ext.addRepos = this.&addRepos

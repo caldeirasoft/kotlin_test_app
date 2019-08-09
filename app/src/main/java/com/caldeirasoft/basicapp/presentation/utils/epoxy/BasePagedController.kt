@@ -14,6 +14,7 @@ abstract class BasePagedController<T>(
                 itemDiffCallback = itemDiffCallback
         )
 {
+    var isError: Boolean = false
     open fun toggleLoading(isLoading: Boolean) = Unit
     open fun toggleRetry(retry: Boolean) = Unit
 
@@ -30,6 +31,20 @@ abstract class BasePagedController<T>(
             if (value != field) {
                 field = value
                 requestDelayedModelBuild(200)
+            }
+        }
+
+    var error: String? = ""
+        set(value) {
+            field = value?.let {
+                isError = true
+                it
+            } ?: run {
+                isError = false
+                null
+            }
+            if (isError) {
+                requestModelBuild()
             }
         }
 

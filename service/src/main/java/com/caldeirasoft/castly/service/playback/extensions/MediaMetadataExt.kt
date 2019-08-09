@@ -18,28 +18,23 @@ package com.caldeirasoft.castly.service.playback.extensions
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.media.browse.MediaBrowser
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_BROWSABLE
 import android.support.v4.media.MediaBrowserCompat.MediaItem.FLAG_PLAYABLE
 import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaDescriptionCompat.*
+import android.support.v4.media.MediaDescriptionCompat.STATUS_NOT_DOWNLOADED
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS
-import com.caldeirasoft.castly.domain.model.*
-import com.caldeirasoft.castly.service.playback.const.Constants
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DATE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_DURATION
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_FAVORITE
+import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.MediaID
+import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_FAVORITE_STATUS
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_IN_DATABASE
+import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_PLAY_STATUS
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.METADATA_KEY_SECTION
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_FAVORITE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_FAVORITE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_NOT_IN_DATABASE
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
@@ -125,20 +120,19 @@ inline val MediaMetadataCompat.flag
     @SuppressLint("WrongConstant")
     get() = this.getLong(METADATA_KEY_UAMP_FLAGS).toInt()
 
-@MediaBrowserCompat.MediaItem.Flags
-inline val MediaMetadataCompat.favoriteStatus
-    @SuppressLint("WrongConstant")
-    get() = this.getLong(METADATA_KEY_FAVORITE_STATUS).toInt()
-
-@MediaBrowserCompat.MediaItem.Flags
-inline val MediaMetadataCompat.inDatabaseStatus
-    @SuppressLint("WrongConstant")
-    get() = this.getLong(METADATA_KEY_IN_DATABASE).toInt()
 
 @MediaBrowserCompat.MediaItem.Flags
 inline val MediaMetadataCompat.section
     @SuppressLint("WrongConstant")
     get() = this.getLong(METADATA_KEY_SECTION).toInt()
+
+inline var MediaMetadataCompat.isFavorite
+    get() = this.bundle?.getBoolean(METADATA_KEY_FAVORITE_STATUS) ?: false
+    set(value) { bundle?.putBoolean(METADATA_KEY_FAVORITE_STATUS, value) }
+
+inline var MediaMetadataCompat.isPlayed
+    get() = this.bundle?.getBoolean(METADATA_KEY_PLAY_STATUS) ?: false
+    set(value) { bundle?.putBoolean(METADATA_KEY_PLAY_STATUS, value) }
 
 /**
  * Useful extensions for [MediaMetadataCompat.Builder].
@@ -273,20 +267,6 @@ inline var MediaMetadataCompat.Builder.downloadStatus: Long
         putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
     }
 
-inline var MediaMetadataCompat.Builder.currentPosition: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    set(value) {
-        putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
-    }
-
-inline var MediaMetadataCompat.Builder.timePlayed: Long
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    set(value) {
-        putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, value)
-    }
-
 /**
  * Custom property for storing whether a [MediaMetadataCompat] item represents an
  * item that is [MediaItem.FLAG_BROWSABLE] or [MediaItem.FLAG_PLAYABLE].
@@ -298,44 +278,6 @@ inline var MediaMetadataCompat.Builder.flag: Int
     @SuppressLint("WrongConstant")
     set(value) {
         putLong(METADATA_KEY_UAMP_FLAGS, value.toLong())
-    }
-
-/**
- * Custom property for storing whether a [MediaMetadataCompat] item represents an
- * item that is [STATUS_FAVORITE] or [STATUS_NOT_FAVORITE].
- */
-@MediaBrowserCompat.MediaItem.Flags
-inline var MediaMetadataCompat.Builder.favoriteStatus: Int
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(METADATA_KEY_FAVORITE_STATUS, value.toLong())
-    }
-
-/**
- * Custom property for storing a [MediaMetadataCompat] item section.
- */
-@MediaBrowserCompat.MediaItem.Flags
-inline var MediaMetadataCompat.Builder.section: Int
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(METADATA_KEY_SECTION, value.toLong())
-    }
-
-/**
- * Custom property for storing whether a [MediaMetadataCompat] item represents an
- * item that is [STATUS_NOT_IN_DATABASE] or [STATUS_IN_DATABASE].
- */
-@MediaBrowserCompat.MediaItem.Flags
-inline var MediaMetadataCompat.Builder.inDatabaseStatus: Int
-    @Deprecated(NO_GET, level = DeprecationLevel.ERROR)
-    get() = throw IllegalAccessException("Cannot get from MediaMetadataCompat.Builder")
-    @SuppressLint("WrongConstant")
-    set(value) {
-        putLong(METADATA_KEY_IN_DATABASE, value.toLong())
     }
 
 /**
@@ -361,7 +303,7 @@ inline val MediaMetadataCompat.fullDescription
  *
  * For convenience, place the [MediaDescriptionCompat] into the tag so it can be retrieved later.
  */
-fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory) =
+fun MediaMetadataCompat.toMediaSource(dataSourceFactory: DataSource.Factory): ExtractorMediaSource =
         ExtractorMediaSource.Factory(dataSourceFactory)
                 .setTag(fullDescription)
                 .createMediaSource(mediaUri)
@@ -381,40 +323,69 @@ fun List<MediaMetadataCompat>.toMediaSource(
     return concatenatingMediaSource
 }
 
+/**
+ * Extension method for building a [MediaMetadataCompat] from a [Episode] object
+ */
+inline val Episode.mediaMetaData: MediaMetadataCompat
+    get() = MediaMetadataCompat.Builder().also {
+        // The duration from the JSON is given in seconds, but the rest of the code works in
+        // milliseconds. Here's where we convert to the proper units.
+        val durationMs = TimeUnit.SECONDS.toMillis(duration?.toLong() ?: 0L)
+
+        it.id = id.toString()
+        it.title = name
+        it.artist = podcastName
+        it.mediaUri = mediaUrl
+        it.albumArtUri = getArtwork(600)
+
+        it.displayTitle = name
+        it.displaySubtitle = podcastName
+        it.displayDescription = description
+        it.displayIconUri = getArtwork(100)
+
+        it.date = releaseDate.toString()
+        it.duration = durationMs
+        it.downloadStatus = STATUS_NOT_DOWNLOADED
+    }.build().also {
+
+        it.isFavorite = isFavorite
+        it.isPlayed = isPlayed
+        //it.timePlayed = timePlayed ?: 0L
+        //it.currentPosition = playbackPosition?.toLong() ?: 0L
+    }
 
 /**
  * Extension method for building a [MediaMetadataCompat] from a [Episode] object
  */
 inline val Episode.mediaDescription: MediaDescriptionCompat
-    @SuppressLint("WrongConstant")
     get() = MediaDescriptionCompat.Builder().also {
         // The duration from the JSON is given in seconds, but the rest of the code works in
         // milliseconds. Here's where we convert to the proper units.
-        it.id = episodeId
-        it.title = title
-        it.subtitle = podcastTitle
+        it.id = id.toString()
+        it.title = name
+        it.subtitle = podcastName
         it.description = description
         it.mediaUri = mediaUrl.tryParseUri()
-        it.iconUri = imageUrl.tryParseUri()
+        it.iconUri = getArtwork(100).tryParseUri()
         it.extras = Bundle()
     }.build().also {
-        val durationMs = TimeUnit.SECONDS.toMillis(duration ?: 0)
+        val durationMs = TimeUnit.SECONDS.toMillis(duration?.toLong() ?: 0L)
 
-        it.displayTitle = title
-        it.album = podcastTitle
-        it.displaySubtitle = podcastTitle
-        it.author = feedUrl
-        it.displayIconUri = imageUrl.tryParseUri()
-        it.albumArtUri = imageUrl.tryParseUri()
+        it.displayTitle = name
+        it.album = podcastName
+        it.displaySubtitle = podcastName
+        it.author = artistName
+        it.displayIconUri = getArtwork(100).tryParseUri()
+        it.albumArtUri = getArtwork(600).tryParseUri()
         it.displayDescription = description
-        it.date = published.toString()
+        it.date = releaseDate.toString()
         it.duration = durationMs
         it.downloadStatus = STATUS_NOT_DOWNLOADED
         it.favoriteStatus = if(isFavorite) STATUS_FAVORITE else STATUS_NOT_FAVORITE
         it.section = section
         it.trackNumber = queuePosition?.toLong() ?: -1
         it.timePlayed = timePlayed ?: 0L
-        it.currentPosition = playbackPosition ?: 0
+        it.currentPosition = playbackPosition?.toLong() ?: 0L
     }
 
 
@@ -422,55 +393,36 @@ inline val Episode.mediaDescription: MediaDescriptionCompat
  * Extension method for building a [MediaDescriptionCompat] from a [Podcast] object
  */
 inline val Podcast.mediaDescription: MediaDescriptionCompat
-    get() = asMediaDescription(false)
+    get() = MediaMetadataCompat.Builder().also {
+        it.id = MediaID(SectionState.PODCAST, id).asString()
+        it.title = name
+        it.artist = artistName
+        it.albumArtUri = getArtwork(600)
 
-/**
- * Extension method for building a [MediaDescriptionCompat] from a [Podcast] object
- */
-inline val Podcast.mediaDescriptionInDb: MediaDescriptionCompat
-    get() = asMediaDescription(true)
-
-
-/**
- * Extension method for building a [MediaDescriptionCompat] from a [Podcast] object
- */
-fun Podcast.asMediaDescription(inDb: Boolean = false): MediaDescriptionCompat {
-    return MediaMetadataCompat.Builder().also {
-        it.id = MediaID(SectionState.PODCAST, feedUrl).asString()
-        it.title = title
-        it.artist = authors
-        it.displayTitle = title
+        it.displayTitle = name
         it.displayDescription = description
-        it.albumArtUri = imageUrl
-        it.displayIconUri = imageUrl
-        it.date = (updated ?: 0).toString()
-        it.inDatabaseStatus = if (inDb) STATUS_IN_DATABASE else STATUS_NOT_IN_DATABASE
+        it.displayIconUri = getArtwork(100)
+        it.displaySubtitle = artistName
+
+        it.date = releaseDate.toString()
     }.build().fullDescription
-}
+
+
 
 /**
  * Extension method for building a [MediaItem] from a [Podcast] object
  */
-fun Podcast.asMediaItem(inDb: Boolean = false): MediaBrowserCompat.MediaItem {
-    return MediaBrowserCompat.MediaItem(this.asMediaDescription(inDb), FLAG_BROWSABLE)
-}
+inline val Podcast.mediaItem: MediaBrowserCompat.MediaItem
+    get() = MediaBrowserCompat.MediaItem(this.mediaDescription, FLAG_BROWSABLE)
+
 
 
 /**
- * Extension method for building a [Podcast] from a [MediaItem] object
+ * Extension method for building a [MediaItem] from a [Episode] object
  */
-fun MediaBrowserCompat.MediaItem.toPodcast(): Podcast {
-    return PodcastEntity().also { podcast ->
-        this.description.also {
-            podcast.feedUrl = MediaID().fromString(it.mediaId.orEmpty()).id
-            podcast.title = it.title?.toString().orEmpty()
-            podcast.authors = it.subtitle?.toString().orEmpty()
-            podcast.description = it.description?.toString().orEmpty()
-            podcast.imageUrl = it.iconUri?.toString().orEmpty()
-            podcast.updated = it.date?.toLong()
-        }
-    }
-}
+inline val Episode.mediaItem: MediaBrowserCompat.MediaItem
+        get() = MediaBrowserCompat.MediaItem(this.mediaDescription, FLAG_PLAYABLE)
+
 
 /**
  * Custom property that holds whether an item is [MediaItem.FLAG_BROWSABLE] or

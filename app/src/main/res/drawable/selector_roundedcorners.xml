@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+  <item
+      app:roundedTopCorners="false"
+      app:roundedBottomCorners="false"
+      android:drawable="@android:color/background_light" />
+
+  <item
+      app:roundedTopCorners="true"
+      app:roundedBottomCorners="false"
+      android:drawable="@drawable/bg_roundedcorners_top" />
+
+  <item
+      app:roundedTopCorners="false"
+      app:roundedBottomCorners="true"
+      android:drawable="@drawable/bg_roundedcorners_bottom" />
+
+  <item
+      app:roundedTopCorners="true"
+      app:roundedBottomCorners="true"
+      android:drawable="@drawable/bg_roundedcorners" />
+
+</selector>

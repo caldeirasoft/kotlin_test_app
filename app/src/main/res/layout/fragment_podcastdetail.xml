@@ -25,9 +25,10 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/windowBackground">
+        android:background="@color/spacer_grey">
+        <!--TODO: android:background="?android:attr/windowBackground"-->
 
-        <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
+        <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
             android:id="@+id/appbar_layout_root"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -40,7 +41,7 @@
                     bind:albumArtUri="@{albumArtUri}"
                     bind:displayDescription="@{displayDescription}"/>
 
-        </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
+        </com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout>
 
         <!-- placeholder -->
         <FrameLayout

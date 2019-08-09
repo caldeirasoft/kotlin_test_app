@@ -34,14 +34,14 @@ interface PodcastDao {
     /**
      * Select a podcast by id
      */
-    @Query("SELECT * FROM podcasts Where feedUrl = :feedUrl")
-    fun get(feedUrl: String): LiveData<PodcastEntity>
+    @Query("SELECT * FROM podcasts Where id = :podcastId")
+    fun get(podcastId: Long): LiveData<PodcastEntity>
 
     /**
      * Select a podcast by id
      */
-    @Query("SELECT * FROM podcasts Where feedUrl = :feedUrl")
-    fun getSync(feedUrl: String): PodcastEntity?
+    @Query("SELECT * FROM podcasts Where id = :podcastId")
+    fun getSync(podcastId: Long): PodcastEntity?
 
     /**
      * Insert a podcast in the database. If the podcast already exists, replace it

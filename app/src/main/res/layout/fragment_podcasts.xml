@@ -11,7 +11,7 @@
       android:layout_height="match_parent"
       android:background="?android:attr/windowBackground">
 
-    <com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout
+    <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
         android:id="@+id/appbar_layout_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -19,7 +19,7 @@
       <include layout="@layout/fragment_list_header"
           bind:title="@{@string/podcasts}"/>
 
-    </com.caldeirasoft.basicapp.presentation.utils.widget.StateAppBarLayout>
+    </com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout>
 
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/recyclerView"

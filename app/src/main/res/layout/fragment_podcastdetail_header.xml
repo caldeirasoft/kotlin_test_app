@@ -20,7 +20,7 @@
             type="android.view.View.OnClickListener"/>
     </data>
 
-    <com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar
+    <com.caldeirasoft.basicapp.presentation.views.CollapsibleToolbar
         android:id="@+id/motionLayout_root"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -236,5 +236,5 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </com.caldeirasoft.basicapp.presentation.utils.widget.CollapsibleToolbar>
+    </com.caldeirasoft.basicapp.presentation.views.CollapsibleToolbar>
 </layout>

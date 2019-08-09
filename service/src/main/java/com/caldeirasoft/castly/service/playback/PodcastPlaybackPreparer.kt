@@ -16,7 +16,6 @@
 
 package com.caldeirasoft.castly.service.playback
 
-import android.media.MediaDescription
 import android.net.Uri
 import android.os.Bundle
 import android.os.ResultReceiver
@@ -25,7 +24,7 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
-import com.caldeirasoft.castly.service.playback.extensions.*
+import com.caldeirasoft.castly.service.playback.extensions.mediaMetaData
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
@@ -68,17 +67,9 @@ class PodcastPlaybackPreparer(val repository: EpisodeRepository,
         }
         else {
             GlobalScope.launch {
-                val itemToPlay = repository.getSync(mediaId)
+                val itemToPlay = repository.getSync(mediaId.toLong())
                 if (itemToPlay != null) {
-                    val metadata = MediaMetadataCompat.Builder().apply {
-                        id = itemToPlay.episodeId
-                        title = itemToPlay.title
-                        artist = itemToPlay.podcastTitle
-                        album = itemToPlay.podcastTitle
-                        albumArtUri = itemToPlay.imageUrl
-                        mediaUri = itemToPlay.mediaUrl
-                    }.build()
-
+                    val metadata = itemToPlay.mediaMetaData
                     mediaSource.addMediaSource(buildMediaSource(metadata, dataSourceFactory))
                 }
                 exoPlayer.prepare(mediaSource)

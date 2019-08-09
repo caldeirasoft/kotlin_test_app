@@ -2,12 +2,14 @@ package com.caldeirasoft.castly.domain.model
 
 import android.os.Parcelable
 import androidx.room.Entity
-import androidx.room.Index
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import com.caldeirasoft.castly.data.datasources.local.database.DbTypeConverter
+import com.caldeirasoft.castly.data.datasources.local.converters.DbTypeConverter
 import kotlinx.android.parcel.Parcelize
 import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,37 +18,45 @@ import java.util.*
  * Created by Edmond on 09/02/2018.
  */
 @Entity(tableName = "episodes"
-        , indices = arrayOf(Index(value = ["feedUrl", "mediaUrl"], unique = true))
-/*        ,foreignKeys = arrayOf(ForeignKey(entity = Podcast::class,
-                                         parentColumns = arrayOf("feedId"),
-                                         childColumns = arrayOf("feedId"),
-                                         onDelete = CASCADE))*/
+        ,foreignKeys = arrayOf(ForeignKey(entity = PodcastEntity::class,
+                                         parentColumns = arrayOf("id"),
+                                         childColumns = arrayOf("podcastId"),
+                                         onDelete = CASCADE))
 )
 @TypeConverters(DbTypeConverter::class)
 @Parcelize
-data class EpisodeEntity @JvmOverloads constructor(
-        @PrimaryKey override var episodeId: String,
-        override var feedUrl: String = "",
-        override var title: String = "",
-        override var published: Long
+data class EpisodeEntity constructor(
+        @PrimaryKey override var id: Long
 ) : Parcelable, Episode
 {
-    override var description: String? = null
-    override var duration: Long? = null
-    override var playbackPosition: Long? = null
-    override var imageUrl: String? = null
-    override var bigImageUrl: String? = null
-    override var podcastTitle: String = ""
-    override var guid: String? = null
-    override var link: String? = null
+    override var name: String = ""
+    override var artistName: String = ""
+    override var podcastId: Long = 0
+    override var podcastName: String = ""
+    override var releaseDate: LocalDateTime = LocalDateTime.MIN
+
+    override var feedUrl: String = ""
+    override var description: String = ""
+    override var artwork: String = ""
+    override var artworkHeight: Int? = null
+    override var artworkWidth: Int? = null
+    override var contentAdvisoryRating: String = "" //🅴
+
+    override var podcastEpisodeSeason: Int? = null
+    override var podcastEpisodeNumber: Int? = null
+    override var podcastEpisodeWebsiteUrl: String? = ""
+    override var podcastEpisodeType: String = "" //full/trailer/bonus
 
     override var mediaUrl: String = ""
     override var mediaType: String? = null
     override var mediaLength: Long? = null
+    override var duration: Int? = null
+    override var playbackPosition: Int? = null
 
     override var section: Int = SectionState.ARCHIVE.value // queue/inbox/archive
     override var queuePosition: Int? = null
     override var isFavorite: Boolean = false
+    override var isPlayed: Boolean = false
 
     //@get:com.google.firebase.firestore.Exclude
     override var localStatus:Int = 0
@@ -59,13 +69,12 @@ data class EpisodeEntity @JvmOverloads constructor(
 
     override fun publishedFormat():String =
             SimpleDateFormat("d/M/yyyy[' ']['T'][H:mm[:ss[.S]]][X]").let {
-                val epoch = Date(published)
-                return it.format(epoch)
+                return it.format(releaseDate)
             }
 
     override fun durationFormat(): String? =
             duration?.let {
-                Instant.ofEpochMilli(it).let {
+                Instant.ofEpochSecond(it.toLong()).let {
                     it.atZone(ZoneOffset.UTC).toLocalDateTime().let {
                         return String.format("%sm%s", it.minute.toString(), it.second.toString())
                     }

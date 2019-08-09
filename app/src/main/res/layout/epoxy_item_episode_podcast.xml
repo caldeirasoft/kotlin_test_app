@@ -26,17 +26,24 @@
         <variable
             name="timePlayed"
             type="Long"/>
+        <variable
+            name="positionInList"
+            type="Integer"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.caldeirasoft.basicapp.presentation.views.RoundedConstraintLayout
         android:id="@+id/itemEpisodeConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:onClick="@{onEpisodeClick}">
+        android:paddingStart="@dimen/dp_5"
+        android:paddingEnd="@dimen/dp_5"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:onClick="@{onEpisodeClick}"
+        app:roundedTopCorners="@{(positionInList % 5 == 0)}"
+        app:roundedBottomCorners="@{((positionInList + 1) % 5 == 0)}"
+        android:background="@drawable/selector_roundedcorners">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/imageview_thumbnail"
@@ -158,5 +165,5 @@
 
         <!--TODO: android:text="@{Html.fromHtml(@string/concat_separator(episode.durationFormat(), episode.description), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE), default=`Description`}"-->
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.caldeirasoft.basicapp.presentation.views.RoundedConstraintLayout>
 </layout>

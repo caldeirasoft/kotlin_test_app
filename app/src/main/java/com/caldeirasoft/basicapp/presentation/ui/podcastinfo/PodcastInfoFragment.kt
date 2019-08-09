@@ -1,13 +1,12 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
 import android.os.Bundle
-import android.os.Handler
+import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.view.ViewCompat
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +15,6 @@ import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
-import com.caldeirasoft.basicapp.presentation.bindingadapter.isVisible
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
 import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
@@ -24,8 +22,7 @@ import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.STATUS_IN_DATABASE
-import com.caldeirasoft.castly.service.playback.extensions.*
+import com.caldeirasoft.castly.domain.model.Episode
 import com.marozzi.roundbutton.RoundButton
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
@@ -65,7 +62,7 @@ class PodcastInfoFragment :
 
             // set transition item
             mArtworkImageView = it.root.findViewById(R.id.imageview_artwork)
-            ViewCompat.setTransitionName(mArtworkImageView, args.transitionName)
+            ViewCompat.setTransitionName(mArtworkImageView, args.podcast?.transitionName)
 
             return it.root
         }
@@ -81,66 +78,9 @@ class PodcastInfoFragment :
 
 
     private fun initObservers() {
-        // podcast media item
-        mViewModel.mediaItemData.observeK(this) {
-            it?.description?.let {
-                val inDb = it.inDatabaseStatus == STATUS_IN_DATABASE
-                mBinding.apply {
-                        title = it.title.toString()
-                        artist = it.artist
-                        displayDescription = it.displayDescription
-                        albumArtUri = it.albumArtUri.toString()
-                        inDatabase = inDb
-                }
-            }
-
-            if (!mIsSubscribing)
-                setButtonSubscribeText()
-        }
-
-        // set list
-        mViewModel.pagedList.observeK(this) {
-            controller.submitList(it)
-        }
-
-        // is loading
-        mViewModel.isLoading.observeK(this) {
-            mBinding.shimmerLayout.isVisible = (it ?: true)
-        }
-
-        // set button subscribe animation
-        mViewModel.isSubscribing.observeK(this) {
-            mButtonSubscribe.apply {
-                if (it == true) {
-                    startAnimation()
-                    mIsSubscribing = true;
-                }
-                else {
-                    Handler().run {
-                        setResultState(RoundButton.ResultState.SUCCESS)
-                        postDelayed({
-                            setButtonSubscribeText()
-                        }, 2500)
-                    }
-                }
-            }
-        }
-
         //
         mViewModel.dataItems.observeK(this) {
-            it?.let {
-                mViewModel.refresh(it)
-            }
-        }
-
-        // observe playback state changed
-        mViewModel.playbackStateChangedEvent.observeK(this) {
-            mViewModel.refresh()
-        }
-
-        // observe now playing changed
-        mViewModel.metadataChangedEvent.observeK(this) {
-            mViewModel.refresh()
+            controller.submitList(it)
         }
 
     }
@@ -159,7 +99,7 @@ class PodcastInfoFragment :
 
     private fun setButtonSubscribeText() {
         mIsSubscribing = false
-        val inDb = mViewModel.mediaItemData.value?.description?.inDatabaseStatus == STATUS_IN_DATABASE
+        val inDb = mViewModel.podcastDb.value?.isSubscribed ?: false
         mButtonSubscribe.apply {
             val textButton =
                     if (inDb == true) context.getString(R.string.menu_unsubscribe)
@@ -190,18 +130,18 @@ class PodcastInfoFragment :
     }
     */
 
-    private fun createEpoxyController(): PagedListEpoxyController<MediaItem> =
-            object : BasePagedController<MediaItem>() {
-                override fun buildItemModel(currentPosition: Int, item: MediaItem?): EpoxyModel<*> {
+    private fun createEpoxyController(): PagedListEpoxyController<Episode> =
+            object : BasePagedController<Episode>() {
+                override fun buildItemModel(currentPosition: Int, item: Episode?): EpoxyModel<*> {
                     item?.let {
                         return ItemEpisodePodcastBindingModel_().apply {
-                            id(item.mediaId)
-                            title(item.description.title.toString())
-                            imageUrl(item.description.albumArtUri.toString())
-                            duration(item.description.duration.toString())
-                            publishedDate(it.description.date)
-                            playbackState(it.description.playbackStatus)
-                            timePlayed(it.description.timePlayed)
+                            id(item.id)
+                            title(item.name)
+                            imageUrl(item.getArtwork(100))
+                            duration(item.description)
+                            publishedDate(it.releaseDate.toString())
+                            playbackState(0)
+                            timePlayed(0)
                             onEpisodeClick { model, parentView, clickedView, position ->
                                 val episodeInfoDialog =
                                         EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to item)
