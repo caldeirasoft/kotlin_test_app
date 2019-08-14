@@ -8,10 +8,11 @@ import com.caldeirasoft.castly.data.datasources.remote.PodcastsApi
 import com.caldeirasoft.castly.data.dto.itunes.LookupItemDto
 import com.caldeirasoft.castly.data.dto.itunes.MultiRoomResultDto
 import com.caldeirasoft.castly.data.dto.itunes.SearchResultDto
-import com.caldeirasoft.castly.domain.model.EpisodeEntity
+import com.caldeirasoft.castly.data.entity.EpisodeEntity
+import com.caldeirasoft.castly.data.entity.PodcastArtworkEntity
+import com.caldeirasoft.castly.data.entity.PodcastEntity
+import com.caldeirasoft.castly.domain.model.Genre
 import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.PodcastArtworkEntity
-import com.caldeirasoft.castly.domain.model.PodcastEntity
 import com.caldeirasoft.castly.domain.model.itunes.*
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
 
@@ -52,16 +53,17 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
         val searchResults = iTunesAPI.topPodcasts("fr", 200, category)
         val entries = searchResults.results
         entries.forEach { entry ->
-            val podcast = PodcastEntity(entry.trackId)
-            podcast.feedUrl = entry.feedUrl
-            podcast.name = entry.trackName
-            podcast.artistName = entry.artistName
-            podcast.artwork = entry.artworkUrl600
-            podcast.artworkWidth = 600
-            podcast.artworkHeight = 600
-            podcast.releaseDate = entry.releaseDate
-            podcast.trackCount = entry.trackCount
-            podcast.contentAdvisoryRating = entry.contentAdvisoryRating
+            val podcast = PodcastEntity(id = entry.trackId,
+                    feedUrl = entry.feedUrl,
+                    name = entry.trackName,
+                    artistName = entry.artistName,
+                    artwork = entry.artworkUrl600,
+                    artworkWidth = 600,
+                    artworkHeight = 600,
+                    releaseDate = entry.releaseDate,
+                    trackCount = entry.trackCount,
+                    contentAdvisoryRating = entry.contentAdvisoryRating
+            )
             podcastsList.add(podcast)
         }
         return podcastsList
@@ -212,7 +214,7 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
                 podcastsLookup[id]?.let { cast ->
                     PodcastArtworkEntity(cast).apply {
                         bgColor = Color.parseColor("#" + kvp.artwork.bgColor)//.withAlpha(210)
-                        artworkUrl = kvp.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
+                        artworkUrl = kvp.artwork.url.replace("{w}x{h}{c}.{f}", "1440x360fa.jpg")
                         textColor = Color.parseColor("#" + kvp.artwork.textColor1)
                         trendingPodcasts.add(this)
                     }
@@ -240,7 +242,7 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
                         section.podcasts = items.mapNotNull { kwp -> podcastsLookup[kwp.contentId] }.take(8)
 
                         //if ((index > 0) && (genre != DEFAULT_CATEGORY)) // genre : masquer le premier groupe
-                        //    itunesGroups.add(section)
+                        itunesGroups.add(section)
                     }
                 }
                 261 -> { // collection
@@ -275,7 +277,7 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
      */
     override suspend fun getCollectionDataAsync(storeFront: String, id: Int): StoreCollection {
         val podcastsLookup = LongSparseArray<Podcast>()
-        var collection: StoreCollection
+        val collection: StoreCollection
 
         val storeResult = iTunesAPI.collection(storeFront, id)
         // set lockup
@@ -328,7 +330,7 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
      */
     private fun getMultiCollectionDataAsync(storeResult: MultiRoomResultDto): StoreMultiCollection {
         val podcastsLookup = LongSparseArray<Podcast>()
-        var multiCollection: StoreMultiCollection
+        val multiCollection: StoreMultiCollection
         // set lockup
         val lockup = storeResult.storePlatformData.lockup.results
         lockup.forEach { kvp ->
@@ -366,27 +368,34 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
      */
     override suspend fun getPodcastAsync(storeFront: String, id: Long): Podcast? {
         val podcastResult = podcastsApi.podcast(storeFront, id)
-        podcastResult.storePlatformData.product_dv.results[id]?.let {
-            return PodcastEntity(id).apply {
-                name = it.name
-                artistName = it.artistName
-                 feedUrl = it.feedUrl
-                 releaseDate = it.releaseDateTime
-                 trackCount = it.trackCount
-                 artwork = it.artwork.url//.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
-                 artworkWidth = it.artwork.width
-                 artworkHeight = it.artwork.height
-                description = it.description.standard
-                copyright = it.copyright
-                 contentAdvisoryRating = it.contentRatingsBySystem.riaa.name
+        podcastResult.storePlatformData.productDv.results[id]?.let {
+            return PodcastEntity(id = id,
+                    name = it.name,
+                    artistName = it.artistName,
+                    feedUrl = it.feedUrl,
+                    releaseDate = it.releaseDateTime,
+                    trackCount = it.trackCount,
+                    artwork = it.artwork.url,//.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
+                    artworkWidth = it.artwork.width,
+                    artworkHeight = it.artwork.height,
+                    description = it.description.standard,
+                    copyright = it.copyright,
+                    contentAdvisoryRating = it.contentRatingsBySystem.riaa.name
+            ).apply {
+
+                genres = it.genres
+                        .filter { genreResult -> genreResult.genreId != DEFAULT_CATEGORY }
+                        .map { genreDto -> Genre(genreDto.genreId, genreDto.name) }
 
                 episodes = it.children.map { kv ->
                     EpisodeEntity(kv.key).apply {
                         name = kv.value.name
                         artistName = kv.value.artistName
                         podcastName = kv.value.collectionName
+                        podcastId = id
                         feedUrl = kv.value.feedUrl
                         description = kv.value.description.standard
+                        releaseDate = kv.value.releaseDateTime
                         mediaUrl = kv.value.offers.first().download.url
                         mediaType = kv.value.offers.first().assets.first().flavor
                         mediaLength = kv.value.offers.first().assets.first().duration.toLong()
@@ -394,12 +403,15 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
                         artworkHeight = it.artwork.height
                         artworkWidth = it.artwork.width
                         contentAdvisoryRating = it.contentRatingsBySystem.riaa.name
-                        podcastEpisodeType = it.podcastEpisodeType
-                        podcastEpisodeSeason = it.podcastEpisodeSeason
-                        podcastEpisodeNumber = it.podcastEpisodeNumber
-                        podcastEpisodeWebsiteUrl = it.podcastEpisodeWebsiteUrl
+                        podcastEpisodeType = kv.value.podcastEpisodeType
+                        podcastEpisodeSeason = kv.value.podcastEpisodeSeason
+                        podcastEpisodeNumber = kv.value.podcastEpisodeNumber
+                        podcastEpisodeWebsiteUrl = kv.value.podcastEpisodeWebsiteUrl
                     }
                 }
+
+                podcastsByArtist = podcastResult.pageData.moreByArtist
+                podcastsListenersAlsoFollow = podcastResult.pageData.listenersAlsoBought
             }
         }
         return null
@@ -410,13 +422,13 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
      */
     private fun getPodcast(id:Long, dto: LookupItemDto): Podcast? {
         if (dto.feedUrl.isNotEmpty()) {
-            val podcast = PodcastEntity(id)
-            podcast.name = dto.name
-            podcast.artistName = dto.artistName
-            podcast.feedUrl = dto.feedUrl
-            podcast.releaseDate = dto.releaseDateTime
-            podcast.trackCount = dto.trackCount
-            podcast.contentAdvisoryRating = dto.contentRatingsBySystem.riaa.name
+            val podcast = PodcastEntity(id = id,
+                    name = dto.name,
+                    artistName = dto.artistName,
+                    feedUrl = dto.feedUrl,
+                    releaseDate = dto.releaseDateTime,
+                    trackCount = dto.trackCount,
+                    contentAdvisoryRating = dto.contentRatingsBySystem.riaa.name)
             dto.apply {
                 if (::artwork.isLateinit) {
                     podcast.artwork = artwork.url
@@ -424,6 +436,9 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
                     podcast.artworkHeight = artwork.height
                     //podcast.bigImageUrl = artwork.url.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
                 }
+                podcast.genres = this.genres
+                        .filter { genreResult -> genreResult.genreId != DEFAULT_CATEGORY }
+                        .map { genreDto -> Genre(genreDto.genreId, genreDto.name) }
             }
             return podcast
         }
@@ -434,16 +449,15 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
      * Get podcast from a SearchResultDto item
      */
     private fun getPodcast(id:Long, dto: SearchResultDto.Result): Podcast {
-        val podcast = PodcastEntity(id)
-        podcast.feedUrl = dto.feedUrl
-        podcast.name = dto.trackName
-        podcast.artistName = dto.artistName
-        podcast.artwork = dto.artworkUrl600
-        podcast.artworkWidth = 600
-        podcast.artworkHeight = 600
-        podcast.releaseDate = dto.releaseDate
-        podcast.trackCount = dto.trackCount
-        podcast.contentAdvisoryRating = dto.contentAdvisoryRating
-        return podcast
+        return PodcastEntity(id = id,
+                feedUrl = dto.feedUrl,
+                name = dto.trackName,
+                artistName = dto.artistName,
+                artwork = dto.artworkUrl600,
+                artworkWidth = 600,
+                artworkHeight = 600,
+                releaseDate = dto.releaseDate,
+                trackCount = dto.trackCount,
+                contentAdvisoryRating = dto.contentAdvisoryRating)
     }
 }

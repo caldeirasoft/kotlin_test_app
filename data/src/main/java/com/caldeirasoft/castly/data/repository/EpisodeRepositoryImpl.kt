@@ -6,7 +6,7 @@ import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
 import com.caldeirasoft.castly.data.extensions.convert
 import com.caldeirasoft.castly.data.extensions.convertAll
 import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.EpisodeEntity
+import com.caldeirasoft.castly.data.entity.EpisodeEntity
 import com.caldeirasoft.castly.domain.model.PodcastWithCount
 import com.caldeirasoft.castly.domain.model.SectionWithCount
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository

@@ -11,11 +11,11 @@ abstract class BaseTypedController<T>: TypedEpoxyController<T>()
     open fun toggleLoading(isLoading: Boolean) = Unit
     open fun toggleRetry(retry: Boolean) = Unit
 
-    protected var networkStateData :NetworkState? = null
+    protected var networkStateData :NetworkState = NetworkState.Loading
 
-    var isLoading: Boolean = networkStateData?.isLoading ?: false
+    var isLoading: Boolean = networkStateData.isLoading
 
-    var isInErrorState: Boolean = networkStateData?.isInErrorState ?: false
+    var isInErrorState: Boolean = networkStateData.isInErrorState
 
     var retry = false
         set(value) {
@@ -39,7 +39,7 @@ abstract class BaseTypedController<T>: TypedEpoxyController<T>()
             }
         }
 
-    fun setNetworkState(value: NetworkState?) {
+    fun setNetworkState(value: NetworkState) {
         if (value != networkStateData) {
             networkStateData = value
             setData(currentData)

@@ -53,18 +53,9 @@ inline fun <reified T : Any?> Activity.lazyExtra(key: String)
 inline fun <reified T : Any?> Fragment.lazyArg(key: String)
         = lazy { arguments?.get(key) as T }
 
-/** Lazy initialize with intent extra [key] */
-inline fun <reified T : Any?> android.app.Fragment.lazyArg(key: String)
-        = lazy { arguments?.get(key) as T }
-
 /** Start activity from fragment with given extras */
 inline fun <reified T : Any> Fragment.startActivity(vararg extras: Pair<String, Any?> = emptyArray()) {
     activity?.startActivity<T>(*extras)
-}
-
-/** Start activity from fragment with given extras */
-inline fun <reified T : Any> android.app.Fragment.startActivity(vararg extras: Pair<String, Any?> = emptyArray()) {
-    activity.startActivity<T>(*extras)
 }
 
 /** Start activity with given extras */

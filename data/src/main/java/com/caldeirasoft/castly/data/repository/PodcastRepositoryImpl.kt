@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.caldeirasoft.castly.data.datasources.local.dao.PodcastDao
 import com.caldeirasoft.castly.data.extensions.convert
 import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.PodcastEntity
+import com.caldeirasoft.castly.data.entity.PodcastEntity
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
 
 /**

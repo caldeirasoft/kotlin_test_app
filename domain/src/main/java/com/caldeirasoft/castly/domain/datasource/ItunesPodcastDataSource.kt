@@ -5,7 +5,8 @@ import androidx.paging.DataSource
 import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlin.math.min
 
 /**
@@ -36,7 +37,7 @@ class ItunesPodcastDataSource(
     }
 
     override fun loadInitialFromSource(params: LoadInitialParams<Int>, callback: LoadInitialCallback<Int, Podcast>) {
-        runBlocking {
+        GlobalScope.launch {
             try {
                 ids = loadPodcastsIds()
 
@@ -50,7 +51,7 @@ class ItunesPodcastDataSource(
     }
 
     override fun loadAfterFromSource(params: LoadParams<Int>, callback: LoadCallback<Int, Podcast>) {
-        runBlocking {
+        GlobalScope.launch {
             try {
                 val podcasts = loadPodcasts(params.key, params.requestedLoadSize)
                 handleLoadAfterSuccess(params, callback, podcasts, null)

@@ -57,6 +57,7 @@ dependencies {
     implementation deps.support.palette
     implementation deps.support.material
     implementation deps.support.media
+    implementation deps.support.swiperefeshlayout
     // Kotlin
     implementation deps.kotlin.stdlib
     implementation deps.kotlin.reflect

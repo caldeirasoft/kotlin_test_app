@@ -16,8 +16,8 @@ class PodcastResultDto {
     lateinit var pageData: PageDataResult
 
     class StorePlatformDataResult {
-        @Json(name = "product-dv")
-        lateinit var product_dv: ProductDvResult
+        @field:Json(name = "product-dv")
+        var productDv: ProductDvResult = ProductDvResult()
 
         class ProductDvResult {
             @Json(name = "results")
@@ -46,10 +46,13 @@ class PodcastResultDto {
                 var trackCount:Int = 0
 
                 @Json(name = "releaseDate")
-                lateinit var releaseDate:LocalDateTime
+                var releaseDate:LocalDate = LocalDate.MIN
 
                 @Json(name = "releaseDateTime")
-                lateinit var releaseDateTime:LocalDateTime
+                var releaseDateTime:LocalDateTime = LocalDateTime.MIN
+
+                @Json(name = "copyright")
+                var copyright:String = ""
 
                 @Json(name = "artwork")
                 lateinit var artwork: Artwork
@@ -64,28 +67,13 @@ class PodcastResultDto {
                 lateinit var contentRatingsBySystem: ContentRatingsBySystemResult
 
                 @Json(name = "genres")
-                var genres: List<GenreResult> = arrayListOf()
+                var genres: List<GenreResult> = emptyList()
 
                 @Json(name = "childrenIds")
-                var childrenIds: List<Long> = arrayListOf()
+                var childrenIds: List<Long> = emptyList()
 
                 @Json(name = "children")
                 var children:Map<Long, ProductDvResultChildrenItem> = emptyMap()
-
-                @Json(name = "copyright")
-                var copyright:String = ""
-
-                @Json(name = "podcastEpisodeType")
-                var podcastEpisodeType:String = ""
-
-                @Json(name = "podcastEpisodeSeason")
-                var podcastEpisodeSeason:Int? = null
-
-                @Json(name = "podcastEpisodeNumber")
-                var podcastEpisodeNumber:Int? = null
-
-                @Json(name = "podcastEpisodeWebsiteUrl")
-                var podcastEpisodeWebsiteUrl:String? = null
 
                 class Artwork {
                     @Json(name = "url")
@@ -100,7 +88,7 @@ class PodcastResultDto {
 
                 class UserRating {
                     @Json(name = "value")
-                    var value:String = ""
+                    var value:Float = 0F
 
                     @Json(name = "ratingCount")
                     var ratingCount:Int = 0
@@ -158,13 +146,25 @@ class PodcastResultDto {
                     var artistId:Long = 0
 
                     @Json(name = "releaseDate")
-                    lateinit var releaseDate: LocalDate
+                    var releaseDate: LocalDate = LocalDate.MIN
 
                     @Json(name = "releaseDateTime")
-                    lateinit var releaseDateTime:LocalDateTime
+                    var releaseDateTime:LocalDateTime = LocalDateTime.MIN
 
                     @Json(name = "podcastEpisodeGuid")
                     var podcastEpisodeGuid:String = ""
+
+                    @Json(name = "podcastEpisodeType")
+                    var podcastEpisodeType:String = ""
+
+                    @Json(name = "podcastEpisodeSeason")
+                    var podcastEpisodeSeason:Int? = null
+
+                    @Json(name = "podcastEpisodeNumber")
+                    var podcastEpisodeNumber:Int? = null
+
+                    @Json(name = "podcastEpisodeWebsiteUrl")
+                    var podcastEpisodeWebsiteUrl:String? = null
 
                     @Json(name = "genres")
                     var genres: List<GenreResult> = arrayListOf()
@@ -199,7 +199,7 @@ class PodcastResultDto {
                         @Json(name = "flavor") //standardAudio/sdVideo/sd480pVideo/720pHdVideo/1080pHdVideo
                         var flavor:String = ""
 
-                        @Json(name = "extension")
+                        @Json(name = "fileExtension")
                         var extension:String = ""
 
                         @Json(name = "duration")
@@ -211,21 +211,16 @@ class PodcastResultDto {
     }
 
     class PageDataResult {
-        @Json(name = "fcStructure")
-        lateinit var fcStructure: PageDataStructureResult
+        @Json(name = "id")
+        var id: Long = 0
 
-        class PageDataStructureResult {
-            @Json(name = "id")
-            var id: Long = 0
+        @Json(name = "websiteUrl")
+        var websiteUrl: String = ""
 
-            @Json(name = "websiteUrl")
-            var websiteUrl: String = ""
+        @Json(name = "moreByArtist")
+        var moreByArtist: List<Long> = ArrayList()
 
-            @Json(name = "moreByArtist")
-            var moreByArtist: List<Long> = ArrayList()
-
-            @Json(name = "listenersAlsoBought")
-            var listenersAlsoBought: List<Long> = ArrayList()
-        }
+        @Json(name = "listenersAlsoBought")
+        var listenersAlsoBought: List<Long> = ArrayList()
     }
 }

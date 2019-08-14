@@ -9,8 +9,8 @@ import com.caldeirasoft.castly.data.datasources.local.converters.DateTimeTextCon
 import com.caldeirasoft.castly.data.datasources.local.converters.DbTypeConverter
 import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
 import com.caldeirasoft.castly.data.datasources.local.dao.PodcastDao
-import com.caldeirasoft.castly.domain.model.EpisodeEntity
-import com.caldeirasoft.castly.domain.model.PodcastEntity
+import com.caldeirasoft.castly.data.entity.EpisodeEntity
+import com.caldeirasoft.castly.data.entity.PodcastEntity
 
 @Database(entities = arrayOf(PodcastEntity::class, EpisodeEntity::class), version = 2)
 @TypeConverters(DbTypeConverter::class, DateTimeTextConverter::class)

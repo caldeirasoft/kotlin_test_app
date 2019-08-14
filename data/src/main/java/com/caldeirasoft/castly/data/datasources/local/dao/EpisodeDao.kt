@@ -3,10 +3,10 @@ package com.caldeirasoft.castly.data.datasources.local.dao;
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
-import com.caldeirasoft.castly.domain.model.EpisodeEntity
-import com.caldeirasoft.castly.domain.model.PodcastEntity
-import com.caldeirasoft.castly.domain.model.PodcastWithCountEntity
-import com.caldeirasoft.castly.domain.model.SectionWithCountEntity
+import com.caldeirasoft.castly.data.entity.EpisodeEntity
+import com.caldeirasoft.castly.data.entity.PodcastEntity
+import com.caldeirasoft.castly.data.entity.PodcastWithCountEntity
+import com.caldeirasoft.castly.data.entity.SectionWithCountEntity
 
 /**
  * Created by Edmond on 15/02/2018.

@@ -11,6 +11,7 @@ import com.caldeirasoft.castly.domain.model.itunes.StoreData
 import com.caldeirasoft.castly.domain.model.itunes.StoreMultiCollection
 import com.caldeirasoft.castly.domain.usecase.FetchPodcastsFromItunesUseCase
 import com.caldeirasoft.castly.domain.usecase.GetItunesStoreUseCase
+import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
 
 class DiscoverViewModel(
         getItunesStoreUseCase: GetItunesStoreUseCase,
@@ -24,27 +25,14 @@ class DiscoverViewModel(
     }
 
 
-    var itunesStoreData: LiveData<StoreData> = MutableLiveData()
-    var itunesStoreInitialState: LiveData<NetworkState> = MutableLiveData()
+    private val itunesStoreUseCaseResult: UseCaseResult<StoreData> by lazy { getItunesStoreUseCase.execute(STORE_FRONT, DEFAULT_CATEGORY) }
+    val itunesStoreData: LiveData<StoreData> by lazy { itunesStoreUseCaseResult.data }
+    val itunesStoreInitialState: LiveData<NetworkState> by lazy { itunesStoreUseCaseResult.initialState }
 
-    val topItems: LiveData<PagedList<Podcast>> = MutableLiveData()
-    val topItemsInitialState: LiveData<NetworkState> = MutableLiveData()
-    val topItemsNetworkState: LiveData<NetworkState> = MutableLiveData()
-
-    init {
-        /*getItunesStoreUseCase.execute(STORE_FRONT, DEFAULT_CATEGORY).let {
-            //itunesStoreData = it.data
-            itunesStoreInitialState = it.initialState
-        }*/
-
-        /*
-        fetchPodcastsFromItunesUseCase.fetchAll(DEFAULT_CATEGORY).let {
-            topItems = it.data
-            topItemsInitialState = it.initialState
-            topItemsNetworkState = it.networkState
-        }
-        */
-    }
+    private val fetchPodcastsFromItunesUseCaseResult by lazy { fetchPodcastsFromItunesUseCase.fetchAll(DEFAULT_CATEGORY) }
+    val topItems: LiveData<PagedList<Podcast>> by lazy { fetchPodcastsFromItunesUseCaseResult.data }
+    val topItemsInitialState: LiveData<NetworkState> by lazy { fetchPodcastsFromItunesUseCaseResult.initialState }
+    val topItemsNetworkState: LiveData<NetworkState> by lazy { fetchPodcastsFromItunesUseCaseResult.networkState }
 
     fun updatePodcast(podcast: Podcast) {
         itunesStoreData.value?.let {

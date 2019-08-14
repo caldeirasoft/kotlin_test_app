@@ -63,7 +63,7 @@ class LookupItemDto {
 
     class GenreResult {
         @Json(name = "genreId")
-        var genreId:Long = 0L
+        var genreId:Int = 0
 
         @Json(name = "name")
         var name:String = ""

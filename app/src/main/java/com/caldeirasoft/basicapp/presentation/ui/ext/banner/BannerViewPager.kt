@@ -50,6 +50,7 @@ class BannerViewPager(context: Context, attrs: AttributeSet) :
         }, delay, period)
     }
 
+
     fun setItemClickListener(itemClickListener: ItemClickListener) {
         viewPagerAdapter?.setItemClickListener(itemClickListener)
     }

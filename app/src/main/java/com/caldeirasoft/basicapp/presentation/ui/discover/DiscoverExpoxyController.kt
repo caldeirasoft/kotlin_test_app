@@ -19,7 +19,7 @@ class DiscoverExpoxyController(private val callbacks: Callbacks)
     }
 
     override fun buildModels(data: StoreData?) {
-        if (isLoading) {
+        if (networkStateData.isLoading) {
             buildLoadingModel()
         }
         else if (isInErrorState)

@@ -1,4 +1,4 @@
-package com.caldeirasoft.basicapp.presentation.ui.discover
+package com.caldeirasoft.basicapp.presentation.views
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -8,9 +8,7 @@ import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
 
 @SuppressLint("WrongConstant")
-class DiscoverPageAdapter(var activity: FragmentActivity, var pager: ViewPager) : PagerAdapter() {
-
-    private val pageTitle = arrayOf("Discover", "Trending")
+class SimplePagerAdapter(var activity: FragmentActivity, var pager: ViewPager, var pageTitles: Array<String>) : PagerAdapter() {
 
     /**
      * Determines whether a page View is associated with a specific key object
@@ -36,8 +34,8 @@ class DiscoverPageAdapter(var activity: FragmentActivity, var pager: ViewPager) 
     /**
      * Return the number of views available.
      */
-    override fun getCount(): Int = 2
+    override fun getCount(): Int = pageTitles.size
 
-    override fun getPageTitle(position: Int) = pageTitle[position]
+    override fun getPageTitle(position: Int) = pageTitles[position]
 
 }

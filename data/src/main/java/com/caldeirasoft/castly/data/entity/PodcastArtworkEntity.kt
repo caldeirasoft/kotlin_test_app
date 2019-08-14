@@ -1,5 +1,6 @@
-package com.caldeirasoft.castly.domain.model
+package com.caldeirasoft.castly.data.entity
 
+import com.caldeirasoft.castly.domain.model.Podcast
 import com.caldeirasoft.castly.domain.model.itunes.PodcastArtwork
 
 /**

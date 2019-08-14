@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -22,8 +23,11 @@ import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
 import com.caldeirasoft.basicapp.presentation.utils.extensions.*
+import com.caldeirasoft.basicapp.presentation.views.SimplePagerAdapter
 import com.caldeirasoft.castly.domain.model.Episode
-import com.marozzi.roundbutton.RoundButton
+import com.caldeirasoft.castly.domain.model.Genre
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -51,7 +55,6 @@ class PodcastInfoFragment :
     private val controller by lazy { createEpoxyController() }
 
     // views
-    private val mButtonSubscribe: RoundButton by bindView(R.id.button_subscribe)
     private lateinit var mArtworkImageView: ImageView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
@@ -61,7 +64,7 @@ class PodcastInfoFragment :
             it.viewModel = mViewModel
 
             // set transition item
-            mArtworkImageView = it.root.findViewById(R.id.imageview_artwork)
+            mArtworkImageView = it.root.findViewById(R.id.imageView_thumbnail)
             ViewCompat.setTransitionName(mArtworkImageView, args.podcast?.transitionName)
 
             return it.root
@@ -72,12 +75,27 @@ class PodcastInfoFragment :
         super.onViewCreated(view, savedInstanceState)
         postponeEnterTransition(500)
         setupSwipeToDelete()
+        initMotionLayout()
         initObservers()
         initUi()
     }
 
 
     private fun initObservers() {
+        // podcast media item
+        mViewModel.podcastLiveData.observeK(this) {
+            it?.let { podcast ->
+                mBinding.apply {
+                    title = podcast.name
+                    artist = podcast.artistName
+                    displayDescription = podcast.description
+                    albumArtUri = podcast.getArtwork(100)
+                    inDatabase = podcast.isSubscribed
+
+                    createChipsCategories(this.chipView, podcast.genres)
+                }
+            }
+        }
         //
         mViewModel.dataItems.observeK(this) {
             controller.submitList(it)
@@ -87,12 +105,38 @@ class PodcastInfoFragment :
 
     private fun initUi() {
         mBinding.apply {
-            // recycler view
-            recyclerView.apply {
-                setController(controller)
-                addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
+            // viewpager adapter
+            viewPager.apply {
+                val pageTitles = arrayOf("Episodes", "Details")
+                val viewPagerAdapter = SimplePagerAdapter(requireActivity(), this, pageTitles)
+                adapter = viewPagerAdapter
+                tabLayout.setupWithViewPager(this)
             }
-            shimmerLayout.alpha = 1f
+            // recycler view
+            episodesRecyclerView.apply {
+                setController(controller)
+                addItemDecoration(DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL))
+            }
+            //shimmerLayout.alpha = 1f
+        }
+    }
+
+    private fun initMotionLayout() {
+        // init statusbar offset
+        mBinding.motionLayoutRoot.apply {
+            getConstraintSet(R.id.expanded)?.constrainHeight(R.id.status_bar_view,
+                    (mBinding.statusBarView.rootWindowInsets?.stableInsetTop ?: 96))
+            getConstraintSet(R.id.collapsed)?.constrainHeight(R.id.status_bar_view,
+                    (mBinding.statusBarView.rootWindowInsets?.stableInsetTop ?: 96))
+
+            setTransitionListener(object : MotionLayout.TransitionListener {
+                override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
+                override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
+                override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
+                override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
+                    showHeader = p1 == R.id.expanded
+                }
+            })
         }
     }
 
@@ -100,19 +144,6 @@ class PodcastInfoFragment :
     private fun setButtonSubscribeText() {
         mIsSubscribing = false
         val inDb = mViewModel.podcastDb.value?.isSubscribed ?: false
-        mButtonSubscribe.apply {
-            val textButton =
-                    if (inDb == true) context.getString(R.string.menu_unsubscribe)
-                    else context.getString(R.string.menu_subscribe)
-
-            this.text = textButton
-            RoundButton.newBuilder()
-                    .withText(textButton)
-                    .let {
-                        this.setCustomizations(it)
-                        this.revertAnimation()
-                    }
-        }
     }
 
     /*
@@ -175,7 +206,7 @@ class PodcastInfoFragment :
 
             override fun onSwipeStarted(model: ItemEpisodePodcastBindingModel_, itemView: View, adapterPosition: Int) {
                 super.onSwipeStarted(model, itemView, adapterPosition)
-                mBinding.recyclerView.let { recyclerView ->
+                mBinding.episodesRecyclerView.let { recyclerView ->
                     /*
                     removableItemDecoration = null
                     val itemDecorationCount = recyclerView.itemDecorationCount
@@ -215,11 +246,40 @@ class PodcastInfoFragment :
 
         }
 
-        EpoxyTouchHelperExt.initSwiping(mBinding.recyclerView)
+        EpoxyTouchHelperExt.initSwiping(mBinding.episodesRecyclerView)
                 .let { if (view?.layoutDirection == View.LAYOUT_DIRECTION_RTL) it.right() else it.left() }
                 .withTarget(ItemEpisodePodcastBindingModel_::class.java)
                 .andCallbacks(swipeCallback)
 
+
+    }
+
+    /**
+     * @param chipGroup Chip Group for inflate category chip
+     * @param categories list of movie category
+     */
+    private fun createChipsCategories(chipGroup: ChipGroup, categories: List<Genre>) {
+        val inflator = LayoutInflater.from(chipGroup.context)
+
+        val categoriesPodcast = categories.map { category ->
+            val chip = inflator.inflate(R.layout.chip_category, chipGroup, false) as Chip
+            chip.apply {
+                text = category.name
+                tag = category.id
+                setOnCheckedChangeListener { button, isChecked ->
+                    //viewModel.onCategoryFilterChanged(button.text as String, isChecked)
+                }
+            }
+            chip
+        }
+
+        // Clear all Chip in Chip Group before append new Chip
+        chipGroup.removeAllViews()
+
+        // Append all Category Chip in Chip Group
+        for (category in categoriesPodcast) {
+            chipGroup.addView(category)
+        }
 
     }
 

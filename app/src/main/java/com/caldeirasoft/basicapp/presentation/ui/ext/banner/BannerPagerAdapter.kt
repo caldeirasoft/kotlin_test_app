@@ -26,7 +26,7 @@ class BannerPagerAdapter(var imageList: List<String>, private var errorImage: In
     //inflate the view and change its values
     override fun instantiateItem(view: ViewGroup, position: Int): Any {
         val imageView = ImageView(view.context)
-        imageView.scaleType = ImageView.ScaleType.FIT_XY
+        imageView.scaleType = ImageView.ScaleType.CENTER_CROP
 
         getItemUrl(position)?.let { imageUrl ->
             Picasso.get()

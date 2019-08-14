@@ -84,6 +84,7 @@ val usecaseModule = module {
     single { FetchPodcastEpisodesUseCase(episodeRepository = get()) }
     single { FetchPodcastsFromItunesUseCase(itunesRepository = get(), podcastRepository = get()) }
     single { FetchPodcastsInDbUseCase(podcastRepository = get()) }
+    single { GetPodcastInDbUseCase(podcastRepository = get()) }
     single { SubscribeToPodcastUseCase(podcastRepository = get()) }
     single { UpdatePodcastFromItunesUseCase(itunesRepository = get(), podcastRepository = get(), episodeRepository = get()) }
 }
@@ -103,14 +104,16 @@ val presentationModule = module {
             fetchPodcastsFromItunesUseCase = get(),
             getItunesStoreUseCase = get())}
     viewModel { (category: Int) -> CatalogViewModel(itunesRepository = get(), podcastRepository = get(), category = category) }
-    viewModel { (mediaId: String, podcast: Podcast?) -> PodcastInfoViewModel(
-                mediaId = mediaId,
+    viewModel { (podcastId: Long, podcast: Podcast?) -> PodcastInfoViewModel(
+                podcastId = podcastId,
                 podcast = podcast,
                 podcastRepository = get(),
                 episodeRepository = get(),
                 mediaSessionConnection = get(),
                 fetchPodcastEpisodesUseCase = get(),
-                subscribeToPodcastUseCase = get())}
+                getPodcastInDbUseCase = get(),
+                subscribeToPodcastUseCase = get(),
+                updatePodcastFromItunesUseCase = get())}
     viewModel { (mediaItem: MediaBrowserCompat.MediaItem) -> EpisodeInfoViewModel(
             mediaItem = mediaItem,
             episodeRepository = get(),

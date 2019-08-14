@@ -1,5 +1,6 @@
 package com.caldeirasoft.castly.data.datasources.local.converters
 
+import android.text.TextUtils
 import androidx.room.TypeConverter
 import com.caldeirasoft.castly.domain.model.Genre
 import com.squareup.moshi.Moshi
@@ -21,6 +22,18 @@ object DbTypeConverter {
     @JvmStatic
     fun longToDate(dateAsLong: Long?): Date? {
         return dateAsLong?.let { Date(it) }
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun fromLongList(list: List<Long>): String {
+        return TextUtils.join(",", list)
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun toLongList(value:String): List<Long> {
+        return TextUtils.split(value, ",").toList().map { it.toLong() }
     }
 
     @TypeConverter

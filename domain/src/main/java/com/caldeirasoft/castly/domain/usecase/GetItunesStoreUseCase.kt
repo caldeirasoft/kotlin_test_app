@@ -27,8 +27,7 @@ class GetItunesStoreUseCase(val podcastRepository: PodcastRepository,
     {
         try {
             initialState.postValue(NetworkState.Loading)
-            var storeData = StoreData()
-            //var storeData = itunesRepository.getGenreDataAsync(storeFront, genreId)
+            var storeData = itunesRepository.getGenreDataAsync(storeFront, genreId)
             result.postValue(storeData)
             initialState.postValue(NetworkState.Success)
         } catch (ex: Exception) {

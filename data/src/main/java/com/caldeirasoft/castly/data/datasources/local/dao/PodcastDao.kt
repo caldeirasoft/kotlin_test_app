@@ -4,7 +4,7 @@ package com.caldeirasoft.castly.data.datasources.local.dao;
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import androidx.room.*
-import com.caldeirasoft.castly.domain.model.PodcastEntity
+import com.caldeirasoft.castly.data.entity.PodcastEntity
 
 /**
  * Created by Edmond on 15/02/2018.
