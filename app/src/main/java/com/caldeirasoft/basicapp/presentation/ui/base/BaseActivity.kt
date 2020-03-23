@@ -17,7 +17,7 @@ abstract class BaseActivity : AppCompatActivity() {
         setContentView()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == R.id.home)
             super.finish()
         return super.onOptionsItemSelected(item)

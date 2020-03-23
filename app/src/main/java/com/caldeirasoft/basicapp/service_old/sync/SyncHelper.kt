@@ -31,7 +31,7 @@ object SyncHelper {
     }
 
     @JvmStatic fun getAccount(context: Context): Account {
-        val accountType = context.getString(R.string.account_type)
+        val accountType = "com.caldeirasoft.testapp.sync" //TODO: context.getString(R.string.account_type)
         val account = Account(ACCOUNT_NAME, accountType)
         val accountManager = context.getSystemService(Context.ACCOUNT_SERVICE) as AccountManager
         accountManager.addAccountExplicitly(account, null, Bundle.EMPTY)

@@ -1,6 +1,8 @@
 package com.caldeirasoft.castly.data.dto.itunes
 
 import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.*
 
 /**
@@ -19,7 +21,7 @@ class GenreResultDto {
 
         class LockupResult {
             @Json(name = "results")
-            lateinit var results:Map<Long, LookupItemDto>
+            lateinit var results: Map<Long, LookupItemDto>
         }
     }
 
@@ -28,28 +30,27 @@ class GenreResultDto {
         lateinit var fcStructure: PageDataStructureResult
 
         @Json(name = "genreId")
-        var genreId:Int = 0
+        var genreId: Int = 0
 
         @Json(name = "categoryList")
         lateinit var categoryList: CategoryListResult
 
-
         class CategoryListResult {
             @Json(name = "name")
-            var name:String = ""
+            var name: String = ""
 
             @Json(name = "genreId")
-            var genreId:Int = 0
+            var genreId: Int = 0
 
             @Json(name = "children")
-            var children:List<GenreResult> = arrayListOf()
+            var children: List<GenreResult> = arrayListOf()
 
             class GenreResult {
                 @Json(name = "genreId")
-                var genreId:Int = 0
+                var genreId: Int = 0
 
                 @Json(name = "name")
-                var name:String = ""
+                var name: String = ""
             }
         }
 
@@ -59,16 +60,16 @@ class GenreResultDto {
 
             class PageDataModelResult {
                 @Json(name = "fcKind")
-                var fcKind:Int = 0
+                var fcKind: Int = 0
 
                 @Json(name = "name")
-                var name:String = ""
+                var name: String = ""
 
                 @Json(name = "token")
-                var token:String = ""
+                var token: String = ""
 
                 @Json(name = "adamId")
-                var adamId:Long = 0
+                var adamId: Long = 0
 
                 @Json(name = "children")
                 var children: List<PageDataModelResult> = ArrayList()
@@ -80,31 +81,31 @@ class GenreResultDto {
                 var link: ContentId = ContentId()
 
                 @Json(name = "content")
-                var content:List<ContentId> = ArrayList()
+                var content: List<ContentId> = ArrayList()
 
                 class Artwork {
                     @Json(name = "url")
-                    var url:String = ""
+                    var url: String = ""
 
                     @Json(name = "bgColor")
-                    var bgColor:String = ""
+                    var bgColor: String = ""
 
                     @Json(name = "textColor1")
-                    var textColor1:String = ""
+                    var textColor1: String = ""
                 }
 
                 class ContentId {
                     @Json(name = "type")
-                    var type:String = ""
+                    var type: String = ""
 
                     @Json(name = "contentId")
-                    var contentId:Long = 0
+                    var contentId: Long = 0
 
                     @Json(name = "url")
-                    var url:String = ""
+                    var url: String = ""
 
                     @Json(name = "target")
-                    var target:String = ""
+                    var target: String = ""
                 }
             }
         }

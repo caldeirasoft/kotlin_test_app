@@ -38,6 +38,6 @@
         local:elevation="8dp"
         local:itemIconTint="@drawable/nav_item"
         local:itemTextColor="@drawable/nav_item"
-        local:menu="@menu/bottombar_menu" />
+        local:menu="@menu/bottombar_menu"/>
   </LinearLayout>
 </RelativeLayout>

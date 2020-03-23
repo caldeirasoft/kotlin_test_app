@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight">
         <!-- Customize your theme here. -->
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -18,14 +18,14 @@
     </style>
 
 
-    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="AppTheme.TransparentTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme.TransparentTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
@@ -84,14 +84,40 @@
         <item name="chipStrokeWidth">2dp</item>
     </style>
 
-    <style name="ChipIconStyle" parent="Widget.MaterialComponents.Chip.Filter">
+    <!-- chip filter "all" style -->
+    <style name="ChipChoiceAllStyle" parent="Widget.MaterialComponents.Chip.Choice">
+        <item name="android:checkable">true</item>
+        <item name="chipIconEnabled">false</item>
+        <item name="closeIconEnabled">true</item>
+        <item name="chipStrokeColor">#90acacac</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="android:textColor">@color/choice_chip_text_color</item>
+        <item name="chipBackgroundColor">@color/choice_chip_background_color</item>
+    </style>
+
+    <!-- chip filter icon style -->
+    <style name="ChipChoiceIconStyle" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="android:checkable">true</item>
         <item name="chipIconEnabled">true</item>
-        <item name="chipBackgroundColor">@android:color/transparent</item>
+        <item name="chipStrokeColor">#90acacac</item>
+        <item name="chipStrokeWidth">1dp</item>
         <item name="textStartPadding">0dp</item>
         <item name="textEndPadding">0dp</item>
         <item name="chipStartPadding">8dp</item>
         <item name="chipEndPadding">8dp</item>
+        <item name="chipBackgroundColor">@color/choice_chip_background_color</item>
+    </style>
+
+    <!-- chip action style -->
+    <style name="ChipActionStyle" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="android:checkable">false</item>
+        <item name="chipIconEnabled">true</item>
+        <item name="chipBackgroundColor">@android:color/transparent</item>
+        <item name="chipStrokeColor">#90acacac</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStartPadding">10dp</item>
     </style>
 
     <style name="TextAppearance.TestApp.Tab" parent="TextAppearance.Design.Tab">
@@ -130,6 +156,16 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- custom action buttons -->
+    <style name="ActionButtonIconStyle" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
+        <item name="android:backgroundTint">@drawable/selector_button_catalog</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:shadowColor">@android:color/transparent</item>
+        <item name="strokeColor">@android:color/transparent</item>
+        <item name="android:height">36dp</item>
+        <item name="cornerRadius">18dp</item>
+    </style>
+
     <!-- custom catalog buttons -->
     <style name="CatalogButtonIconAppareance" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="android:backgroundTint">@drawable/selector_button_catalog</item>
@@ -138,5 +174,12 @@
         <item name="strokeColor">@android:color/transparent</item>
         <item name="android:height">36dp</item>
         <item name="cornerRadius">18dp</item>
+    </style>
+
+    <!-- divider -->
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
     </style>
 </resources>

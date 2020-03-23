@@ -5,12 +5,15 @@ import androidx.room.TypeConverter
 import com.caldeirasoft.castly.domain.model.Genre
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types.newParameterizedType
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.util.*
 import java.util.Collections.emptyList
 
 
 object DbTypeConverter {
-    private val moshi: Moshi = Moshi.Builder().build()
+    private val moshi: Moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
 
     @TypeConverter
     @JvmStatic

@@ -1,25 +1,18 @@
 package com.caldeirasoft.basicapp.presentation.ui.queue
 
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.session.MediaSessionCompat.QueueItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.media2.common.MediaItem
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentQueueBinding
-import com.caldeirasoft.basicapp.itemEpisode
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
-import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
-import com.caldeirasoft.basicapp.presentation.utils.extensions.withArgs
-import com.caldeirasoft.castly.service.playback.extensions.albumArtUri
-import com.caldeirasoft.castly.service.playback.extensions.duration
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class QueueFragment : BindingFragment<FragmentQueueBinding>() {
@@ -65,16 +58,16 @@ class QueueFragment : BindingFragment<FragmentQueueBinding>() {
         recyclerView.addItemDecoration(DividerItemDecoration(activity, LinearLayoutManager.VERTICAL))
     }
 
-    private fun createEpoxyController(): TypedEpoxyController<List<QueueItem>> =
-            object : TypedEpoxyController<List<QueueItem>>() {
-                override fun buildModels(data: List<QueueItem>?) {
+    private fun createEpoxyController(): TypedEpoxyController<List<MediaItem>> =
+            object : TypedEpoxyController<List<MediaItem>>() {
+                override fun buildModels(data: List<MediaItem>?) {
                     data ?: return
-                    data.forEach { queueItem ->
+                    /*data.forEach { queueItem ->
                         itemEpisode {
-                            id(queueItem.queueId)
+                            id(queueItem.mediaId.toString())
                             title(queueItem.description.title.toString())
-                            imageUrl(queueItem.description.albumArtUri.toString())
-                            duration(queueItem.description.duration.toString())
+                            //imageUrl(queueItem.description.albumArtUri.toString())
+                            //duration(queueItem.description.duration.toString())
                             onEpisodeClick { model, parentView, clickedView, position ->
 
                                 val mediaItem = MediaItem(queueItem.description, MediaItem.FLAG_PLAYABLE)
@@ -85,6 +78,7 @@ class QueueFragment : BindingFragment<FragmentQueueBinding>() {
                             }
                         }
                     }
+                     */
                 }
             }
 }

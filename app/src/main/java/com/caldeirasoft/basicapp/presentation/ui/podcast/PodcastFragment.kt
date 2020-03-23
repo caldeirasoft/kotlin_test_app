@@ -1,6 +1,5 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcast
 
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -71,7 +70,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                             id(content.id)
                             title(content.name)
                             imageUrl(content.getArtwork(100))
-                            onPodcastClick { model, parentView, clickedView, position ->
+                            onPodcastClick { model, parentView, _, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
                                 val imageView: ImageView = rootView.findViewById(R.id.img_row)

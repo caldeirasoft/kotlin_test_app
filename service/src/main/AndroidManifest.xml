@@ -4,13 +4,13 @@
 
     <application>
         <service
-            android:name=".playback.MediaService"
+            android:name=".playback.LibraryService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
                 <action android:name="android.media.AUDIO_BECOMING_NOISY" />
-                <action android:name="android.media.browse.MediaBrowserService"/>
+                <action android:name="androidx.media2.session.MediaLibraryService"/>
             </intent-filter>
         </service>
 

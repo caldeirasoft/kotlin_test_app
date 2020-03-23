@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/queueFragment">
+    app:startDestination="@id/inboxFragment">
     <fragment
         android:id="@+id/queueFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.queue.QueueFragment"
@@ -45,7 +45,7 @@
         android:label="DiscoverFragment" >
         <action
             android:id="@+id/openPodcast"
-            app:destination="@+id/podcastInfoFragment"
+            app:destination="@id/podcastDetailFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
@@ -55,4 +55,17 @@
         android:id="@+id/catalogFragment"
         android:name="com.caldeirasoft.basicapp.presentation.ui.catalog.CatalogFragment"
         android:label="CatalogFragment" />
+    <fragment
+        android:id="@+id/podcastDetailFragment"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.podcastdetail.PodcastDetailFragment"
+        android:label="PodcastDetailFragment" >
+        <argument
+            android:name="mediaId"
+            app:argType="long" />
+        <argument
+            android:name="podcast"
+            app:argType="com.caldeirasoft.castly.domain.model.Podcast"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

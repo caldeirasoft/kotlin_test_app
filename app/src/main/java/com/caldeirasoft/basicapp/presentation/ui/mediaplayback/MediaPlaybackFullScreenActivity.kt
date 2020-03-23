@@ -119,7 +119,7 @@ class MediaPlaybackFullScreenActivity : MediaPlayerBaseActivity(),
         //eventLogger.logSleepTimerAction(milliseconds)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
                 onBackPressed()

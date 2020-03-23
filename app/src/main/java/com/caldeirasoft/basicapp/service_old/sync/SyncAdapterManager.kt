@@ -28,8 +28,8 @@ class SyncAdapterManager(context: Context) {
     private var context:Context
 
     init {
-        type = context.getString(R.string.account_type)
-        authority = context.getString(R.string.content_authority)
+        type = "com.caldeirasoft.testapp.sync"
+        authority = "com.caldeirasoft.testapp.provider"
         account = Account(ACCOUNT_NAME, this.type)
         this.context = context
     }

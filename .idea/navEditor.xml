@@ -25,8 +25,8 @@
                       <LayoutPositions>
                         <option name="myPosition">
                           <Point>
-                            <option name="x" value="473" />
-                            <option name="y" value="46" />
+                            <option name="x" value="540" />
+                            <option name="y" value="125" />
                           </Point>
                         </option>
                         <option name="myPositions">
@@ -48,6 +48,18 @@
                           <Point>
                             <option name="x" value="-87" />
                             <option name="y" value="41" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
+                  <entry key="podcastDetailFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="549" />
+                            <option name="y" value="521" />
                           </Point>
                         </option>
                       </LayoutPositions>

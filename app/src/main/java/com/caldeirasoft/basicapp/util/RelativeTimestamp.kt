@@ -1,6 +1,5 @@
 package com.caldeirasoft.basicapp.util
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.caldeirasoft.basicapp.R
 import org.threeten.bp.Instant
@@ -8,9 +7,6 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.temporal.ChronoUnit
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
  * Eases the Fragment.newInstance ceremony by marking the fragment's args with this delegate
@@ -44,8 +40,13 @@ class RelativeTimestampGenerator() {
         }
     }
 
-    fun generate(today: LocalDateTime, time: Instant): RelativeTimestamp {
+    fun generate(time: Instant): RelativeTimestamp {
         val dateTime = time.atZone(ZoneOffset.UTC).toLocalDateTime()
+        return generate(dateTime)
+    }
+
+    fun generate(dateTime: LocalDateTime): RelativeTimestamp {
+        val today = LocalDateTime.now(ZoneOffset.UTC)
 
         val todayAtMidnight = today.truncatedTo(ChronoUnit.DAYS)
         val yesterdayAtMidnight = todayAtMidnight.minusDays(1)
@@ -55,18 +56,13 @@ class RelativeTimestampGenerator() {
         val firstDayOfMonth = todayAtMidnight.minusDays(todayAtMidnight.dayOfMonth.toLong() - 1)
 
         return when {
-            dateTime.isAfter(todayAtMidnight) -> Today()
-            dateTime.isAfter(yesterdayAtMidnight) -> Yesterday()
-            dateTime.isAfter(dayMinus6AtMidnight) -> DayOfWeek(time)
-            dateTime.isAfter(firstDayOfLastWeek) -> LastWeek()
-            dateTime.isAfter(firstDayOfMonth) -> ThisMonth()
-            else -> OlderThanThisMonth(time)
+            dateTime.equals(todayAtMidnight) -> Today()
+            dateTime.equals(yesterdayAtMidnight) -> Yesterday()
+            dateTime.equals(dayMinus6AtMidnight) || dateTime.isAfter(dayMinus6AtMidnight) -> DayOfWeek(dateTime)
+            dateTime.equals(firstDayOfLastWeek) || dateTime.isAfter(firstDayOfLastWeek) -> LastWeek()
+            dateTime.equals(firstDayOfMonth) || dateTime.isAfter(firstDayOfMonth) -> ThisMonth()
+            else -> OlderThanThisMonth(dateTime)
         }
-    }
-
-    fun generate(time: Instant): RelativeTimestamp {
-        val today = LocalDateTime.now(ZoneOffset.UTC)
-        return generate(today, time)
     }
 
     fun generateDateTime(time: Instant): LocalDateTime {
@@ -86,11 +82,9 @@ class RelativeTimestampGenerator() {
         }
     }
 
-    class DayOfWeek(private val time: Instant) : RelativeTimestamp() {
+    class DayOfWeek(private val localDateTime: LocalDateTime) : RelativeTimestamp() {
         override fun displayText(context: Context): String {
-            time.atZone(ZoneOffset.UTC).toLocalDateTime().let {
-                return it.format(DateTimeFormatter.ofPattern("EEE"))
-            }
+            return localDateTime.format(DateTimeFormatter.ofPattern("EEE"))
         }
     }
 
@@ -106,11 +100,9 @@ class RelativeTimestampGenerator() {
         }
     }
 
-    class OlderThanThisMonth(private val time: Instant) : RelativeTimestamp() {
+    class OlderThanThisMonth(private val localDateTime: LocalDateTime) : RelativeTimestamp() {
         override fun displayText(context: Context): String {
-            time.atZone(ZoneOffset.UTC).toLocalDateTime().let {
-                return it.format(DateTimeFormatter.ofPattern("MMM"))
-            }
+            return localDateTime.format(DateTimeFormatter.ofPattern("MMM"))
         }
     }
 }

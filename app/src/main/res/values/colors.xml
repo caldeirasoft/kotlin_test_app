@@ -18,7 +18,7 @@
     <color name="white_90">#e6ffffff</color>
 
     <!-- common colors -->
-    <color name="colorPrimary">#344955</color>
+    <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryLight">#4A6572</color>
     <color name="colorPrimaryDark">#232F34</color>
     <color name="colorAccent">#F9AA33</color>
@@ -43,7 +43,9 @@
     <color name="scrim">#33000000</color> <!-- 20% black -->
     <color name="indigo_transparent">#e54768fd</color> <!-- 90% indigo -->
     <color name="dark_gray">#ff808080</color>
-    <color name="dark_transparent">#24000000</color>
+
+    <color name="light_transparent">#24000000</color>
+    <color name="dark_transparent">#99000000</color>
 
 
     <!-- Colors -->
@@ -59,7 +61,10 @@
     <!-- grays -->
     <color name="c_222222">#222222</color>
 
-    <!-- controls colors -->
-    <color name="chip_selected_background_color">#CACACA</color>
+    <!-- chip control colors -->
+    <color name="chip_background_color">?attr/colorSurface</color>
+    <color name="chip_selected_background_color">?attr/colorPrimary</color>
+    <color name="chip_text_color">?android:attr/textColorPrimary</color>
+    <color name="chip_selected_text_color">?android:attr/textColorPrimaryInverse</color>
 
 </resources>

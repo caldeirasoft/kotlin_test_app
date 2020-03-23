@@ -1,6 +1,7 @@
 package com.caldeirasoft.basicapp.presentation.ui.discover
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -145,6 +146,7 @@ class DiscoverFragment :
                                 it.podcast = podcast
                             }
                     val imageView: ImageView = view.findViewById(R.id.img_row)
+                    Log.d("Transition", podcast.transitionName)
                     val extras = FragmentNavigatorExtras(imageView to podcast.transitionName)
                     navigateTo(direction, extras)
                 }

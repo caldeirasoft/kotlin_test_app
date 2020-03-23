@@ -10,6 +10,9 @@
     <variable
         name="backButtonVisible"
         type="Boolean"/>
+    <variable
+        name="viewModel"
+        type="com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListViewModel"/>
   </data>
 
   <com.caldeirasoft.basicapp.presentation.views.CollapsibleToolbar
@@ -19,7 +22,7 @@
       android:minHeight="?attr/actionBarSize"
       android:orientation="vertical"
       android:fitsSystemWindows="true"
-      android:background="?android:attr/windowBackground"
+      android:background="@color/light_gray"
       app:layoutDescription="@xml/scene_podcasts"
       app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
 
@@ -52,6 +55,15 @@
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintBottom_toBottomOf="parent"
           app:animating="@{1==1}"/>
+
+      <CheckBox
+          android:id="@+id/checkbox_theme"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="Apply dark theme"
+          app:layout_constraintStart_toStartOf="parent"
+          app:layout_constraintBottom_toBottomOf="parent"
+          android:checked="@={viewModel.darkThemeOn}"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -5,7 +5,13 @@
         <import type="android.view.View" />
         <import type="android.text.Html"/>
         <variable
+            name="episode"
+            type="com.caldeirasoft.castly.domain.model.Episode"/>
+        <variable
             name="title"
+            type="String"/>
+        <variable
+            name="description"
             type="String"/>
         <variable
             name="imageUrl"
@@ -17,7 +23,34 @@
             name="duration"
             type="String"/>
         <variable
+            name="timePlayed"
+            type="Long"/>
+        <variable
+            name="publishedDate"
+            type="String"/>
+        <variable
+            name="isPlaying"
+            type="Boolean"/>
+        <variable
+            name="playerState"
+            type="Integer"/>
+        <variable
+            name="bufferingState"
+            type="Integer"/>
+        <variable
             name="onEpisodeClick"
+            type="android.view.View.OnClickListener"/>
+        <variable
+            name="onPlayClick"
+            type="android.view.View.OnClickListener"/>
+        <variable
+            name="onQueueNextClick"
+            type="android.view.View.OnClickListener"/>
+        <variable
+            name="onQueueEndClick"
+            type="android.view.View.OnClickListener"/>
+        <variable
+            name="onArchiveClick"
             type="android.view.View.OnClickListener"/>
     </data>
 
@@ -29,13 +62,12 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:onClick="@{onEpisodeClick}">
+        android:layout_marginBottom="10dp">
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/imageview_thumbnail"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_margin="7dp"
             android:contentDescription="@null"
             app:imageUrl="@{imageUrl}"
@@ -45,52 +77,40 @@
             app:riv_corner_radius="5dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintDimensionRatio="W,1:1"/>
-
-        <TextView android:id="@+id/textview_podcast"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginTop="5dp"
-            android:text="@{podcastTitle}"
-            android:singleLine="true"
-            android:textColor="#616161"
-            android:textSize="12sp"
-            android:textAllCaps="true"
-            app:layout_constraintStart_toEndOf="@id/imageview_thumbnail"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintDimensionRatio="W,1:1"
+            android:onClick="@{onEpisodeClick}"/>
 
         <TextView android:id="@+id/textview_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:text="@{title}"
-            android:maxLines="2"
+            android:paddingBottom="@dimen/dp_10"
+            android:maxLines="4"
             android:ellipsize="end"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@id/textview_podcast"
-            app:layout_constraintTop_toBottomOf="@id/textview_podcast"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:lineSpacingMultiplier="1.1"
+            app:title="@{title}"
+            app:description="@{description}"
+            app:layout_constraintStart_toEndOf="@id/imageview_thumbnail"
+            app:layout_constraintTop_toTopOf="@id/imageview_thumbnail"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:onClick="@{onEpisodeClick}"/>
 
-        <TextView android:id="@+id/textview_description"
+        <LinearLayout
+            android:id="@+id/buttonsLinearLayout"
+            android:orientation="horizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:scrollHorizontally="false"
-            android:text="@{duration}"
-            android:textSize="12sp"
-            android:textColor="#616161"
-            app:layout_constraintStart_toStartOf="@id/textview_podcast"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textview_title"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintStart_toStartOf="@id/textview_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:episode="@{episode}"
+            app:isPlaying="@{isPlaying}"
+            app:playerState="@{playerState}"
+            app:bufferingState="@{bufferingState}"
+            app:onPlayClick="@{onPlayClick}"/>
 
         <!--TODO: android:text="@{Html.fromHtml(@string/concat_separator(episode.durationFormat(), episode.description), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE), default=`Description`}"-->
 

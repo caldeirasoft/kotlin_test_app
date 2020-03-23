@@ -8,6 +8,10 @@ import retrofit2.http.*
  * Created by Edmond on 12/02/2018.
  */
 interface PodcastsApi {
+    companion object {
+        internal const val baseUrl = "https://podcasts.apple.com"
+    }
+
     /**
      * Podcasts collections by genre
      */

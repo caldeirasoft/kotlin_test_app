@@ -5,8 +5,11 @@ import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import com.airbnb.epoxy.EpoxyRecyclerView
 import com.caldeirasoft.basicapp.presentation.ui.base.BaseActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 
 fun <T : ViewDataBinding> BaseActivity.setContentBinding(layoutId: Int): T {
     return DataBindingUtil.setContentView(this, layoutId)
@@ -32,6 +35,16 @@ fun View.setBackground(value: Drawable?) {
     value?.let { background = it }
 }
 
+@BindingAdapter("roundedCorners")
+fun setRoundedCorners(view: EpoxyRecyclerView, rounded: Boolean) {
+    view.background = MaterialShapeDrawable().apply {
+        this.shapeAppearanceModel = ShapeAppearanceModel().apply {
+            when (rounded) {
+                true -> setCornerSize(18f)
+            }
+        }
+    }
+}
 
 @BindingAdapter("goneUnless")
 fun goneUnless(view: View, visible: Boolean) {

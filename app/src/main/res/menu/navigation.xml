@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@id/queueFragment"
-        android:icon="@drawable/ic_queue_24dp"
-        android:title="@null" />
-
-    <item
         android:id="@id/inboxFragment"
         android:icon="@drawable/ic_inbox_24dp"
         android:title="@null" />

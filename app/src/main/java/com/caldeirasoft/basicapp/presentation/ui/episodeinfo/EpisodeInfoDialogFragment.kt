@@ -3,7 +3,6 @@ package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat.MediaItem
 import android.view.*
 import androidx.core.content.ContextCompat
 import com.caldeirasoft.basicapp.R
@@ -13,10 +12,6 @@ import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.basicapp.presentation.utils.extensions.setSupportActionBar
 import com.caldeirasoft.basicapp.presentation.utils.widget.RoundedBottomSheetDialogFragment
 import com.caldeirasoft.castly.domain.model.SectionState
-import com.caldeirasoft.castly.service.playback.extensions.album
-import com.caldeirasoft.castly.service.playback.extensions.albumArtUri
-import com.caldeirasoft.castly.service.playback.extensions.date
-import com.caldeirasoft.castly.service.playback.extensions.displayDescription
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -27,13 +22,13 @@ class EpisodeInfoDialogFragment :
         RoundedBottomSheetDialogFragment()
 {
     // arguments
-    private val mediaItem: MediaItem by lazyArg(EPISODE_ARG)
+    private val episodeId: Long by lazyArg(EPISODE_ARG)
 
     // binding
     protected lateinit var mBinding: FragmentEpisodedetailBinding
 
     // viewmodel
-    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(mediaItem) }
+    private val mViewModel : EpisodeInfoViewModel by viewModel { parametersOf(episodeId) }
 
     // fab
     private var fab: FloatingActionButton? = null
@@ -140,16 +135,6 @@ class EpisodeInfoDialogFragment :
 
         mViewModel.isPlayingEpisode.observeK(this) {
             activity?.invalidateOptionsMenu()
-        }
-
-        mViewModel.mediaData.observeK(this) {
-            it?.description?.let {
-                mBinding.title = it.title.toString()
-                mBinding.albumArtUri = it.albumArtUri.toString()
-                mBinding.podcastTitle = it.album
-                mBinding.date = it.date
-                mBinding.displayDescription = it.displayDescription
-            }
         }
     }
 

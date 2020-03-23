@@ -7,9 +7,9 @@ import org.threeten.bp.LocalDateTime
 import org.threeten.bp.format.DateTimeFormatter
 
 class LocalDateTimeJsonAdapter : JsonAdapter<LocalDateTime>() {
-    override fun fromJson(reader: JsonReader?): LocalDateTime? {
+    override fun fromJson(reader: JsonReader): LocalDateTime? {
 
-        val dateTime = reader?.nextString();
+        val dateTime = reader.nextString();
         val dateformater = if (dateTime!!.endsWith("Z")) {
             //ZonedDateTime.parse(dateTime).toLocalDateTime()
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -20,7 +20,7 @@ class LocalDateTimeJsonAdapter : JsonAdapter<LocalDateTime>() {
         return LocalDateTime.parse(dateTime, dateformater)
     }
 
-    override fun toJson(writer: JsonWriter?, value: LocalDateTime?) {
-        writer?.value(value?.toString())
+    override fun toJson(writer: JsonWriter, value: LocalDateTime?) {
+        writer.value(value?.toString())
     }
 }

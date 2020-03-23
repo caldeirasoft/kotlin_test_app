@@ -1,6 +1,8 @@
 package com.caldeirasoft.castly.data.dto.itunes
 
 import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.*
 
 /**
@@ -19,27 +21,27 @@ class StoreResultDto {
 
         class LockupResult {
             @Json(name = "results")
-            lateinit var results:Map<String, LockupResultItem>
+            lateinit var results: Map<String, LockupResultItem>
 
             class LockupResultItem {
                 @Json(name = "name")
-                var name:String = ""
+                var name: String = ""
 
                 @Json(name = "artistName")
-                var artistName:String = ""
+                var artistName: String = ""
 
                 @Json(name = "feedUrl")
-                var feedUrl:String = ""
+                var feedUrl: String = ""
 
                 @Json(name = "id")
-                var trackId:Int = 0
+                var trackId: Int = 0
 
                 @Json(name = "artwork")
                 lateinit var artwork: Artwork
 
                 class Artwork {
                     @Json(name = "url")
-                    var url:String = ""
+                    var url: String = ""
                 }
             }
         }
@@ -55,13 +57,13 @@ class StoreResultDto {
 
             class PageDataModelResult {
                 @Json(name = "fcKind")
-                var fcKind:Int = 0
+                var fcKind: Int = 0
 
                 @Json(name = "name")
-                var name:String = ""
+                var name: String = ""
 
                 @Json(name = "token")
-                var token:String = ""
+                var token: String = ""
 
                 @Json(name = "children")
                 var children: List<PageDataModelResult> = ArrayList()
@@ -73,28 +75,28 @@ class StoreResultDto {
                 var link: ContentId = ContentId()
 
                 @Json(name = "content")
-                var content:List<ContentId> = ArrayList()
+                var content: List<ContentId> = ArrayList()
 
                 class Artwork {
                     @Json(name = "url")
-                    var url:String = ""
+                    var url: String = ""
 
                     @Json(name = "bgColor")
-                    var bgColor:String = ""
+                    var bgColor: String = ""
 
                     @Json(name = "textColor1")
-                    var textColor1:String = ""
+                    var textColor1: String = ""
                 }
 
                 class ContentId {
                     @Json(name = "type")
-                    var type:String = ""
+                    var type: String = ""
 
                     @Json(name = "contentId")
-                    var contentId:String = ""
+                    var contentId: String = ""
 
                     @Json(name = "url")
-                    var url:String = ""
+                    var url: String = ""
                 }
             }
         }

@@ -5,8 +5,8 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import com.caldeirasoft.basicapp.presentation.ui.base.MediaPlayerBaseActivity
+import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import kotlinx.android.synthetic.main.activity_main.*
 
 @FragmentLayout(layoutId = R.layout.activity_main)
@@ -31,7 +31,7 @@ class MainActivity : MediaPlayerBaseActivity()
     override fun onBackPressed() {
         val currentDestination = NavHostFragment.findNavController(nav_host_fragment).currentDestination
         when (currentDestination?.id) {
-            R.id.queueFragment -> {
+            R.id.inboxFragment -> {
                 finish()
                 return
             }

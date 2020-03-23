@@ -9,22 +9,18 @@ import com.caldeirasoft.basicapp.media.MediaSessionConnection
 import com.caldeirasoft.castly.domain.model.Episode
 import com.caldeirasoft.castly.domain.model.NetworkState
 import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.SectionWithCount
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.castly.domain.usecase.FetchPodcastEpisodesUseCase
-import com.caldeirasoft.castly.domain.usecase.GetPodcastInDbUseCase
-import com.caldeirasoft.castly.domain.usecase.SubscribeToPodcastUseCase
-import com.caldeirasoft.castly.domain.usecase.UpdatePodcastFromItunesUseCase
+import com.caldeirasoft.castly.domain.usecase.*
 import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
 
 class PodcastInfoViewModel(
         val podcastId: Long,
         val podcast: Podcast?,
-        val podcastRepository: PodcastRepository,
-        val episodeRepository: EpisodeRepository,
-        val mediaSessionConnection: MediaSessionConnection,
         val fetchPodcastEpisodesUseCase: FetchPodcastEpisodesUseCase,
         val getPodcastInDbUseCase: GetPodcastInDbUseCase,
+        val fetchEpisodeCountBySectionUseCase: FetchEpisodeCountBySectionUseCase,
         val subscribeToPodcastUseCase: SubscribeToPodcastUseCase,
         val updatePodcastFromItunesUseCase: UpdatePodcastFromItunesUseCase)
     : ViewModel() {
@@ -54,15 +50,25 @@ class PodcastInfoViewModel(
     // loading state
     var networkState: LiveData<NetworkState>
 
+    // count by section
+    val sectionCount: LiveData<SectionWithCount>
+
     //endregion
 
     init {
+        // fetch episodes from Db
         fetchPodcastEpisodesUseCase.fetchAll(podcastId).let {
             dataItems = it.data
             initialState = it.initialState
             networkState = it.networkState
         }
 
+        // fetch episodes count by section
+        fetchEpisodeCountBySectionUseCase.fetchAll(podcastId).let {
+            sectionCount = it.data
+        }
+
+        // update podcasts from itunes
         updatePodcastFromItunesUseCase.updatePodcast(podcastId)
     }
 

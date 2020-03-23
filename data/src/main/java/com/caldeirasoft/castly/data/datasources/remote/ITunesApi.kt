@@ -10,6 +10,10 @@ import retrofit2.http.Query
  * Created by Edmond on 12/02/2018.
  */
 interface ITunesApi {
+    companion object {
+        internal const val baseUrl = "https://itunes.apple.com"
+    }
+
     /**
      * Search podcast by term
      */

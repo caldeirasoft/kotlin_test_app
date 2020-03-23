@@ -11,54 +11,59 @@ import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.airbnb.epoxy.EpoxyModel
-import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.ItemEpisodePodcastBindingModel_
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.databinding.FragmentPodcastdetailBinding
+import com.caldeirasoft.basicapp.databinding.FragmentPodcastinfoBinding
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
-import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment
-import com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment.Companion.EPISODE_ARG
-import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
+import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpisodesGroupByDateController
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.EpoxyTouchHelperExt
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.SwipeReturnCallbacks
-import com.caldeirasoft.basicapp.presentation.utils.extensions.*
-import com.caldeirasoft.basicapp.presentation.views.SimplePagerAdapter
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.basicapp.presentation.utils.extensions.color
+import com.caldeirasoft.basicapp.presentation.utils.extensions.lazyArg
+import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.utils.extensions.postponeEnterTransition
 import com.caldeirasoft.castly.domain.model.Genre
+import com.caldeirasoft.castly.domain.repository.PlayerRepository
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class PodcastInfoFragment :
-        BindingFragment<FragmentPodcastdetailBinding>()
+        BindingFragment<FragmentPodcastinfoBinding>()
 {
     // private property
     private var mIsSubscribing:Boolean = false
     private var showHeader:Boolean = true
-    private val mediaItemDiffCallback: DiffUtil.ItemCallback<MediaItem> =
-            object : DiffUtil.ItemCallback<MediaItem>() {
-                override fun areItemsTheSame(oldItem: MediaItem, newItem: MediaItem) =
-                    areContentsTheSame(oldItem, newItem)
-
-                override fun areContentsTheSame(oldItem: MediaItem, newItem: MediaItem) =
-                    oldItem.mediaId == newItem.mediaId
-            }
 
     // arguments
-    private val args by lazy { PodcastInfoFragmentArgs.fromBundle(arguments!!) }
+    private val args by lazy { PodcastInfoFragmentArgs.fromBundle(requireArguments()) }
     val collapsed by lazyArg<Boolean?>(COLLAPSED)
 
     // viewmodel
-    private val mViewModel:PodcastInfoViewModel by viewModel { parametersOf(args.mediaId, args.podcast) }
-    private val controller by lazy { createEpoxyController() }
+    private val mViewModel:PodcastInfoViewModel by viewModel {
+        parametersOf(args.mediaId, args.podcast)
+    }
+
+    // player repository //TODO: replace by viewmodel
+    val playerRepository: PlayerRepository by inject()
+
+    // epoxy controller
+    private val controller by lazy {
+        EpisodesGroupByDateController(
+                requireContext(),
+                childFragmentManager,
+                this,
+                playerRepository)
+    }
 
     // views
     private lateinit var mArtworkImageView: ImageView
 
+    // on create view : set binding
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
-        mBinding = FragmentPodcastdetailBinding.inflate(inflater, container, false)
+        mBinding = FragmentPodcastinfoBinding.inflate(inflater, container, false)
         mBinding.let {
             it.setLifecycleOwner(this)
             it.viewModel = mViewModel
@@ -96,22 +101,15 @@ class PodcastInfoFragment :
                 }
             }
         }
-        //
+
+        // epoxy controller
         mViewModel.dataItems.observeK(this) {
             controller.submitList(it)
         }
-
     }
 
     private fun initUi() {
         mBinding.apply {
-            // viewpager adapter
-            viewPager.apply {
-                val pageTitles = arrayOf("Episodes", "Details")
-                val viewPagerAdapter = SimplePagerAdapter(requireActivity(), this, pageTitles)
-                adapter = viewPagerAdapter
-                tabLayout.setupWithViewPager(this)
-            }
             // recycler view
             episodesRecyclerView.apply {
                 setController(controller)
@@ -161,31 +159,6 @@ class PodcastInfoFragment :
     }
     */
 
-    private fun createEpoxyController(): PagedListEpoxyController<Episode> =
-            object : BasePagedController<Episode>() {
-                override fun buildItemModel(currentPosition: Int, item: Episode?): EpoxyModel<*> {
-                    item?.let {
-                        return ItemEpisodePodcastBindingModel_().apply {
-                            id(item.id)
-                            title(item.name)
-                            imageUrl(item.getArtwork(100))
-                            duration(item.description)
-                            publishedDate(it.releaseDate.toString())
-                            playbackState(0)
-                            timePlayed(0)
-                            onEpisodeClick { model, parentView, clickedView, position ->
-                                val episodeInfoDialog =
-                                        EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to item)
-                                episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
-                            }
-                        }
-                    } ?: run {
-                        return ItemEpisodePodcastBindingModel_()
-                                .id(currentPosition)
-                    }
-                }
-            }
-
     private fun setupSwipeToDelete() {
         val context = requireContext()
 
@@ -206,7 +179,7 @@ class PodcastInfoFragment :
 
             override fun onSwipeStarted(model: ItemEpisodePodcastBindingModel_, itemView: View, adapterPosition: Int) {
                 super.onSwipeStarted(model, itemView, adapterPosition)
-                mBinding.episodesRecyclerView.let { recyclerView ->
+                mBinding.episodesRecyclerView.let { _ ->
                     /*
                     removableItemDecoration = null
                     val itemDecorationCount = recyclerView.itemDecorationCount

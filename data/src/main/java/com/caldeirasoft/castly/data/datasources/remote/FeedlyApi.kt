@@ -12,6 +12,10 @@ import retrofit2.http.*
  * Created by Edmond on 12/02/2018.
  */
 interface FeedlyApi {
+    companion object {
+        internal const val baseUrl = "https://cloud.feedly.com"
+    }
+
     @GET("v3/feeds/{feedId}")
     suspend fun getFeed(@Path("feedId") feedId:String): FeedDto
 

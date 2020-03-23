@@ -13,7 +13,7 @@ import kotlinx.android.parcel.Parcelize
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneOffset
-import java.text.SimpleDateFormat
+import org.threeten.bp.format.DateTimeFormatter
 import java.util.*
 
 /**
@@ -68,10 +68,9 @@ data class EpisodeEntity constructor(
     //@get:com.google.firebase.firestore.ServerTimestamp
     override var timePlayed: Long? = null
 
-    override fun publishedFormat(): String =
-            SimpleDateFormat("d/M/yyyy[' ']['T'][H:mm[:ss[.S]]][X]").let {
-                return it.format(releaseDate)
-            }
+    override fun publishedFormat(): String {
+        return this.releaseDate.format(DateTimeFormatter.ofPattern("d/m/yyyy"))
+    }
 
     override fun durationFormat(): String? =
             duration?.let {

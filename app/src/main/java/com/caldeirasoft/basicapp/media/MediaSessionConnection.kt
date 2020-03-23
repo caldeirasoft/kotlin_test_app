@@ -18,20 +18,20 @@ package com.caldeirasoft.basicapp.media
 
 import android.content.ComponentName
 import android.content.Context
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.MediaSessionCompat
-import android.support.v4.media.session.PlaybackStateCompat
-import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.media2.common.MediaItem
+import androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE
+import androidx.media2.session.MediaBrowser
+import androidx.media2.session.MediaController
+import androidx.media2.session.SessionCommandGroup
+import androidx.media2.session.SessionToken
 import com.caldeirasoft.basicapp.media.MediaSessionConnection.MediaBrowserConnectionCallback
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
+import java.util.concurrent.CountDownLatch
 
 /**
- * Class that manages a connection to a [MediaBrowserServiceCompat] instance.
+ * Class that manages a connection to a [MediaLibraryService] instance.
  *
  * Typically it's best to construct/inject dependencies either using DI or, as UAMP does,
  * using [InjectorUtils]. There are a few difficulties for that here:
@@ -48,113 +48,49 @@ import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
  *  parameters, rather than private properties. They're only required to build the
  *  [MediaBrowserConnectionCallback] and [MediaBrowserCompat] objects.
  */
-class MediaSessionConnection(val context: Context, val serviceComponent: ComponentName)
+class MediaSessionConnection(val context: Context, serviceComponent: ComponentName)
 {
+    private val sessionToken = SessionToken(context, serviceComponent)
+    private var mediaBrowserProxyCallbacksList: MutableList<MediaBrowser.BrowserCallback> = arrayListOf()
+
     val isConnected = MutableLiveData<Boolean>()
             .apply { postValue(false) }
 
-    val rootMediaId: String get() = mediaBrowser.root
+    val playbackState = MutableLiveData<Int>()
+            .apply { postValue(PLAYER_STATE_IDLE) }
+    val nowPlaying = MutableLiveData<MediaItem>()
+            .apply { postValue(null) }
 
-    val playbackState = MutableLiveData<PlaybackStateCompat>()
-            .apply { postValue(EMPTY_PLAYBACK_STATE) }
-    val nowPlaying = MutableLiveData<MediaMetadataCompat>()
-            .apply { postValue(NOTHING_PLAYING) }
+    val playbackStateChangedEvent = SingleLiveEvent<Int>()
+    val metadataChangedEvent = SingleLiveEvent<MediaItem>()
 
-    val playbackStateChangedEvent = SingleLiveEvent<PlaybackStateCompat>()
-    val metadataChangedEvent = SingleLiveEvent<MediaMetadataCompat>()
+    var queueList: MutableLiveData<List<MediaItem>> = MutableLiveData()
 
-    val transportControls: MediaControllerCompat.TransportControls
-        get() = mediaController.transportControls
-
-    val queueList: MutableLiveData<List<MediaSessionCompat.QueueItem>>
-            = MutableLiveData()
-
-    private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
-    private val mediaBrowser = MediaBrowserCompat(context,
-            serviceComponent,
-            mediaBrowserConnectionCallback, null)
-            .apply { connect() }
-    private lateinit var mediaController: MediaControllerCompat
-
-    fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        Log.d("Subscribe", parentId)
-        mediaBrowser.subscribe(parentId, callback)
+    fun getMediaBrowser(callback: MediaBrowser.BrowserCallback): MediaBrowser {
+        val mediaBrowser = MediaBrowser.Builder(context)
+                .setControllerCallback(ContextCompat.getMainExecutor(context), callback)
+                .setSessionToken(sessionToken)
+                .build()
+        return mediaBrowser
     }
 
-    fun subscribe(parentId: String, extra: Bundle, callback: MediaBrowserCompat.SubscriptionCallback) {
-        Log.d("Subscribe", parentId)
-        mediaBrowser.subscribe(parentId, extra, callback)
-    }
+    inner abstract class MediaBrowserConnectionCallback : MediaBrowser.BrowserCallback() {
+        val isConnected = MutableLiveData<Boolean>()
+                .apply { postValue(false) }
+        var onConnectedAction: (() -> Unit)? = null
+        val connectLatch: CountDownLatch = CountDownLatch(1)
 
-    fun unsubscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {
-        Log.d("Unsubscribe", parentId)
-        mediaBrowser.unsubscribe(parentId, callback)
-    }
-
-    fun getItem(mediaId: String, callback: MediaBrowserCompat.ItemCallback) {
-        Log.d("GetItem", mediaId)
-        mediaBrowser.getItem(mediaId, callback)
-    }
-
-    fun sendCustomAction(action:String, extras: Bundle) {
-        Log.d("sendCustomAction", action)
-        mediaBrowser.sendCustomAction(action, extras, null)
-    }
-
-    fun sendCustomAction(action:String, extras: Bundle, callback: MediaBrowserCompat.CustomActionCallback) {
-        Log.d("sendCustomAction", action)
-        mediaBrowser.sendCustomAction(action, extras, callback)
-    }
-
-    fun addQueueItem(description: MediaDescriptionCompat) {
-        println("addQueueItem")
-        mediaController.addQueueItem(description)
-    }
-
-    fun addQueueItem(description: MediaDescriptionCompat, index:Int) {
-        println("addQueueItem")
-        mediaController.addQueueItem(description, index)
-    }
-
-    fun removeQueueItem(description: MediaDescriptionCompat) {
-        println("removeQueueItem")
-        mediaController.removeQueueItem(description)
-    }
-
-    private inner class MediaBrowserConnectionCallback(private val context: Context)
-        : MediaBrowserCompat.ConnectionCallback() {
-
-        /**
-         * Invoked after [MediaBrowserCompat.connect] when the request has successfully
-         * completed.
-         */
-        override fun onConnected() {
-            // Get a MediaController for the MediaSession.
-            mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
-                registerCallback(MediaControllerCallback())
-                //mediaControlCallback.onPlaybackStateChanged(playbackState)
-                //mediaControlCallback.onMetadataChanged(metadata)
-                queueList.postValue(this.queue)
-            }
-
-            isConnected.postValue(true)
+        fun setConnectionAction(connectedAction: (() -> Unit)?) {
+            this.onConnectedAction = connectedAction
         }
 
-        /**
-         * Invoked when the client is disconnected from the media browser.
-         */
-        override fun onConnectionSuspended() {
-            isConnected.postValue(false)
-        }
-
-        /**
-         * Invoked when the connection to the media browser failed.
-         */
-        override fun onConnectionFailed() {
-            isConnected.postValue(false)
+        override fun onConnected(controller: MediaController, allowedCommands: SessionCommandGroup) {
+            super.onConnected(controller, allowedCommands)
+            queueList.postValue(controller.playlist)
         }
     }
 
+    /*
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -187,19 +123,9 @@ class MediaSessionConnection(val context: Context, val serviceComponent: Compone
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }
     }
+    */
 
     companion object {
-        @Suppress("PropertyName")
-        val EMPTY_PLAYBACK_STATE: PlaybackStateCompat = PlaybackStateCompat.Builder()
-                .setState(PlaybackStateCompat.STATE_NONE, 0, 0f)
-                .build()
-
-        @Suppress("PropertyName")
-        val NOTHING_PLAYING: MediaMetadataCompat = MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "")
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 0)
-                .build()
-
         // For Singleton instantiation.
         @Volatile
         private var instance: MediaSessionConnection? = null

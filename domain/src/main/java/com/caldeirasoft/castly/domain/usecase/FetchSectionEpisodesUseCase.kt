@@ -9,8 +9,7 @@ import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
 import java.util.concurrent.Executor
 
 class FetchSectionEpisodesUseCase(
-        val episodeRepository: EpisodeRepository,
-        val networkExecutor: Executor) {
+        val episodeRepository: EpisodeRepository) {
     fun fetchAll(sectionId: Int): UseCaseResult<PagedList<Episode>> {
         val factory = episodeRepository.fetchFactory(sectionId)
         val pagedList = factory.toLiveData(

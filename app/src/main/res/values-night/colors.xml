@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- chip control colors -->
+    <color name="chip_background_color">?attr/colorSurface</color>
+    <color name="chip_selected_background_color">?attr/colorPrimary</color>
+    <color name="chip_text_color">?android:attr/textColorPrimary</color>
+    <color name="chip_selected_text_color">?android:attr/textColorPrimaryDisableOnly</color>
+
+</resources>

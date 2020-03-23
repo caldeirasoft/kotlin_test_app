@@ -30,7 +30,7 @@ class BannerPagerAdapter(var imageList: List<String>, private var errorImage: In
 
         getItemUrl(position)?.let { imageUrl ->
             Picasso.get()
-                    .load(imageUrl!!) // String
+                    .load(imageUrl) // String
                     .fit()
                     //.placeholder(placeholder)
                     //.error(errorImage)

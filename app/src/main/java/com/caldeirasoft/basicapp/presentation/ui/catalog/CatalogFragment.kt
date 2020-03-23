@@ -91,8 +91,8 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
 
     private fun createEpoxyController(): PagedListEpoxyController<Podcast> =
             object : BasePagedController<Podcast>() {
-                override fun buildItemModel(currentPosition: Int, podcast: Podcast?): EpoxyModel<*> {
-                    podcast?.let {
+                override fun buildItemModel(currentPosition: Int, item: Podcast?): EpoxyModel<*> {
+                    item?.let { podcast ->
                         return ItemPodcastBindingModel_().apply {
                             id(podcast.id)
                             title(podcast.name)

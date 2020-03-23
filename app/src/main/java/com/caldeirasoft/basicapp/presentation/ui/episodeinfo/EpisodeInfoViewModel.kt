@@ -1,11 +1,6 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 
-import android.os.Bundle
-import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaBrowserCompat.EXTRA_MEDIA_ID
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import android.support.v4.media.MediaMetadataCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -16,23 +11,18 @@ import com.caldeirasoft.castly.domain.model.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_ARCHIVE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_TOGGLE_FAVORITE
-import com.caldeirasoft.castly.service.playback.const.Constants.Companion.EXTRA_EPISODE
-import com.caldeirasoft.castly.service.playback.extensions.id
-import com.caldeirasoft.castly.service.playback.extensions.isPlaying
-import com.caldeirasoft.castly.service.playback.extensions.isPrepared
 
-class EpisodeInfoViewModel(val mediaItem: MediaItem,
+class EpisodeInfoViewModel(val episodeId: Long,
                            val episodeRepository: EpisodeRepository,
                            val mediaSessionConnection: MediaSessionConnection)
     : ViewModel() {
 
     // episode
-    var episodeData = MutableLiveData<Episode>()
-    val episodeDb: LiveData<Episode>
+    val episodeData: LiveData<Episode>
 
     // mediadata
     var mediaData = MutableLiveData<MediaItem>().apply {
-        this.value = mediaItem
+        //this.value = mediaItem
     }
 
     // episode playing
@@ -46,12 +36,13 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
 
     // init
     init {
-        episodeDb = episodeRepository.get(mediaItem.mediaId?.toLong() ?: 0L)
+        episodeData = episodeRepository.get(episodeId)
 
-        sectionData.addSource(episodeDb) { episode ->
+        sectionData.addSource(episodeData) { episode ->
             sectionData.postValue(episode?.section ?: SectionState.ARCHIVE.value)
         }
 
+        /*
         isNowPlaying.apply {
                 addSource(mediaSessionConnection.nowPlaying) { nowPlaying ->
                     postValue(getIsNowPlaying(nowPlaying, mediaSessionConnection.playbackState.value))
@@ -64,9 +55,11 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
         isPlayingEpisode.addSource(mediaSessionConnection.nowPlaying) { nowPlaying ->
             isPlayingEpisode.postValue(mediaItem.mediaId == nowPlaying?.id)
         }
+        */
     }
 
     fun playEpisode() {
+        /*
         val nowPlaying = mediaSessionConnection.nowPlaying.value
         val transportControls = mediaSessionConnection.transportControls
 
@@ -81,15 +74,16 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
             // add to queue item
             mediaSessionConnection.addQueueItem(mediaItem.description, 0)
         }
+         */
     }
 
     fun addToPlayNext() {
         // add to queue item
-        mediaSessionConnection.addQueueItem(mediaItem.description, 1)
+        //mediaSessionConnection.addQueueItem(mediaItem.description, 1)
     }
 
     fun addToQueueEnd() {
-        mediaSessionConnection.addQueueItem(mediaItem.description)
+        //mediaSessionConnection.addQueueItem(mediaItem.description)
     }
 
     fun toggleFavorite() {
@@ -101,6 +95,8 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
     }
 
     private fun sendCustomMediaItemCommand(customAction: String) {
+        customAction
+        /*
         val extra = Bundle().apply {
             // add media ID
             this.putString(EXTRA_MEDIA_ID, mediaItem.mediaId)
@@ -112,8 +108,7 @@ class EpisodeInfoViewModel(val mediaItem: MediaItem,
                         mediaData.postValue(mediaItem)
                     }
                 })
-    }
 
-    private fun getIsNowPlaying(nowPlaying: MediaMetadataCompat?, playbackState: PlaybackStateCompat?): Boolean =
-            nowPlaying?.id == mediaItem.mediaId && playbackState?.isPlaying == true
+         */
+    }
 }

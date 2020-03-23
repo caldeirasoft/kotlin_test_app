@@ -1,21 +1,18 @@
 package com.caldeirasoft.basicapp.presentation.utils.epoxy
 
-import android.graphics.*
-import android.graphics.drawable.Drawable
+import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyRecyclerView
 import java.util.*
-import kotlin.math.roundToInt
 
 
-class StickyHeaderItemDecoration(
+class StickyHeaderItemDecoration<T : EpoxyModel<*>>(
         private val epoxyController: EpoxyController,
-        private val headerIds: List<Long>
+        private val headerClass: Class<T>
 ) : RecyclerView.ItemDecoration() {
     private var mStickyHeaderHeight: Int = 0
 
@@ -76,7 +73,8 @@ class StickyHeaderItemDecoration(
     private fun isHeader(itemPosition: Int): Boolean {
         if (itemPosition != RecyclerView.NO_POSITION) {
             val model = epoxyController.adapter.getModelAtPosition(itemPosition)
-            return headerIds.contains(model.id())
+            val isHeaderType = (model.javaClass == headerClass)
+            return isHeaderType
         }
         return false
     }
@@ -153,7 +151,7 @@ class StickyHeaderItemDecoration(
         )
 
         view.measure(childWidthSpec, childHeightSpec)
-
+        mStickyHeaderHeight = view.measuredHeight
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
     }
 }

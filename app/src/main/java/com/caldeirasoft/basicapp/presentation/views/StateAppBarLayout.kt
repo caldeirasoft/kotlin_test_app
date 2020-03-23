@@ -1,5 +1,7 @@
 package com.caldeirasoft.basicapp.presentation.views
 
+import android.animation.ObjectAnimator
+import android.animation.StateListAnimator
 import android.content.Context
 import android.util.AttributeSet
 import com.google.android.material.appbar.AppBarLayout
@@ -18,6 +20,12 @@ class StateAppBarLayout : AppBarLayout, AppBarLayout.OnOffsetChangedListener {
 
     val isCollapsed: Boolean
         get() = state == COLLAPSED
+
+    init {
+        val stateListAnimator = StateListAnimator()
+        stateListAnimator.addState(intArrayOf(0), ObjectAnimator.ofFloat(this, "elevation", 0.0f))
+        setStateListAnimator(stateListAnimator)
+    }
 
     constructor(context: Context) : super(context)
 

@@ -34,7 +34,6 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
     }
 
     private fun initObservers() {
-        val dataItems = mViewModel.dataItems
         mViewModel.dataItems.observeK(this) { data ->
             controller.submitList(data)
         }
@@ -48,18 +47,18 @@ abstract class EpisodeListFragment : BindingFragment<FragmentEpisodelistBinding>
     private fun createEpoxyController(): PagedListEpoxyController<Episode> =
             object : BasePagedController<Episode>() {
                 override fun buildItemModel(currentPosition: Int, item: Episode?): EpoxyModel<*> {
-                    item?.let {
+                    item?.let { episode ->
                         return ItemEpisodeBindingModel_().apply {
-                            id(item.id)
-                            title(item.name)
-                            imageUrl(item.getArtwork(100))
-                            duration(item.description)
+                            id(episode.id)
+                            title(episode.name)
+                            imageUrl(episode.getArtwork(100))
+                            duration(episode.description)
                             //publishedDate(it.releaseDate.toString())
                             //playbackState(0)
                             //timePlayed(0)
                             onEpisodeClick { model, parentView, clickedView, position ->
                                 val episodeInfoDialog =
-                                        EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to item)
+                                        EpisodeInfoDialogFragment().withArgs(EPISODE_ARG to episode)
                                 episodeInfoDialog.show(childFragmentManager, episodeInfoDialog.tag)
                             }
                         }

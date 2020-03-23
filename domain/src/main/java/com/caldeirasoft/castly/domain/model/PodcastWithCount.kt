@@ -9,4 +9,6 @@ interface PodcastWithCount {
     var title: String
     var artwork: String
     var episodeCount: Int
+
+    fun getArtwork(width: Int): String = Podcast.getArtwork(artwork, width)
 }
