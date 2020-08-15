@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.caldeirasoft.basicapp">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -53,34 +54,25 @@
                     android:host="basicapp.caldeirasoft.com"
                     android:pathPattern="/basicapp" />
             </intent-filter>
+
+            <!-- Facebook Flipper deep link -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="flipper"
+                    android:host="deep_link_activity" />
+            </intent-filter>
         </activity>
 
-        <provider
-            android:name=".service_old.sync.StubProvider"
-            android:authorities="com.caldeirasoft.basicapp.sync.provider"
-            android:exported="true"
-            android:syncable="true" />
+        <!-- Flipper diagnostic activity -->
+        <activity
+            android:name="com.facebook.flipper.android.diagnostics.FlipperDiagnosticActivity"
+            android:exported="true" />
 
-        <service
-            android:name=".service_old.sync.SyncService"
-            android:enabled="true"
-            android:exported="true"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                        android:resource="@xml/syncadapter"/>
-        </service>
-
-        <service android:name=".service_old.sync.AuthenticatorService">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator"/>
-            </intent-filter>
-
-            <meta-data android:name="android.accounts.AccountAuthenticator"
-                        android:resource="@xml/authenticator"/>
-        </service>
     </application>
 
 </manifest>

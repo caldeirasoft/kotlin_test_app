@@ -118,27 +118,3 @@ fun Bundle.putExtras(extras: Array<out Pair<String, Any?>> = emptyArray()) = app
         }
     }
 }
-
-/** Create support fragment with given args */
-@Deprecated("Please use Fragment#withArgs() func instead")
-inline fun <reified T : Fragment> createSupportFragment(vararg args: Pair<String, Any?> = emptyArray()): T {
-    val instance = try {
-        T::class.java.newInstance()
-    } catch (e: InstantiationException) {
-        throw InstantiationException("Fragment ${T::class.simpleName} does not ")
-    }
-    instance.arguments = Bundle().putExtras(args)
-    return instance
-}
-
-/** Create fragment with given args */
-@Deprecated("Please use Fragment#withArgs() func instead")
-inline fun <reified T : android.app.Fragment> createFragment(vararg args: Pair<String, Any?> = emptyArray()): T {
-    val instance = try {
-        T::class.java.newInstance()
-    } catch (e: InstantiationException) {
-        throw InstantiationException("Fragment ${T::class.simpleName} does not ")
-    }
-    instance.arguments = Bundle().putExtras(args)
-    return instance
-}

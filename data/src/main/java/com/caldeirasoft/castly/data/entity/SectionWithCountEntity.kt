@@ -1,6 +1,6 @@
 package com.caldeirasoft.castly.data.entity
 
-import com.caldeirasoft.castly.domain.model.SectionWithCount
+import com.caldeirasoft.castly.domain.model.entities.SectionWithCount
 
 
 /**

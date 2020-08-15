@@ -1,6 +1,9 @@
 package com.caldeirasoft.basicapp.presentation.utils
 
 import android.graphics.Color
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
+import kotlin.math.roundToInt
 
 object ColorUtil {
     const val COLOR_PREFIX_LITERAL = "#"
@@ -18,4 +21,13 @@ object ColorUtil {
         amount > high -> high
         else -> amount
     }
+}
+
+@ColorInt
+internal fun Int.adjustAlpha(@FloatRange(from = 0.0, to = 1.0) factor: Float): Int {
+    val alpha = (Color.alpha(this) * factor).roundToInt()
+    val red = Color.red(this)
+    val green = Color.green(this)
+    val blue = Color.blue(this)
+    return Color.argb(alpha, red, green, blue)
 }

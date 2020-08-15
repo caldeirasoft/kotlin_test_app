@@ -26,7 +26,6 @@ dependencies {
     // Android-Paging
     implementation(deps.androidx.paging.runtime)
     // Android-LiveData
-    implementation(deps.androidx.lifecycle.extensions)
     kapt(deps.androidx.lifecycle.compiler)
     // Koin
     implementation(deps.koin.scope)

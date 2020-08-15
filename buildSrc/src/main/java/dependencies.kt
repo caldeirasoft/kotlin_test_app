@@ -5,31 +5,42 @@ object Versions {
     const val appcompat = "1.1.0"
     const val support = "1.2.0"
     const val palette = "1.0.0"
-    const val material= "1.1.0-rc02"
-    const val annotation  = "1.1.0"
+    const val material = "1.1.0-rc02"
+    const val annotation = "1.1.0"
     const val constraintlayout = "2.0.0-beta4"
     const val room = "2.2.4"
     const val paging = "2.1.0"
     const val lifecycle = "2.2.0"
-    const val navigation = "1.0.0"
+    const val navigation = "2.2.2"
     const val media2 = "1.0.3"
     const val swiperefreshlayout = "1.0.0"
-    const val circularprogressbar = "2.0.0"
+
+    const val chucker = "3.2.0"
+    const val coil = "0.9.5"
     const val conscrypt = "2.2.1"
+    const val customizedTextView = "2.2"
     const val epoxy = "3.9.0"
+    const val flipper = "0.38.0"
     const val i18n = "1.27"
     const val koin = "2.1.3"
     const val kotpref = "2.10.0"
     const val materialIconLib = "1.1.5"
     const val moshi = "1.9.2"
     const val okhttp = "4.4.0"
+    const val oklog3 = "2.3.0"
+    const val pandora = "2.1.0"
+    const val pandoraNoOp = "2.0.3"
+    const val pandoraPlugin = "1.0.0"
     const val paperparcel = "2.0.8"
     const val picasso = "2.71828"
     const val picasso_blur = "2.2.1"
     const val roundedImageView = "2.3.0"
     const val retrofit = "2.6.4"
     const val retrofitKotlinxSerialization = "0.5.0"
+    const val lapismSearch = "2.0.0"
     const val shimmerLayout = "2.1.0"
+    const val soloader = "0.9.0"
+    const val stetho = "1.5.1"
     const val superBottomSheet = "1.2.3"
     const val textDrawable = "1.0.1"
     const val timber = "4.7.1"
@@ -60,9 +71,13 @@ object AndroidSdk {
 }
 
 object deps {
-    const val i18n = "com.neovisionaries:nv-i18n:${Versions.i18n}"
+    const val coil = "io.coil-kt:coil:${Versions.coil}"
     const val conscrypt = "org.conscrypt:conscrypt-android:${Versions.conscrypt}"
+    const val customizedTextView = "com.libRG:customtextview:${Versions.customizedTextView}"
+    const val i18n = "com.neovisionaries:nv-i18n:${Versions.i18n}"
+    const val lapismSearch = "com.lapism:search:${Versions.lapismSearch}@aar"
     const val materialIconLib = "net.steamcrafted:materialiconlib:${Versions.materialIconLib}"
+    const val okLog3 = "com.github.simonpercic:oklog3:${Versions.oklog3}"
     const val roundedImageView = "com.makeramen:roundedimageview:${Versions.roundedImageView}"
     const val shimmerLayout = "io.supercharge:shimmerlayout:${Versions.shimmerLayout}"
     const val superBottomSheet = "com.github.andrefrsousa:SuperBottomSheet:${Versions.superBottomSheet}"
@@ -109,13 +124,21 @@ object deps {
 
         object room {
             const val runtime = "androidx.room:room-runtime:${Versions.room}"
-            const val compiler =  "androidx.room:room-compiler:${Versions.room}"
+            const val compiler = "androidx.room:room-compiler:${Versions.room}"
             const val ktx = "androidx.room:room-ktx:${Versions.room}"
         }
 
         object lifecycle {
-            const val extensions = "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
             const val compiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"
+            const val runtime_ktx = "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}"
+            const val livedata_ktx = "androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}"
+            const val viewmodel_ktx = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}"
+            const val savestate = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}"
+        }
+
+        object navigation {
+            const val fragment_ktx = "androidx.navigation:navigation-fragment-ktx:${Versions.navigation}"
+            const val ui_ktx = "androidx.navigation:navigation-ui-ktx:${Versions.navigation}"
         }
 
         object paging {
@@ -128,22 +151,25 @@ object deps {
             const val widget = "androidx.media2:media2-widget:${Versions.media2}"
             const val player = "androidx.media2:media2-player:${Versions.media2}"
         }
-
     }
 
-    object arch {
-        object navigation {
-            const val fragment = "android.arch.navigation:navigation-fragment-ktx:${Versions.navigation}"
-            const val ui = "android.arch.navigation:navigation-ui-ktx:${Versions.navigation}"
-        }
+    object chucker {
+        const val library = "com.github.ChuckerTeam.Chucker:library:${Versions.chucker}"
+        const val libraryNoOp = "com.github.ChuckerTeam.Chucker:library-no-op:${Versions.chucker}"
     }
-
 
     object epoxy {
         const val runtime = "com.airbnb.android:epoxy:${Versions.epoxy}"
         const val databinding = "com.airbnb.android:epoxy-databinding:${Versions.epoxy}"
         const val paging = "com.airbnb.android:epoxy-paging:${Versions.epoxy}"
         const val processor = "com.airbnb.android:epoxy-processor:${Versions.epoxy}"
+    }
+
+    object flipper {
+        const val flipper = "com.facebook.flipper:flipper:${Versions.flipper}"
+        const val flipperNetwork = "com.facebook.flipper:flipper-network-plugin:${Versions.flipper}"
+        const val flipperNoOp = "com.facebook.flipper:flipper-noop:${Versions.flipper}"
+        const val soloader = "com.facebook.soloader:soloader:${Versions.soloader}"
     }
 
     object koin {
@@ -183,6 +209,11 @@ object deps {
 
             const val kotlinxSerialization = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:${Versions.retrofitKotlinxSerialization}"
         }
+    }
+
+    object stetho {
+        const val runtime = "com.facebook.stetho:stetho:${Versions.stetho}"
+        const val okhttp3 = "com.facebook.stetho:stetho-okhttp3:${Versions.stetho}"
     }
 }
 

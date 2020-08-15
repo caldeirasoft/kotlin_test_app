@@ -85,29 +85,26 @@
     </style>
 
     <!-- chip filter "all" style -->
-    <style name="ChipChoiceAllStyle" parent="Widget.MaterialComponents.Chip.Choice">
+    <style name="ChipChoiceTextStyle" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="android:checkable">true</item>
         <item name="chipIconEnabled">false</item>
-        <item name="closeIconEnabled">true</item>
-        <item name="chipStrokeColor">#90acacac</item>
+        <item name="closeIconEnabled">false</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="chipStartPadding">8dp</item>
         <item name="chipEndPadding">8dp</item>
-        <item name="android:textColor">@color/choice_chip_text_color</item>
-        <item name="chipBackgroundColor">@color/choice_chip_background_color</item>
     </style>
 
     <!-- chip filter icon style -->
     <style name="ChipChoiceIconStyle" parent="Widget.MaterialComponents.Chip.Choice">
         <item name="android:checkable">true</item>
         <item name="chipIconEnabled">true</item>
-        <item name="chipStrokeColor">#90acacac</item>
+        <item name="chipIconVisible">true</item>
+        <item name="closeIconEnabled">false</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="textStartPadding">0dp</item>
         <item name="textEndPadding">0dp</item>
         <item name="chipStartPadding">8dp</item>
         <item name="chipEndPadding">8dp</item>
-        <item name="chipBackgroundColor">@color/choice_chip_background_color</item>
     </style>
 
     <!-- chip action style -->
@@ -118,6 +115,26 @@
         <item name="chipStrokeColor">#90acacac</item>
         <item name="chipStrokeWidth">1dp</item>
         <item name="chipStartPadding">10dp</item>
+    </style>
+
+    <!-- chip subscribe style -->
+    <style name="ChipSubscribeStyle" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="android:checkable">false</item>
+        <item name="chipIconEnabled">true</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
+        <item name="chipIcon">@drawable/ic_add_24dp</item>
+    </style>
+
+    <!-- chip issubscribed style -->
+    <style name="ChipIsSubscribedStyle" parent="Widget.MaterialComponents.Chip.Action">
+        <item name="android:checkable">true</item>
+        <item name="android:checked">true</item>
+        <item name="chipIconEnabled">false</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="chipStartPadding">8dp</item>
+        <item name="chipEndPadding">8dp</item>
     </style>
 
     <style name="TextAppearance.TestApp.Tab" parent="TextAppearance.Design.Tab">
@@ -166,6 +183,17 @@
         <item name="cornerRadius">18dp</item>
     </style>
 
+    <!-- icon button -->
+    <style name="Widget.App.Button.OutlinedButton.IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="iconPadding">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="iconTint">?android:textColorPrimary</item>
+    </style>
+
     <!-- custom catalog buttons -->
     <style name="CatalogButtonIconAppareance" parent="Widget.MaterialComponents.Button.OutlinedButton.Icon">
         <item name="android:backgroundTint">@drawable/selector_button_catalog</item>
@@ -181,5 +209,16 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="Widget.MaterialComponents" parent="@android:style/Widget" />
+
+    <style name="Widget.MaterialComponents.DateHeaders">
+        <item name="android:width">64dp</item>
+        <item name="android:paddingTop">@dimen/spacing_normal</item>
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:fontFamily">@font/googlesans_regular</item>
+        <item name="dateTextSize">@dimen/time_header_hour_text_size</item>
+        <item name="dayTextSize">@dimen/time_header_meridiem_text_size</item>
     </style>
 </resources>

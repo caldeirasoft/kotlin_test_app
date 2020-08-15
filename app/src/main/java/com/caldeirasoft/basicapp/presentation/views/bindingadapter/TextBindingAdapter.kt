@@ -27,7 +27,7 @@ fun setTitleDescription(view: TextView, title: String?, description: String?) {
         description?.let {
             setSpan(
                     TextAppearanceSpan(view.context, R.style.TextAppearance_MaterialComponents_Caption),
-                    (title?.length ?: 0) + 2,
+                    (title?.length ?: 0) + 1,
                     length,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE
             )

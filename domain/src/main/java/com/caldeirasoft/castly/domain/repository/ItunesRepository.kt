@@ -1,15 +1,33 @@
 package com.caldeirasoft.castly.domain.repository;
 
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.itunes.StoreCollection
-import com.caldeirasoft.castly.domain.model.itunes.StoreData
-import com.caldeirasoft.castly.domain.model.itunes.StoreMultiCollection
+import com.caldeirasoft.castly.domain.util.FlowPaginationModel
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.itunes.*
+import com.caldeirasoft.castly.domain.util.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by Edmond on 15/02/2018.
  */
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 interface ItunesRepository {
+
+    /**
+     * Get store data by genre (grouping_page)
+     */
+    fun getGroupingPageData(storeFront: String, genreId: Int): Flow<Resource<GroupingPageData>>
+
+    /**
+     * Get top podcasts data by genre
+     */
+    fun getTopPodcastsData(clientScope: CoroutineScope,
+                           pageSize: Int,
+                           genreId: Int): FlowPaginationModel<Podcast>
 
     /**
      * Get all podcasts from Lookup query
@@ -22,29 +40,19 @@ interface ItunesRepository {
     suspend fun lookupAsync(id: Long): Podcast?
 
     /**
-     * Get store front
+     * Get room store data URL (room/collection)
      */
-    suspend fun getStoreAsync(storeFront: String): StoreData
+    suspend fun getRoomDataAsync(storeFront: String, url: String): RoomPageData
 
     /**
-     * Get store data by genre
+     * Get multiroom store data by URL (feature/multiroom)
      */
-    suspend fun getGenreDataAsync(storeFront: String, genreId: Int): StoreData
+    suspend fun getMultiRoomDataAsync(storeFront: String, url: String): MultiRoomPageData
 
     /**
-     * Get store data for a collection
+     * Get room store data URL (room/collection)
      */
-    suspend fun getCollectionDataAsync(storeFront: String, id: Int): StoreCollection
-
-    /**
-     * Get store data for a collection
-     */
-    suspend fun getMultiRoomDataAsync(storeFront: String, id: Int): StoreMultiCollection
-
-    /**
-     * Get store data for a collection
-     */
-    suspend fun getFeatureDataAsync(storeFront: String, id: Int): StoreMultiCollection
+    suspend fun getArtistPageDataAsync(storeFront: String, artistId: Long): ArtistPageData
 
     /**
      * Get top podcasts Ids from a category
@@ -55,9 +63,4 @@ interface ItunesRepository {
      * Get top podcasts of a category
      */
     suspend fun topPodcastsAsync(category: Int): List<Podcast>
-
-    /**
-     * Get podcast info
-     */
-    suspend fun getPodcastAsync(storeFront: String, id: Long): Podcast?
 }

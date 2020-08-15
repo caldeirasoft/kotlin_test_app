@@ -1,117 +1,103 @@
 package com.caldeirasoft.basicapp.presentation.ui.discover
 
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
+import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.core.view.ViewCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.viewpager2.widget.MarginPageTransformer
 import com.airbnb.epoxy.DataBindingEpoxyModel
 import com.airbnb.epoxy.paging.PagedListEpoxyController
 import com.caldeirasoft.basicapp.R
 import com.caldeirasoft.basicapp.databinding.FragmentDiscoverBinding
 import com.caldeirasoft.basicapp.presentation.ui.base.BindingFragment
 import com.caldeirasoft.basicapp.presentation.ui.catalog.CatalogEpoxyController
+import com.caldeirasoft.basicapp.presentation.utils.combineTuple
+import com.caldeirasoft.basicapp.presentation.utils.epoxy.CyclicAdapter
+import com.caldeirasoft.basicapp.presentation.utils.extensions.dataBinding
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
+import com.caldeirasoft.basicapp.presentation.utils.extensions.setController
 import com.caldeirasoft.basicapp.presentation.views.SimplePagerAdapter
-import com.caldeirasoft.castly.domain.model.MediaID
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.SectionState
-import com.caldeirasoft.castly.domain.model.itunes.StoreCollection
+import com.caldeirasoft.castly.data.models.itunes.GroupingPageDataEntity
+import com.caldeirasoft.castly.domain.model.entities.MediaID
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.entities.SectionState
+import com.caldeirasoft.castly.domain.model.itunes.GroupingPageData
+import kotlinx.android.synthetic.main.fragment_podcastdetail.view.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class DiscoverFragment :
-        BindingFragment<FragmentDiscoverBinding>() {
+class DiscoverFragment : Fragment(R.layout.fragment_discover) {
+    private val binding: FragmentDiscoverBinding by dataBinding()
+    private val model: DiscoverViewModel by viewModel()
+    private val catalogController: PagedListEpoxyController<Podcast> by lazy { createCatalogEpoxyController() }
+    private val discoverController: DiscoverEpoxyController by lazy { createDiscoverEpoxyController() }
+    private val discoverHeaderController: DiscoverHeaderEpoxyController by lazy { createDiscoverHeaderEpoxyController() }
 
-    private var showHeader: Boolean = true
-    private val mViewModel: DiscoverViewModel by viewModel()
-    private val catalogController by lazy { createCatalogEpoxyController() }
-    private val discoverController by lazy { createDiscoverEpoxyController() }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View? {
-        mBinding = FragmentDiscoverBinding.inflate(inflater, container, false)
-        mBinding.let {
-            it.lifecycleOwner = this
-            it.viewModel = mViewModel
-            return it.root
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initMotionLayout()
+        binding.viewModel = model
         initUi()
         initObservers()
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!showHeader)
-            mBinding.motionLayoutRoot.progress = 1f
-    }
-
 
     private fun initUi() {
-        // viewpager adapter
-        mBinding.viewPager.apply {
-            val pageTitles = arrayOf("Discover", "Trending")
-            val viewPagerAdapter = SimplePagerAdapter(requireActivity(), this, pageTitles)
-            adapter = viewPagerAdapter
-            mBinding.tabLayout.setupWithViewPager(this)
+        binding.viewpager2DiscoverHeader.apply {
+            adapter = CyclicAdapter(discoverHeaderController.adapter)
+            clipToPadding = false   // allow full width shown with padding
+            clipChildren = false    // allow left/right item is not clipped
+            offscreenPageLimit = 2  // make sure left/right item is rendered
+
+            // increase this offset to show more of left/right
+            val offsetPx = 30.dpToPx(resources.displayMetrics)
+            setPadding(offsetPx, 0, offsetPx, 0)
+
+            // increase this offset to increase distance between 2 items
+            val pageMarginPx = 10.dpToPx(resources.displayMetrics)
+            val marginTransformer = MarginPageTransformer(pageMarginPx)
+            setPageTransformer(marginTransformer)
         }
 
-        mBinding.catalogRecyclerView.apply {
+        binding.epoxyRecyclerViewDiscoverTrending.apply {
             setController(catalogController)
             addItemDecoration(DividerItemDecoration(this.context, LinearLayoutManager.VERTICAL))
         }
 
-        mBinding.discoverRecyclerView.apply {
+        binding.epoxyRecyclerViewDiscoverTrending.apply {
             setController(discoverController)
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun initObservers() {
-        mViewModel.topItems.observeK(this) {data ->
-            catalogController.submitList(data)
-        }
-
-        mViewModel.itunesStoreData.observeK(this) { data ->
-            discoverController.setData(data)
-            data?.trending?.map { artwork -> artwork.artworkUrl }?.let { list ->
-                mBinding.bannerViewPager.setImageList(list)
-            }
-        }
-
-        mViewModel.itunesStoreInitialState.observeK(this) {
-            it?.let {
-                discoverController.setNetworkState(it)
-            }
-        }
-    }
-
-    private fun initMotionLayout() {
-        mBinding.motionLayoutRoot.apply {
-            // init statusbar offset
-            getConstraintSet(R.id.expanded)?.constrainHeight(R.id.status_bar_view,
-                    (mBinding.statusBarView.rootWindowInsets?.stableInsetTop ?: 96))
-            getConstraintSet(R.id.collapsed)?.constrainHeight(R.id.status_bar_view,
-                    (mBinding.statusBarView.rootWindowInsets?.stableInsetTop ?: 96))
-
-            setTransitionListener(object : MotionLayout.TransitionListener {
-                override fun onTransitionStarted(p0: MotionLayout?, p1: Int, p2: Int) { }
-                override fun onTransitionChange(p0: MotionLayout?, p1: Int, p2: Int, p3: Float) { }
-                override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) { }
-                override fun onTransitionCompleted(p0: MotionLayout?, p1: Int) {
-                    showHeader = p1 == R.id.expanded
+        // set data
+        combineTuple(model.groupingPageData, model.groupingPageLoadingStatus)
+                .observeK(this) { content ->
+                    discoverController.setData(content?.first, content?.second, null)
                 }
-            })
-        }
+
+        // set header
+        combineTuple(model.groupingPageHeaderData, model.groupingPageLoadingStatus)
+                .observeK(this) { content ->
+                    val collection = content?.first?.items.orEmpty()
+                    discoverHeaderController.setData(collection, content?.second)
+                }
+
     }
 
     private fun navigateToPodcast(podcast: Podcast,
@@ -128,11 +114,7 @@ class DiscoverFragment :
     private fun navigateToPodcast(podcast: Podcast,
                                   transitionName: String,
                                   imageView: ImageView) {
-        val id = MediaID(SectionState.PODCAST, podcast.id).id
-        val direction =
-                DiscoverFragmentDirections.openPodcast(id).also{
-                    it.podcast = podcast
-                }
+        val direction = DiscoverFragmentDirections.actionDiscoverFragment2ToNavigationPodcastinfoGraph(podcast)
         val extras = FragmentNavigatorExtras(imageView to transitionName)
         navigateTo(direction, extras)
     }
@@ -140,39 +122,58 @@ class DiscoverFragment :
     private fun createCatalogEpoxyController(): PagedListEpoxyController<Podcast> =
             CatalogEpoxyController(object: CatalogEpoxyController.Callbacks {
                 override fun onPodcastClicked(podcast: Podcast, view: View) {
-                    val id = MediaID(SectionState.PODCAST, podcast.id).id
-                    val direction =
-                            DiscoverFragmentDirections.openPodcast(id).also{
-                                it.podcast = podcast
-                            }
+                    val direction = DiscoverFragmentDirections.actionDiscoverFragment2ToNavigationPodcastinfoGraph(podcast)
                     val imageView: ImageView = view.findViewById(R.id.img_row)
-                    Log.d("Transition", podcast.transitionName)
-                    val extras = FragmentNavigatorExtras(imageView to podcast.transitionName)
+                    //TODO: get imageView.transitionName
+                    val transitionName = podcast.transitionName + Math.random().toString()
+                    Log.d("Transition", transitionName)
+                    val extras = FragmentNavigatorExtras(imageView to transitionName)
                     navigateTo(direction, extras)
                 }
 
-                override fun onCollectionClicked(collection: StoreCollection, view: View) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                }
             })
 
     private fun createDiscoverEpoxyController() =
-            DiscoverExpoxyController(object: DiscoverExpoxyController.Callbacks {
+            DiscoverEpoxyController(model, object : DiscoverEpoxyController.Callbacks {
                 override fun onPodcastClicked(podcast: Podcast, view: View) {
-                    val id = MediaID(SectionState.PODCAST, podcast.id).id
-                    val direction =
-                            DiscoverFragmentDirections.openPodcast(id).also{
-                                it.podcast = podcast
-                            }
+                    val direction = DiscoverFragmentDirections.actionDiscoverFragment2ToNavigationPodcastinfoGraph(podcast)
                     val imageView: ImageView = view.findViewById(R.id.img_row)
-                    val extras = FragmentNavigatorExtras(imageView to podcast.transitionName)
+                    val transitionName = podcast.transitionName + Math.random().toString()
+                    val extras = FragmentNavigatorExtras(imageView to transitionName)
                     navigateTo(direction, extras)
-
-                    //mViewModel.updatePodcast(podcast)
                 }
 
-                override fun onCollectionClicked(collection: StoreCollection, view: View) {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                override fun onCollectionItemClicked(collectionItem: GroupingPageData.TrendingItem, view: View) {
+                    when (collectionItem) {
+                        is GroupingPageDataEntity.TrendingProviderArtist -> {
+                            TODO("navigate to artist")
+                        }
+                        is GroupingPageDataEntity.TrendingRoom -> {
+                            TODO("navigate to room")
+                        }
+                    }
                 }
             })
+
+    private fun createDiscoverHeaderEpoxyController() =
+            DiscoverHeaderEpoxyController(model, object : DiscoverHeaderEpoxyController.Callbacks {
+                override fun onCollectionItemClicked(collectionItem: GroupingPageData.TrendingItem, view: View) {
+                    when (collectionItem) {
+                        is GroupingPageDataEntity.TrendingPodcast -> {
+                            val podcast = collectionItem.podcast
+                            val direction = DiscoverFragmentDirections.actionDiscoverFragment2ToNavigationPodcastinfoGraph(podcast)
+                            navigateTo(direction)
+                        }
+                        is GroupingPageDataEntity.TrendingRoom -> {
+                            TODO("navigate to room")
+                        }
+                    }
+                }
+            })
+
+    private fun Int.dpToPx(displayMetrics: DisplayMetrics): Int =
+            TypedValue.applyDimension(
+                    COMPLEX_UNIT_DIP,
+                    this.toFloat(),
+                    displayMetrics).toInt()
 }

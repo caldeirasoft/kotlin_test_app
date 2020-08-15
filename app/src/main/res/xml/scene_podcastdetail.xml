@@ -6,7 +6,6 @@
     <Transition app:constraintSetStart="@+id/expanded"
                 app:constraintSetEnd="@+id/collapsed">
 
-
         <OnSwipe app:dragDirection="dragUp"
             app:touchAnchorId="@id/viewPager"
             app:touchAnchorSide="top"/>
@@ -49,7 +48,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Constraint
-            android:id="@+id/podcastHeader_constraintLayout"
+            android:id="@+id/podcastHeaderConstraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/header_view"
@@ -86,7 +85,7 @@
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <Constraint
-            android:id="@+id/podcastHeader_constraintLayout"
+            android:id="@+id/podcastHeaderConstraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@id/toolbar"

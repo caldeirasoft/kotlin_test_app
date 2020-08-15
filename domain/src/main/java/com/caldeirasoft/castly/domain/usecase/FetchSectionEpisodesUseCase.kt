@@ -1,19 +1,12 @@
 package com.caldeirasoft.castly.domain.usecase
 
-import androidx.paging.PagedList
-import androidx.paging.toLiveData
-import com.caldeirasoft.castly.domain.const.Constants
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.entities.Episode
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
-import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
-import java.util.concurrent.Executor
+import com.caldeirasoft.castly.domain.usecase.base.BaseUseCase
+import kotlinx.coroutines.flow.Flow
 
-class FetchSectionEpisodesUseCase(
-        val episodeRepository: EpisodeRepository) {
-    fun fetchAll(sectionId: Int): UseCaseResult<PagedList<Episode>> {
-        val factory = episodeRepository.fetchFactory(sectionId)
-        val pagedList = factory.toLiveData(
-                pageSize = Constants.PAGE_LOAD_SIZE)
-        return UseCaseResult(data = pagedList)
-    }
+class FetchSectionEpisodesUseCase(val episodeRepository: EpisodeRepository)
+    : BaseUseCase<Int, List<Episode>>() {
+    override fun execute(params: Int): Flow<List<Episode>> =
+            episodeRepository.fetch(params)
 }

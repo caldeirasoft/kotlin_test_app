@@ -8,6 +8,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.palette.graphics.Palette
+import coil.api.load
 import com.caldeirasoft.basicapp.R
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.squareup.picasso.Callback
@@ -17,18 +18,17 @@ import java.lang.Exception
 
 @BindingAdapter("imageUrl")
 fun ImageView.imageUrl(url: String?) {
-    Picasso.get()
-            .load(url)
-            .placeholder(R.color.gray)
-            .into(this)
+    this.load(url) {
+        placeholder(R.color.med_gray)
+    }
 }
 
 @BindingAdapter("imageUrl", "error")
 fun ImageView.imageUrl(url: String?, error: Drawable) {
-    Picasso.get()
-            .load(url)
-            .error(error)
-            .into(this)
+    this.load(url) {
+        placeholder(R.color.med_gray)
+        error(error)
+    }
 }
 
 @BindingAdapter("blurUrl")

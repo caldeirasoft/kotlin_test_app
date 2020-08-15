@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_graph"
+    app:startDestination="@id/inbox_dest">
+
+    <fragment
+        android:id="@+id/inbox_dest"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.inbox.InboxFragment"
+        tools:layout="@layout/fragment_episodelist"
+        android:label="InboxFragment">
+        <action
+            android:id="@+id/action_inboxFragment2_to_episodeInfoDialogFragment2"
+            app:destination="@id/episodeinfo_dest" />
+    </fragment>
+    <fragment
+        android:id="@+id/podcasts_dest"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragment"
+        android:label="PodcastFragment"
+        tools:layout="@layout/fragment_podcasts">
+        <action
+            android:id="@+id/action_podcastFragment2_to_navigation_podcastinfo_graph"
+            app:destination="@id/podcastinfo_dest" />
+    </fragment>
+    <fragment
+        android:id="@+id/discover_dest"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.discover.DiscoverFragment"
+        tools:layout="@layout/fragment_discover"
+        android:label="DiscoverFragment">
+        <action
+            android:id="@+id/action_discoverFragment2_to_navigation_podcastinfo_graph"
+            app:destination="@id/podcastinfo_dest" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/podcastinfo_dest"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoFragment"
+        tools:layout="@layout/fragment_podcastinfo"
+        android:label="PodcastInfoFragment">
+        <action
+            android:id="@+id/action_podcastInfoFragment2_to_episodeInfoDialogFragment3"
+            app:destination="@id/episodeinfo_dest" />
+        <argument
+            android:name="podcast"
+            app:argType="com.caldeirasoft.castly.domain.model.entities.Podcast" />
+    </fragment>
+    <dialog
+        android:id="@+id/episodeinfo_dest"
+        android:name="com.caldeirasoft.basicapp.presentation.ui.episodeinfo.EpisodeInfoDialogFragment"
+        tools:layout="@layout/fragment_episodedetail"
+        android:label="EpisodeInfoDialogFragment">
+        <argument
+            android:name="episode"
+            app:argType="com.caldeirasoft.castly.domain.model.entities.Episode" />
+        <action
+            android:id="@+id/action_episodeInfoDialogFragment2_to_podcastInfoFragment2"
+            app:destination="@id/podcastinfo_dest" />
+    </dialog>
+
+</navigation>

@@ -7,10 +7,10 @@ import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.caldeirasoft.basicapp.presentation.utils.SingleLiveEvent
-import com.caldeirasoft.castly.domain.datasource.ItunesPodcastDataSource
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.NetworkState
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.data.util.ItunesTopPodcastsDataSource
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.NetworkState
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
 import kotlinx.coroutines.GlobalScope
@@ -33,8 +33,8 @@ class CatalogViewModel(
     var isLoading: LiveData<Boolean>
     var networkErrors: LiveData<String>
     var catalogCategory = MutableLiveData<Int>()
-    var itunesPodcastDataSourceFactory: DataSource.Factory<Int, Podcast>
-    var data: LiveData<PagedList<Podcast>>
+    var itunesPodcastDataSourceFactory: DataSource.Factory<Int, Podcast>? = null
+    var data: LiveData<PagedList<Podcast>>? = null
     var dataItems: MutableLiveData<List<Podcast>> = MutableLiveData()
 
     private var networkState = MutableLiveData<NetworkState>()
@@ -51,7 +51,6 @@ class CatalogViewModel(
      */
     init {
         ioExecutor = Executors.newFixedThreadPool(5)
-        itunesPodcastDataSourceFactory = ItunesPodcastDataSource.Factory(itunesRepository, podcastRepository, category)
 
         isLoading = MutableLiveData()
         networkErrors = MutableLiveData()
@@ -62,20 +61,14 @@ class CatalogViewModel(
                 .setPrefetchDistance(5)
                 .setInitialLoadSizeHint(40)
                 .build()
+        /*
         data =  LivePagedListBuilder(itunesPodcastDataSourceFactory, pagedListConfig)
                 //.setBoundaryCallback()
                 .setFetchExecutor(ioExecutor)
                 .build()
 
-        runBlocking {
-        //    dataItems.postValue(itunesRepository.topPodcastsAsync(26))
-        }
+         */
     }
-
-    /**
-     * Refresh source factory
-     */
-    fun refresh() = itunesPodcastDataSourceFactory.create()
 
 
     fun onPodcastClick(podcast: Podcast)

@@ -21,29 +21,7 @@ class StoreResultDto {
 
         class LockupResult {
             @Json(name = "results")
-            lateinit var results: Map<String, LockupResultItem>
-
-            class LockupResultItem {
-                @Json(name = "name")
-                var name: String = ""
-
-                @Json(name = "artistName")
-                var artistName: String = ""
-
-                @Json(name = "feedUrl")
-                var feedUrl: String = ""
-
-                @Json(name = "id")
-                var trackId: Int = 0
-
-                @Json(name = "artwork")
-                lateinit var artwork: Artwork
-
-                class Artwork {
-                    @Json(name = "url")
-                    var url: String = ""
-                }
-            }
+            lateinit var results: Map<String, LookupItemDto>
         }
     }
 

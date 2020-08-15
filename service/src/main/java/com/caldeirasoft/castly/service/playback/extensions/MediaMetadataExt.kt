@@ -5,11 +5,10 @@ import android.net.Uri
 import androidx.media2.common.MediaItem
 import androidx.media2.common.MediaMetadata
 import androidx.media2.common.MediaMetadata.*
-import androidx.media2.exoplayer.external.upstream.DataSource
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.MediaID
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.MediaID
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import java.util.concurrent.TimeUnit
 
 /**

@@ -1,6 +1,6 @@
 package com.caldeirasoft.castly.data.entity
 
-import com.caldeirasoft.castly.domain.model.PodcastWithCount
+import com.caldeirasoft.castly.domain.model.entities.PodcastWithCount
 
 
 /**

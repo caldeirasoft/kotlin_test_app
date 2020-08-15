@@ -1,8 +1,8 @@
 package com.caldeirasoft.castly.domain.repository;
 
-import androidx.lifecycle.LiveData
-import com.caldeirasoft.castly.domain.model.Podcast;
-import kotlinx.coroutines.Deferred
+import com.caldeirasoft.castly.domain.model.entities.Podcast;
+import com.caldeirasoft.castly.domain.util.Resource
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by Edmond on 15/02/2018.
@@ -11,37 +11,26 @@ import kotlinx.coroutines.Deferred
 interface PodcastRepository {
 
     /**
-     * Select all podcasts from the database
+     * Get the cache subscribed podcasts from DB
      */
-    fun fetch(): LiveData<List<Podcast>>
+    fun fetchSubscribedPodcasts(): Flow<List<Podcast>>
+
+    /**
+     * Gets the cached podcast from database and tries to get
+     * fresh podcast from web and save into database
+     * if that fails then continues showing cached data.
+     */
+    fun getPodcast(podcastId: Long): Flow<Resource<Podcast>>
+
+    /**
+     * Gets the cached podcast from database and tries to get
+     * fresh podcast from web and save into database
+     * if that fails then continues showing cached data.
+     */
+    fun getPodcast(podcast: Podcast): Flow<Resource<Podcast>>
 
     /**
      * Select all podcasts from the database
      */
     fun fetchSync(): List<Podcast>
-
-    /**
-     * Select a podcast by id
-     */
-    fun get(id: Long): LiveData<Podcast>
-
-    /**
-     * Select a podcast by id
-     */
-    fun getSync(id: Long): Podcast?
-
-    /**
-     * Insert a podcast in the database. If the podcast already exists, replace it
-     */
-    fun insert(podcast: Podcast)
-
-    /**
-     * Update a podcast
-     */
-    fun update(podcast: Podcast)
-
-    /**
-     * Delete a podcast
-     */
-    fun delete(podcast: Podcast)
 }

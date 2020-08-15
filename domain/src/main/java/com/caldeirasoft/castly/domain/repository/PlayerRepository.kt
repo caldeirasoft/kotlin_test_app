@@ -1,7 +1,7 @@
 package com.caldeirasoft.castly.domain.repository;
 
 import androidx.lifecycle.LiveData
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.entities.Episode
 
 /**
  * Created by Edmond on 15/02/2018.

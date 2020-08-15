@@ -21,8 +21,8 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:text="@{sectionTitle}"
-            android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+            android:text="{sectionTitle}"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:fontFamily="sans-serif-medium"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

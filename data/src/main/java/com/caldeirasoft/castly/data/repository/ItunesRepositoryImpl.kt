@@ -1,25 +1,55 @@
 package com.caldeirasoft.castly.data.repository
 
-import android.graphics.Color
-import android.util.LongSparseArray
+import androidx.lifecycle.asFlow
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.caldeirasoft.castly.data.datasources.local.dao.PodcastDao
 import com.caldeirasoft.castly.data.datasources.remote.ITunesApi
 import com.caldeirasoft.castly.data.datasources.remote.PodcastsApi
-import com.caldeirasoft.castly.data.dto.itunes.LookupItemDto
-import com.caldeirasoft.castly.data.dto.itunes.MultiRoomResultDto
-import com.caldeirasoft.castly.data.dto.itunes.SearchResultDto
-import com.caldeirasoft.castly.data.entity.EpisodeEntity
-import com.caldeirasoft.castly.data.entity.PodcastArtworkEntity
+import com.caldeirasoft.castly.data.dto.itunes.*
 import com.caldeirasoft.castly.data.entity.PodcastEntity
-import com.caldeirasoft.castly.domain.model.Genre
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.data.models.itunes.GroupingPageDataEntity
+import com.caldeirasoft.castly.data.models.itunes.MultiRoomPageDataEntity
+import com.caldeirasoft.castly.data.util.ItunesTopPodcastsDataSource
+import com.caldeirasoft.castly.data.util.NetworkBoundFileResource
+import com.caldeirasoft.castly.domain.model.entities.Artwork
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.file.FileManager
 import com.caldeirasoft.castly.domain.model.itunes.*
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
+import com.caldeirasoft.castly.domain.util.FlowPaginationModel
+import com.caldeirasoft.castly.domain.util.Resource
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types.newParameterizedType
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
+import kotlinx.serialization.UnstableDefault
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.Json.Default.stringify
+import kotlinx.serialization.modules.SerializersModule
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalDateTime
+import retrofit2.Response
 
 /**
  * Created by Edmond on 15/02/2018.
  */
-class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsApi, val podcastDao: PodcastDao) : ItunesRepository {
+@kotlinx.coroutines.FlowPreview
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+class ItunesRepositoryImpl(
+        private val iTunesAPI: ITunesApi,
+        private val podcastsApi: PodcastsApi,
+        private val podcastDao: PodcastDao,
+        private val fileManager: FileManager,
+        private val marshaller: Json) : ItunesRepository {
+
+    private val moshi: Moshi = Moshi.Builder()
+            .add(KotlinJsonAdapterFactory())
+            .build()
 
     companion object {
         val PODCAST_TOKEN = "allPodcasts"
@@ -27,107 +57,76 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
     }
 
     /**
-     * Get all podcasts from Lookup query
+     * Get itunes.apple.com genre page (grouping_page)
      */
-    override suspend fun lookupAsync(ids: List<Long>): List<Podcast> {
-        val idsJoin = ids.joinToString(",")
-        val searchResults = iTunesAPI.lookup(idsJoin)
-        val entries = searchResults.results
-        return entries.map { entry -> getPodcast(entry.trackId, entry) }
+    @UnstableDefault
+    override fun getGroupingPageData(storeFront: String, genreId: Int): Flow<Resource<GroupingPageData>> {
+        return object : NetworkBoundFileResource<GroupingPageResultDto, GroupingPageData>() {
+            override suspend fun fetchFromNetwork(): Response<GroupingPageResultDto> =
+                    iTunesAPI.genre(storeFront, genreId)
+
+            override fun loadFromFile(): GroupingPageData? =
+                    loadGroupingPageDataFromFile(genreId)
+
+            override suspend fun processResponse(response: GroupingPageResultDto): GroupingPageData =
+                    processGroupingData(response, genreId)
+
+            override suspend fun saveCallResult(data: GroupingPageData) =
+                    saveGroupingPageData(data, genreId)
+
+            override fun shouldFetch(data: GroupingPageData?): Boolean {
+                return true
+            }
+        }.asFlow()
     }
 
     /**
-     * Get all podcasts from Lookup query
+     * Get top podcasts data by genre
      */
-    override suspend fun lookupAsync(id: Long): Podcast? {
-        val searchResults = iTunesAPI.lookup(id.toString())
-        val entries = searchResults.results
-        return entries.map { entry -> getPodcast(entry.trackId, entry) }.firstOrNull()
-    }
+    override fun getTopPodcastsData(
+            clientScope: CoroutineScope,
+            pageSize: Int,
+            genreId: Int): FlowPaginationModel<Podcast> {
+        return object : FlowPaginationModel<Podcast> {
+            private val dataSourceFactory =
+                    ItunesTopPodcastsDataSource.Factory(
+                            clientScope,
+                            this@ItunesRepositoryImpl,
+                            genreId)
 
-    /**
-     * Get top podcasts of a category
-     */
-    override suspend fun topPodcastsAsync(category: Int): List<Podcast> {
-        val podcastsList = ArrayList<Podcast>()
-        val searchResults = iTunesAPI.topPodcasts("fr", 200, category)
-        val entries = searchResults.results
-        entries.forEach { entry ->
-            val podcast = PodcastEntity(id = entry.trackId,
-                    feedUrl = entry.feedUrl,
-                    name = entry.trackName,
-                    artistName = entry.artistName,
-                    artwork = entry.artworkUrl600,
-                    artworkWidth = 600,
-                    artworkHeight = 600,
-                    releaseDate = entry.releaseDate,
-                    trackCount = entry.trackCount,
-                    contentAdvisoryRating = entry.contentAdvisoryRating
-            )
-            podcastsList.add(podcast)
+            override val pagedList: Flow<PagedList<Podcast>>
+                get() = LivePagedListBuilder(
+                        dataSourceFactory, PagedList.Config.Builder()
+                        .setPageSize(pageSize)
+                        .setEnablePlaceholders(false)
+                        .build()
+                ).build().asFlow()
+
+            override val getState = dataSourceFactory
+                    .dataSource
+                    .flatMapLatest { it.getState }
+
+            override fun refresh() {
+                clientScope.launch {
+                    dataSourceFactory.dataSource.first().refresh()
+                }
+            }
         }
-        return podcastsList
     }
 
-
     /**
-     * Get top podcasts Ids from a category
+     * Process the network request response and convert it into a GroupingPageData object
      */
-    override suspend fun topAsync(category: Int): List<Long> =
-            iTunesAPI.top("fr", 200, category).resultIds
+    private suspend fun processGroupingData(storeResult: GroupingPageResultDto, genreId: Int): GroupingPageData {
+        val pageData = GroupingPageDataEntity()
+        val mapPodcastLookup: HashMap<Long, Podcast> = hashMapOf()
+        val mapArtistLookup: HashMap<Long, ArtistItunes> = hashMapOf()
 
-    /**
-     * Get itunes store main page store front
-     */
-    override suspend fun getStoreAsync(storeFront: String): StoreData {
-        val podcastsLookup = HashMap<Long, Podcast>()
-        val trendingPodcasts = ArrayList<PodcastArtwork>()
-        val itunesGroups: MutableList<StoreGroup> = arrayListOf()
-
-        val storeResult = iTunesAPI.genre(storeFront, DEFAULT_CATEGORY)
         // set lockup
         val lockup = storeResult.storePlatformData.lockup.results
-        lockup.forEach { kvp ->
-            kvp.value.apply {
-                if (kind == "podcast") {
-                    if (feedUrl.isNotEmpty()) {
-                        val podcast = PodcastEntity(kvp.key)
-                        podcast.name = name
-                        podcast.artistName = artistName
-                        podcast.feedUrl = feedUrl
-                        podcast.releaseDate = releaseDateTime
-                        //podcast.trackCount = trackCount
-                        if (::artwork.isLateinit) {
-                            podcast.artwork = artwork.url
-                            podcast.artworkWidth = artwork.width
-                            podcast.artworkHeight = artwork.height
-                            //podcast.bigImageUrl = artwork.url.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
-                        }
-                        podcastsLookup[kvp.key] = podcast
-                    }
-                }
-            }
-        }
-
-        // set trending header
-        //var header = storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first()
-        val headerEntries =
-                storeResult.pageData.fcStructure.model.children
-                        .first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }.children
-                        .first().children.first().children
-        headerEntries.forEach { kvp ->
-            if (kvp.link.type == "content") {
-                val id = kvp.link.contentId
-                podcastsLookup[id]?.let { cast ->
-                    PodcastArtworkEntity(cast).apply {
-                        bgColor = Color.parseColor("#" + kvp.artwork.bgColor)//.withAlpha(210)
-                        artworkUrl = kvp.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
-                        textColor = Color.parseColor("#" + kvp.artwork.textColor1)
-                        trendingPodcasts.add(this)
-                    }
-                }
-            }
-        }
+        getLookupResults(lockup,
+                mapPodcastLookup,
+                mapArtistLookup)
 
         // do on background
         // set content
@@ -138,326 +137,337 @@ class ItunesRepositoryImpl(val iTunesAPI: ITunesApi, val podcastsApi: PodcastsAp
                         .children
         contentGroup.forEach { kvp ->
             when (kvp.fcKind) {
-                271 -> { // section
-                    kvp.children.first().content.let { items ->
-                        val section = StoreCollection(
-                                kvp.adamId,
-                                kvp.name,
-                                StoreCollectionType.COLLECTION)
+                258 -> {
+                    val collection = GroupingPageDataEntity.TrendingCollectionEntity(kvp.name, kvp.adamId)
+                    collection.isHeader = true
 
-                        section.ids = items.map { kwp -> kwp.contentId.toLong() }
-                        section.podcasts = items.mapNotNull { kwp -> podcastsLookup[kwp.contentId] }.take(8)
-                        itunesGroups.add(section)
-                    }
-                }
-                261 -> { // collection
-                    val multiCollection = StoreMultiCollection(kvp.name)
                     kvp.children.forEach { item ->
-                        if (item.link.type == "link" && item.link.target != "internal") {
-                            val collection = StoreCollection(
-                                    name = item.name,
-                                    id = item.adamId).apply {
+                        when (item.link.type) {
+                            "link" -> // room
+                                GroupingPageDataEntity.TrendingRoom(
+                                        label = item.link.label,
+                                        id = item.adamId,
+                                        url = item.link.url,
+                                        artwork = item.artwork.toArtwork())
+                                        .let { room ->
+                                            collection.items.add(room)
+                                        }
+                            "content" -> // podcast
+                                mapPodcastLookup[item.link.contentId]?.let { podcast ->
+                                    GroupingPageDataEntity.TrendingPodcast(
+                                            label = podcast.name,
+                                            id = item.adamId,
+                                            podcast = podcast,
+                                            url = item.link.url,
+                                            artwork = item.artwork.toArtwork())
+                                            .let { room ->
+                                                collection.items.add(room)
+                                            }
+                                }
+                        }
+                        //artworkUrl = item.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
+                    }
 
-                                artworkUrl = item.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
-                            }
+                    pageData.items.add(collection)
 
-                            multiCollection.multiCollection.add(collection)
+                }
+                271 -> { // podcast collection
+                    if (kvp.children.first().type == "normal") {
+                        // uniquement les collections normales, pas les classements de popularité
+                        kvp.children.first().content.let { items ->
+                            val section = PodcastCollection(
+                                    label = kvp.name,
+                                    id = kvp.adamId,
+                                    ids = items.map { kwp -> kwp.contentId })
 
-                                    //bgColor = Color.parseColor("#" + item.artwork.bgColor),//.withAlpha(210)
-                                    //textColor = Color.parseColor("#" + item.artwork.textColor1))
+                            pageData.items.add(section)
                         }
                     }
-                    if (multiCollection.multiCollection.any()) {
-                        itunesGroups.add(multiCollection)
+                }
+                261 -> { // trending collection
+                    val collection = GroupingPageDataEntity.TrendingCollectionEntity(kvp.name, kvp.adamId)
+                    kvp.children.forEach { item ->
+                        when (item.link.type) {
+                            "link" -> // room
+                                GroupingPageDataEntity.TrendingRoom(
+                                        label = item.link.label,
+                                        id = item.adamId,
+                                        url = item.link.url,
+                                        artwork = item.artwork.toArtwork())
+                                        .let { room ->
+                                            collection.items.add(room)
+                                        }
+                            "content" -> // artist/provider page
+                                mapArtistLookup[item.link.contentId]?.let { artistLookup ->
+                                    GroupingPageDataEntity.TrendingProviderArtist(
+                                            label = artistLookup.artistName,
+                                            id = artistLookup.id,
+                                            url = artistLookup.url,
+                                            artwork = item.artwork.toArtwork(),
+                                            artist = artistLookup)
+                                            .let { artist ->
+                                                collection.items.add(artist)
+                                            }
+                                }
+                        }
+                        //artworkUrl = item.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
                     }
+                    pageData.items.add(collection)
                 }
             }
         }
 
-        val storeData = StoreData(trendingPodcasts, itunesGroups)
-        return storeData
+        // get missing lookups
+        val lockupKeys = mapPodcastLookup.keys
+        val collectionPodcastIds = pageData.items
+                .filterIsInstance<PodcastCollection>()
+                .flatMap { collection -> collection.ids }
+        if (!lockupKeys.containsAll(collectionPodcastIds)) {
+            val missingKeys = collectionPodcastIds.subtract(lockupKeys)
+            val missingPodcasts = lookupAsync(missingKeys.toList())
+            missingPodcasts.forEach { mapPodcastLookup.put(it.id, it) }
+        }
+
+        // add lookup to podcast collections
+        pageData.items
+                .filterIsInstance<PodcastCollection>()
+                .forEach { podcastCollection ->
+                    podcastCollection.items.addAll(
+                            podcastCollection.ids
+                                    .mapNotNull { mapPodcastLookup[it] })
+                }
+
+        return pageData
+    }
+
+    /**
+     * Save grouping page data into a file
+     */
+    private fun saveGroupingPageData(pageData: GroupingPageData, genreId: Int) {
+        val filename = "${genreId}.json";
+        val pageDataString = marshaller.stringify(GroupingPageData.serializer(), pageData)
+        fileManager.writeFile(filename, pageDataString)
+    }
+
+    /**
+     * Retrieve grouping data from file
+     */
+    @kotlinx.serialization.UnstableDefault
+    private fun loadGroupingPageDataFromFile(genreId: Int): GroupingPageData? {
+        val filename = "${genreId}.json";
+        val pageDataFile = fileManager.readFile(filename)
+        if (pageDataFile.exists()) {
+            fileManager.readFile(pageDataFile)?.let { string ->
+                marshaller.parse(GroupingPageDataEntity.serializer(), string).let {
+                    return it
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Get all podcasts from Lookup query
+     */
+    override suspend fun lookupAsync(ids: List<Long>): List<Podcast> {
+        val idsJoin = ids.joinToString(",")
+        val searchResults = iTunesAPI.lookup(idsJoin)
+        val entries = searchResults.body()?.results
+        return entries?.map { entry -> getPodcast(id = entry.trackId, dto = entry) }.orEmpty()
+    }
+
+    /**
+     * Get all podcasts from Lookup query
+     */
+    override suspend fun lookupAsync(id: Long): Podcast? {
+        val searchResults = iTunesAPI.lookup(id.toString())
+        val entries = searchResults.body()?.results
+        return entries?.map { entry -> getPodcast(entry.trackId, entry) }?.firstOrNull()
+    }
+
+    /**
+     * Get top podcasts of a category
+     */
+    override suspend fun topPodcastsAsync(category: Int): List<Podcast> {
+        val searchResults = iTunesAPI.topPodcasts("fr", 200, category)
+        val entries = searchResults.body()?.results
+        return entries?.map { entry -> getPodcast(id = entry.trackId, dto = entry) }.orEmpty()
     }
 
 
     /**
-     * Get itunes.apple.com genre page
+     * Get top podcasts Ids from a category
      */
-    override suspend fun getGenreDataAsync(storeFront: String, genreId: Int): StoreData {
-        val podcastsLookup = LongSparseArray<Podcast>()
-        val trendingPodcasts = ArrayList<PodcastArtwork>()
-        val itunesGroups: MutableList<StoreGroup> = arrayListOf()
-
-        val storeResult = iTunesAPI.genre(storeFront, genreId)
-        // set lockup
-        val lockup = storeResult.storePlatformData.lockup.results
-        lockup.forEach { kvp ->
-            kvp.value.apply {
-                if (kind == "podcast") {
-                    getPodcast(kvp.key, this)?.let { podcast ->
-                        podcastsLookup.put(kvp.key, podcast)
-                    }
-                }
-            }
-        }
-
-        // set trending header
-        //var header = storeResult.pageData.fcStructure.model.children.first { v -> v.fcKind == 255 && v.token == "allPodcasts" }.children.first()
-        val headerEntries =
-                storeResult.pageData.fcStructure.model
-                        .children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }
-                        .children.first { v -> v.fcKind == 256 }
-                        .children.first { v -> v.fcKind == 258 }
-                        .children
-        headerEntries.forEach { kvp ->
-            if (kvp.link.type == "content") {
-                val id = kvp.link.contentId
-                podcastsLookup[id]?.let { cast ->
-                    PodcastArtworkEntity(cast).apply {
-                        bgColor = Color.parseColor("#" + kvp.artwork.bgColor)//.withAlpha(210)
-                        artworkUrl = kvp.artwork.url.replace("{w}x{h}{c}.{f}", "1440x360fa.jpg")
-                        textColor = Color.parseColor("#" + kvp.artwork.textColor1)
-                        trendingPodcasts.add(this)
-                    }
-                }
-            }
-        }
-
-        // do on background
-        // set content
-        val contentGroup =
-                storeResult.pageData.fcStructure.model
-                        .children.first { v -> v.fcKind == 255 && v.token == PODCAST_TOKEN }
-                        .children.first { v -> v.fcKind == 256 }
-                        .children
-        contentGroup.forEach { kvp ->
-            when (kvp.fcKind) {
-                271 -> { // section
-                    kvp.children.first().content.let { items ->
-                        val section = StoreCollection(
-                                kvp.adamId,
-                                kvp.name,
-                                StoreCollectionType.COLLECTION)
-
-                        section.ids = items.map { kwp -> kwp.contentId }
-                        section.podcasts = items.mapNotNull { kwp -> podcastsLookup[kwp.contentId] }.take(8)
-
-                        //if ((index > 0) && (genre != DEFAULT_CATEGORY)) // genre : masquer le premier groupe
-                        itunesGroups.add(section)
-                    }
-                }
-                261 -> { // collection
-                    val multiCollection = StoreMultiCollection(kvp.name)
-                    kvp.children.forEach { item ->
-                        if (item.link.type == "link" && item.link.target != "internal") {
-                            val collection = StoreCollection(
-                                    name = item.name,
-                                    id = item.adamId).apply {
-                                    //TODO: use regex to define collection type
-                                artworkUrl = item.artwork.url.replace("{w}x{h}{c}.{f}", "400x196fa.jpg")
-                            }
-
-                            multiCollection.multiCollection.add(collection)
-
-                            //bgColor = Color.parseColor("#" + item.artwork.bgColor),//.withAlpha(210)
-                            //textColor = Color.parseColor("#" + item.artwork.textColor1))
-                        }
-                    }
-                    if (multiCollection.multiCollection.any()) {
-                        itunesGroups.add(multiCollection)
-                    }
-                }
-            }
-        }
-
-        return StoreData(trendingPodcasts, itunesGroups)
-    }
+    override suspend fun topAsync(category: Int): List<Long> =
+            iTunesAPI.top("fr", 200, category).body()?.resultIds.orEmpty()
 
     /**
      * Get itunes.apple.com collection data
      */
-    override suspend fun getCollectionDataAsync(storeFront: String, id: Int): StoreCollection {
-        val podcastsLookup = LongSparseArray<Podcast>()
-        val collection: StoreCollection
+    override suspend fun getRoomDataAsync(storeFront: String, url: String): RoomPageData {
+        val roomData: RoomPageData = RoomPageData()
 
-        val storeResult = iTunesAPI.collection(storeFront, id)
+        val storeResult = iTunesAPI.viewRoom(storeFront, url)
         // set lockup
         val lockup = storeResult.storePlatformData.lockup.results
-        lockup.forEach { kvp ->
-            kvp.value.apply {
-                if (kind == "podcast") {
-                    getPodcast(kvp.key, this)?.let { podcast ->
-                        podcastsLookup.put(kvp.key, podcast)
-                    }
-                }
-            }
-        }
+        getLookupResults(lockup, roomData.mapPodcastLookup)
 
-        // do on background
         // set content
-        collection = StoreCollection(storeResult.pageData.adamId, storeResult.pageData.pageTitle, StoreCollectionType.COLLECTION).also {
-            storeResult.pageData.apply {
-                it.podcasts = adamIds.mapNotNull { id -> podcastsLookup[id] }
-                if (::uber.isLateinit) {
-                    it.artworkUrl = uber.masterArt.lastOrNull()?.url
-                    it.type = StoreCollectionType.ROOM
+        roomData.apply {
+            storeResult.pageData.let {
+                pageTitle = it.pageTitle
+                description = it.description
+                artwork = it.uber?.masterArt?.firstOrNull()?.toArtwork()
+                ids = it.adamIds
+
+                // get remaining lookups
+                val lockupKeys = lockup.keys
+                if (!lockupKeys.containsAll(ids)) {
+                    val missingKeys = ids.toLongArray().subtract(lockupKeys)
+                    val missingPodcasts = lookupAsync(missingKeys.toList())
+                    missingPodcasts.forEach { mapPodcastLookup.put(it.id, it) }
+                }
+
+                // add all podcasts
+                it.adamIds.mapNotNull { mapPodcastLookup[it] }.let { list ->
+                    this.addAll(list)
                 }
             }
         }
 
-        return collection
+        return roomData
     }
 
     /**
      * Get itunes.apple.com multiroom data
      */
-    override suspend fun getMultiRoomDataAsync(storeFront: String, id: Int): StoreMultiCollection {
-        val storeResult = iTunesAPI.viewMultiRoom(storeFront, id)
-        return getMultiCollectionDataAsync(storeResult)
-    }
-
-
-    /**
-     * Get itunes.apple.com feature data
-     */
-    override suspend fun getFeatureDataAsync(storeFront: String, id: Int): StoreMultiCollection {
-        val storeResult = iTunesAPI.viewFeature(storeFront, id)
-        return getMultiCollectionDataAsync(storeResult)
-    }
-
-
-    /**
-     * Get itunes.apple.com multiroom data
-     */
-    private fun getMultiCollectionDataAsync(storeResult: MultiRoomResultDto): StoreMultiCollection {
-        val podcastsLookup = LongSparseArray<Podcast>()
-        val multiCollection: StoreMultiCollection
+    override suspend fun getMultiRoomDataAsync(storeFront: String, url: String): MultiRoomPageData {
+        val roomData: MultiRoomPageData = MultiRoomPageDataEntity()
+        val storeResult = iTunesAPI.viewMultiRoom(storeFront, url)
         // set lockup
         val lockup = storeResult.storePlatformData.lockup.results
-        lockup.forEach { kvp ->
-            kvp.value.apply {
-                if (kind == "podcast") {
-                    getPodcast(kvp.key, this)?.let { podcast ->
-                        podcastsLookup.put(kvp.key, podcast)
-                    }
-                }
-            }
-        }
+        getLookupResults(lockup, roomData.mapPodcastLookup)
 
-        // do on background
         // set content
-        multiCollection = StoreMultiCollection(storeResult.pageData.pageTitle).also {
-            storeResult.pageData.apply {
-                if (::uber.isLateinit) {
-                    it.artworkUrl = uber.masterArt.lastOrNull()?.url
+        roomData.apply {
+            storeResult.pageData.let {
+                pageTitle = it.pageTitle
+                description = it.description
+                artwork = it.uber?.masterArt?.firstOrNull()?.toArtwork()
+
+                it.segments.map { segment ->
+                    PodcastCollection(
+                            label = segment.title,
+                            id = segment.adamId,
+                            ids = segment.adamIds
+                    )
+                }.let {
+                    roomData.addAll(it)
+                }
+            }
+        }
+
+        return roomData
+    }
+
+    /**
+     * Get artist data URL
+     */
+    override suspend fun getArtistPageDataAsync(storeFront: String, artistId: Long): ArtistPageData {
+        // set content
+        return ArtistPageData().also { artistPageData ->
+            podcastsApi.artist(storeFront, artistId).let { storeResult ->
+                // set lockup
+                storeResult.storePlatformData.lockup?.results?.let { lockup ->
+                    this.getLookupResults(lockup, artistPageData.mapPodcastLookup)
                 }
 
-                segments.forEach { seg ->
-                    StoreCollection(seg.adamId, seg.title).let { collection ->
-                        collection.podcasts = seg.adamIds.mapNotNull { id -> podcastsLookup[id] }
-                        it.multiCollection.add(collection)
+                storeResult.pageData.let {
+                    artistPageData.artist = ArtistItunes().apply {
+                        artistName = it.artist.name
+                        id = it.artist.adamId
+                        artwork = it.uber?.masterArt?.lastOrNull()?.toArtwork()
+                    }
+
+                    it.contentData.map { content ->
+                        when (content.dkId) {
+                            null ->
+                                PodcastCollection(
+                                        label = content.title,
+                                        id = content.chunkId ?: 0,
+                                        ids = content.adamIds
+                                )
+                            else -> null
+                        }
+                    }.let { list ->
+                        artistPageData.addAll(list.filterNotNull())
                     }
                 }
             }
         }
-
-        return multiCollection
-    }
-
-    /**
-     * Get podcast info
-     */
-    override suspend fun getPodcastAsync(storeFront: String, id: Long): Podcast? {
-        val podcastResult = podcastsApi.podcast(storeFront, id)
-        podcastResult.storePlatformData.productDv.results[id]?.let {
-            return PodcastEntity(id = id,
-                    name = it.name,
-                    artistName = it.artistName,
-                    feedUrl = it.feedUrl,
-                    releaseDate = it.releaseDateTime,
-                    trackCount = it.trackCount,
-                    artwork = it.artwork.url,//.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
-                    artworkWidth = it.artwork.width,
-                    artworkHeight = it.artwork.height,
-                    description = it.description.standard,
-                    copyright = it.copyright,
-                    contentAdvisoryRating = it.contentRatingsBySystem.riaa.name
-            ).apply {
-
-                genres = it.genres
-                        .filter { genreResult -> genreResult.genreId != DEFAULT_CATEGORY }
-                        .map { genreDto -> Genre(genreDto.genreId, genreDto.name) }
-
-                episodes = it.children.map { kv ->
-                    EpisodeEntity(kv.key).apply {
-                        name = kv.value.name
-                        artistName = kv.value.artistName
-                        podcastName = kv.value.collectionName
-                        podcastId = id
-                        feedUrl = kv.value.feedUrl
-                        description = kv.value.description.standard
-                        releaseDate = kv.value.releaseDateTime
-                        mediaUrl = kv.value.offers.first().download.url
-                        mediaType = kv.value.offers.first().assets.first().flavor
-                        mediaLength = kv.value.offers.first().assets.first().duration.toLong()
-                        artwork = it.artwork.url
-                        artworkHeight = it.artwork.height
-                        artworkWidth = it.artwork.width
-                        contentAdvisoryRating = it.contentRatingsBySystem.riaa.name
-                        podcastEpisodeType = kv.value.podcastEpisodeType
-                        podcastEpisodeSeason = kv.value.podcastEpisodeSeason
-                        podcastEpisodeNumber = kv.value.podcastEpisodeNumber
-                        podcastEpisodeWebsiteUrl = kv.value.podcastEpisodeWebsiteUrl
-                    }
-                }
-
-                podcastsByArtist = podcastResult.pageData.moreByArtist
-                podcastsListenersAlsoFollow = podcastResult.pageData.listenersAlsoBought
-            }
-        }
-        return null
-    }
-
-    /**
-     * Get podcast from a LookupItemDto item
-     */
-    private fun getPodcast(id:Long, dto: LookupItemDto): Podcast? {
-        if (dto.feedUrl.isNotEmpty()) {
-            val podcast = PodcastEntity(id = id,
-                    name = dto.name,
-                    artistName = dto.artistName,
-                    feedUrl = dto.feedUrl,
-                    releaseDate = dto.releaseDateTime,
-                    trackCount = dto.trackCount,
-                    contentAdvisoryRating = dto.contentRatingsBySystem.riaa.name)
-            dto.apply {
-                if (::artwork.isLateinit) {
-                    podcast.artwork = artwork.url
-                    podcast.artworkWidth = artwork.width
-                    podcast.artworkHeight = artwork.height
-                    //podcast.bigImageUrl = artwork.url.replace("{w}x{h}bb.{f}", "400x400bb.jpg")
-                }
-                podcast.genres = this.genres
-                        .filter { genreResult -> genreResult.genreId != DEFAULT_CATEGORY }
-                        .map { genreDto -> Genre(genreDto.genreId, genreDto.name) }
-            }
-            return podcast
-        }
-        return null
     }
 
     /**
      * Get podcast from a SearchResultDto item
      */
-    private fun getPodcast(id:Long, dto: SearchResultDto.Result): Podcast {
-        return PodcastEntity(id = id,
-                feedUrl = dto.feedUrl,
-                name = dto.trackName,
-                artistName = dto.artistName,
-                artwork = dto.artworkUrl600,
-                artworkWidth = 600,
-                artworkHeight = 600,
-                releaseDate = dto.releaseDate,
-                trackCount = dto.trackCount,
-                contentAdvisoryRating = dto.contentAdvisoryRating)
+    private fun getPodcast(id: Long, dto: SearchResultDto.Result): Podcast {
+        return PodcastEntity(id).apply {
+            feedUrl = dto.feedUrl
+            name = dto.trackName
+            artistName = dto.artistName
+            artwork = Artwork(dto.artworkUrl600, 600, 600)
+            releaseDate = dto.releaseDate.toLocalDate()
+            releaseDateTime = dto.releaseDate
+            trackCount = dto.trackCount
+            contentAdvisoryRating = dto.contentAdvisoryRating
+        }
+    }
+
+    /**
+     * Get lookup results and store then into hashmaps
+     */
+    private fun getLookupResults(
+            results: Map<Long, LookupItemDto>,
+            mapPodcastLookup: HashMap<Long, Podcast>,
+            mapArtistLookup: HashMap<Long, ArtistItunes>? = null) {
+
+        results.forEach { kvp ->
+            kvp.value.let { dto ->
+                when (dto.kind) {
+                    "podcast" ->
+                        PodcastEntity(id = kvp.key).let {
+                            it.name = dto.name
+                            it.artistName = dto.artistName
+                            it.artistId = dto.artistId
+                            it.genres = dto.genres.map { GenreDto.toGenre(it) }
+                            it.feedUrl = dto.feedUrl
+
+                            it.releaseDate = dto.releaseDate ?: LocalDate.MIN
+                            it.releaseDateTime = dto.releaseDateTime ?: LocalDateTime.MIN
+                            //it.podcastType = podcastType
+                            it.userRating = dto.userRating?.getRating() ?: 0F
+                            it.artwork = dto.artwork?.let { artwork ->
+                                ArtworkDto.toArtwork(artwork)
+                            }
+
+                            mapPodcastLookup.put(kvp.key, it)
+                        }
+                    "artist" ->
+                        ArtistItunes().let {
+                            it.artistName = dto.name
+                            it.id = dto.id
+                            it.url = dto.url
+                            it.artwork = dto.editorialArtwork?.storeFlowcase?.let { artwork ->
+                                ArtworkDto.toArtwork(artwork)
+                            }
+                            it.genres = dto.genres.map { GenreDto.toGenre(it) }
+                            mapArtistLookup?.put(kvp.key, it)
+                        }
+                    else -> {
+                    }
+                }
+            }
+        }
+
     }
 }

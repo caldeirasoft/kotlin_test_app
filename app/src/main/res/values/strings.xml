@@ -20,8 +20,10 @@
     <string name="liststate_loading_more">Loading more…</string>
     <string name="liststate_no_more">No more data</string>
 
+    <string name="button_play_episode">Play episode</string>
     <string name="button_subscribe">Subscribe</string>
     <string name="button_unsubscribe">Unsubscribe</string>
+    <string name="button_retry">Retry</string>
 
     <string name="category_all">All categories</string>
     <string name="category_arts">Arts</string>
@@ -60,6 +62,7 @@
     <string name="label_forward">Forward 30 seconds</string>
     <string name="label_rewind">Rewind 30 seconds</string>
     <string name="label_display_all">Display all</string>
+
     <string name="queue">Queue</string>
     <string name="inbox">Inbox</string>
     <string name="podcasts">Podcasts</string>
@@ -77,6 +80,14 @@
     <string name="do_not_stop">Do not stop</string>
 
     <string name="label_all">All</string>
+    <string name="label_about_this_podcast">About this podcast</string>
+    <string name="label_episodes">Episodes</string>
+    <string name="label_explore">Explore</string>
+    <string name="label_podcasts">Podcasts</string>
+
+    <string name="artwork_format_fa">fa</string>
+    <string name="artwork_format_fb">fb</string>
+    <string name="artwork_format_ff">ff</string>
 
     <string name="concat_separator"><![CDATA[<font color="#FF8000">%1$s</font> %2$s]]></string>
 

@@ -12,7 +12,7 @@ import androidx.databinding.BindingAdapter
 import androidx.media2.common.SessionPlayer
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.entities.Episode
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder

@@ -1,15 +1,19 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodelist
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.asLiveData
 import androidx.paging.PagedList
 import com.caldeirasoft.basicapp.presentation.ui.base.BaseViewModel
-import com.caldeirasoft.castly.domain.model.*
-import com.caldeirasoft.castly.domain.repository.PodcastRepository
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.PodcastWithCount
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import com.caldeirasoft.castly.domain.usecase.FetchEpisodeCountByPodcastUseCase
-import com.caldeirasoft.castly.domain.usecase.FetchEpisodeCountBySectionUseCase
 import com.caldeirasoft.castly.domain.usecase.FetchSectionEpisodesUseCase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 
 abstract class EpisodeListViewModel(
         sectionState: SectionState,
@@ -18,10 +22,16 @@ abstract class EpisodeListViewModel(
     : BaseViewModel() {
 
     // podcast with count
-    var podcastsWithCount: LiveData<List<PodcastWithCount>>
+    var podcastsWithCount: Flow<List<PodcastWithCount>> =
+            fetchEpisodeCountByPodcastUseCase.execute(sectionState.value)
+                    .flowOn(Dispatchers.IO)
+                    .distinctUntilChanged()
 
     // data items
-    var dataItems: LiveData<PagedList<Episode>>
+    var podcastEpisodes: Flow<List<Episode>> =
+            fetchSectionEpisodesUseCase.execute(sectionState.value)
+                    .flowOn(Dispatchers.IO)
+                    .distinctUntilChanged()
 
     // dark theme
     val darkThemeOn: MutableLiveData<Boolean> = MutableLiveData()
@@ -31,15 +41,6 @@ abstract class EpisodeListViewModel(
         }
     }.also { it.observeForever {  } }*/
 
-    init {
-        fetchSectionEpisodesUseCase.fetchAll(sectionState.value).let {
-            dataItems = it.data
-        }
-
-        fetchEpisodeCountByPodcastUseCase.fetchAll(sectionState.value).let {
-            podcastsWithCount = it.data
-        }
-    }
 
     fun applyFilter(feedUrl: String?) {
         //sourceFactory.applyFilter(feedUrl)

@@ -3,7 +3,7 @@ package com.caldeirasoft.basicapp.presentation.utils.epoxy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.TypedEpoxyController
-import com.caldeirasoft.castly.domain.model.NetworkState
+import com.caldeirasoft.castly.domain.model.entities.NetworkState
 
 abstract class BaseTypedController<T>: TypedEpoxyController<T>()
 {
@@ -11,7 +11,7 @@ abstract class BaseTypedController<T>: TypedEpoxyController<T>()
     open fun toggleLoading(isLoading: Boolean) = Unit
     open fun toggleRetry(retry: Boolean) = Unit
 
-    protected var networkStateData :NetworkState = NetworkState.Loading
+    protected var networkStateData: NetworkState = NetworkState.Loading
 
     var isLoading: Boolean = networkStateData.isLoading
 

@@ -28,11 +28,11 @@ dependencies {
     implementation(deps.kotlin.coroutines.core)
     // Kotlinx serialization
     implementation(deps.kotlinx.serialization)
-    // Android-LiveData
-    implementation(deps.androidx.lifecycle.extensions)
-    kapt(deps.androidx.lifecycle.compiler)
+    // Android-Lifecycle
+    implementation(deps.androidx.lifecycle.livedata_ktx)
     // Android-Paging
     implementation(deps.androidx.paging.common)
+    implementation(deps.androidx.paging.runtime)
     // Android-Room
     implementation(deps.androidx.room.runtime)
     implementation(deps.androidx.room.ktx)

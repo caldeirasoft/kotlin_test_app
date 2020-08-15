@@ -11,7 +11,7 @@ import com.caldeirasoft.basicapp.presentation.utils.extensions.lazyArg
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
 import com.caldeirasoft.basicapp.presentation.utils.extensions.setSupportActionBar
 import com.caldeirasoft.basicapp.presentation.utils.widget.RoundedBottomSheetDialogFragment
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton

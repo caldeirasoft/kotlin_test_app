@@ -1,7 +1,7 @@
 package com.caldeirasoft.castly.service.playback.const
 
-import com.caldeirasoft.castly.domain.model.MediaID
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.MediaID
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 
 class Constants {
     companion object {

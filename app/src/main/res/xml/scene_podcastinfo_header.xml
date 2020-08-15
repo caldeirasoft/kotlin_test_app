@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        app:constraintSetStart="@id/expanded"
+        app:constraintSetEnd="@id/collapsed">
+
+        <OnSwipe
+            app:dragDirection="dragUp"
+            app:touchAnchorId="@id/recyclerView_podcastinfo_episodes"
+            app:touchAnchorSide="top"
+            app:moveWhenScrollAtTop="true" />
+
+        <KeyFrameSet>
+            <KeyPosition
+                app:motionTarget="@id/imageview_podcastinfo_thumbnail"
+                app:framePosition="15"
+                app:percentY="1"
+                app:keyPositionType="deltaRelative" />
+
+            <KeyPosition
+                app:motionTarget="@id/imageview_podcastinfo_thumbnail"
+                app:framePosition="30"
+                app:percentY="0.3"
+                app:keyPositionType="deltaRelative" />
+
+            <KeyAttribute
+                app:motionTarget="@id/imageview_podcastinfo_thumbnail"
+                app:framePosition="15"
+                android:elevation="4dp"
+                android:scaleX="0.8"
+                android:scaleY="0.8" />
+
+            <KeyAttribute
+                app:motionTarget="@id/imageview_podcastinfo_thumbnail"
+                app:framePosition="15"
+                android:elevation="2dp" />
+        </KeyFrameSet>
+    </Transition>
+
+    <ConstraintSet android:id="@+id/expanded">
+        <Constraint android:id="@id/view_podcastinfo_headerbackgroud">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/view_podcastinfo_headerbottom"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </Constraint>
+
+        <Constraint android:id="@id/toolbar_podcastinfoheader_top">
+            <CustomAttribute
+                motion:attributeName="titleTextColor"
+                motion:customColorValue="@android:color/transparent" />
+        </Constraint>
+
+        <Constraint android:id="@id/view_podcastinfo_headertop">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_50"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top" />
+        </Constraint>
+
+        <Constraint android:id="@id/view_podcastinfo_headerbottom">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_30"
+                app:layout_constraintBottom_toBottomOf="@id/imageview_podcastinfo_thumbnail"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </Constraint>
+
+        <Constraint android:id="@id/imageview_podcastinfo_thumbnail">
+            <Layout
+                android:layout_width="150dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                app:layout_constraintTop_toBottomOf="@id/view_podcastinfo_headertop"
+                app:layout_constraintBottom_toBottomOf="@id/view_podcastinfo_headerbottom"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintDimensionRatio="W,1:1" />
+            <Transform android:elevation="4dp" />
+        </Constraint>
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/collapsed">
+        <Constraint android:id="@id/view_podcastinfo_headerbackgroud">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/view_podcastinfo_headerbottom"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </Constraint>
+
+        <Constraint android:id="@id/toolbar_podcastinfoheader_top">
+            <CustomAttribute
+                motion:attributeName="titleTextColor"
+                motion:customColorValue="@color/white" /> <!--TODO: replace with foregroundColor -->
+        </Constraint>
+
+        <Constraint android:id="@id/view_podcastinfo_headertop">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_50"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top" />
+        </Constraint>
+
+        <Constraint android:id="@id/view_podcastinfo_headerbottom">
+            <Layout
+                android:layout_width="0dp"
+                android:layout_height="@dimen/dp_30"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </Constraint>
+
+        <Constraint android:id="@id/imageview_podcastinfo_thumbnail">
+            <Transform
+                android:scaleX="0.8"
+                android:scaleY="0.8"
+                android:elevation="2dp" />
+            <Layout
+                android:layout_width="150dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintDimensionRatio="W,1:1" />
+        </Constraint>
+
+        <!--
+        <Constraint
+            android:id="@id/view_podcastinfo_headerbottom"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_30"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <Constraint
+            android:id="@id/imageview_podcastinfo_thumbnail"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Constraint
+            android:id="@id/toolbar_podcastinfoheader_top"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            app:titleTextColor="@color/white"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:elevation="1dp"
+            android:alpha="1"/>
+            -->
+    </ConstraintSet>
+
+</MotionScene>

@@ -3,7 +3,6 @@ package com.caldeirasoft.basicapp.presentation.views
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import com.caldeirasoft.basicapp.presentation.utils.extensions.colorSurface
 import com.caldeirasoft.basicapp.presentation.utils.extensions.setHeight
 
 class StatusBarSizeView( context: Context,
@@ -19,7 +18,7 @@ class StatusBarSizeView( context: Context,
 
     init {
         if (!isInEditMode){
-            setBackgroundColor(context.colorSurface())
+            //TODO: remove setBackgroundColor(context.colorSurface())
         }
     }
 

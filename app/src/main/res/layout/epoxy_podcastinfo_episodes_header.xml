@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="androidx.lifecycle.MutableLiveData" />
+
+        <variable
+            name="viewModel"
+            type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel" />
+
+        <variable
+            name="inDatabase"
+            type="Boolean" />
+
+        <variable
+            name="onSubscribe"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- episodes header -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintlayout_podcastinfo_episodesheader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/textview_podcastinfo_episodesheader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_episodes"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textSize="16sp"
+                android:fontFamily="@font/manrope_semibold"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                app:iconTint="?android:textColorPrimary"
+                app:icon="@drawable/ic_arrow_back_24dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- filters -->
+        <HorizontalScrollView
+            android:id="@+id/chipHorizontalView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingEnd="@dimen/dp_10"
+            app:layout_constraintTop_toBottomOf="@id/constraintlayout_podcastinfo_episodesheader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone">
+
+            <!-- Chip group filters -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="@dimen/dp_10"
+                app:singleSelection="true"
+                app:sectionsFilters="@{viewModel.sectionCount}" />
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

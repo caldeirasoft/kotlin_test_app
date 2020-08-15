@@ -18,7 +18,7 @@ import com.caldeirasoft.basicapp.presentation.ui.base.annotation.FragmentLayout
 import com.caldeirasoft.basicapp.presentation.utils.extensions.bindView
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @FragmentLayout(layoutId = R.layout.fragment_podcasts)
@@ -65,11 +65,11 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
             object : TypedEpoxyController<List<Podcast>>() {
                 override fun buildModels(data: List<Podcast>?) {
                     data ?: return
-                    data.forEach { content ->
+                    data.forEach { podcast ->
                         itemPodcast {
-                            id(content.id)
-                            title(content.name)
-                            imageUrl(content.getArtwork(100))
+                            id(podcast.id)
+                            title(podcast.name)
+                            imageUrl(podcast.getArtwork(100))
                             onPodcastClick { model, parentView, _, position ->
                                 val transitionName = "iv_podcast$position"
                                 val rootView = parentView.dataBinding.root
@@ -77,7 +77,7 @@ class PodcastFragment : BindingFragment<FragmentPodcastsBinding>() {
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
                                 val direction =
-                                        PodcastFragmentDirections.openPodcast(content.id)
+                                        PodcastFragmentDirections.actionPodcastFragment2ToNavigationPodcastinfoGraph(podcast)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)

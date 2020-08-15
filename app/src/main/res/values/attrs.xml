@@ -7,9 +7,23 @@
         <attr name="placeholder" format="reference" />
         <attr name="error_image" format="reference" />
     </declare-styleable>
-    
+
+    <declare-styleable name="DateHeader">
+        <attr name="android:width" />
+        <attr name="android:paddingTop" />
+        <attr name="android:textColor" />
+        <attr name="android:fontFamily" />
+        <attr name="dateTextSize" format="dimension" />
+        <attr name="dayTextSize" format="dimension" />
+    </declare-styleable>
+
     <declare-styleable name="RoundedConstraintLayout">
-        <attr name="roundedTopCorners" format="boolean"/>
-        <attr name="roundedBottomCorners" format="boolean"/>
+        <attr name="roundedTopCorners" format="boolean" />
+        <attr name="roundedBottomCorners" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="PlayButton">
+        <attr name="playStateValue" format="integer" />
+        <attr name="progressValue" format="float" />
     </declare-styleable>
 </resources>

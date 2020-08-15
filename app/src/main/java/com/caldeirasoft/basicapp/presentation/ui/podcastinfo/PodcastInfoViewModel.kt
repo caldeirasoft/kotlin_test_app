@@ -1,87 +1,84 @@
 package com.caldeirasoft.basicapp.presentation.ui.podcastinfo
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.paging.PagedList
-import com.caldeirasoft.basicapp.media.MediaSessionConnection
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.NetworkState
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.SectionWithCount
-import com.caldeirasoft.castly.domain.repository.EpisodeRepository
-import com.caldeirasoft.castly.domain.repository.PodcastRepository
+import androidx.lifecycle.*
+import com.caldeirasoft.basicapp.presentation.utils.Tuple4
+import com.caldeirasoft.basicapp.presentation.utils.extensions.combineLatest
+import com.caldeirasoft.basicapp.util.Event
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.entities.SectionWithCount
 import com.caldeirasoft.castly.domain.usecase.*
-import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
+import com.caldeirasoft.castly.domain.util.Resource
+import com.caldeirasoft.castly.domain.util.Status
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.*
 
+@ExperimentalCoroutinesApi
+@FlowPreview
 class PodcastInfoViewModel(
-        val podcastId: Long,
-        val podcast: Podcast?,
-        val fetchPodcastEpisodesUseCase: FetchPodcastEpisodesUseCase,
-        val getPodcastInDbUseCase: GetPodcastInDbUseCase,
-        val fetchEpisodeCountBySectionUseCase: FetchEpisodeCountBySectionUseCase,
-        val subscribeToPodcastUseCase: SubscribeToPodcastUseCase,
-        val updatePodcastFromItunesUseCase: UpdatePodcastFromItunesUseCase)
+        val podcast: Podcast,
+        private val getPodcastUseCase: GetPodcastUseCase,
+        private val fetchPodcastEpisodesUseCase: FetchPodcastEpisodesUseCase,
+        private val fetchEpisodeCountBySectionUseCase: FetchEpisodeCountBySectionUseCase,
+        private val subscribeToPodcastUseCase: SubscribeToPodcastUseCase,
+        private val unsubscribeFromPodcastUseCase: UnsubscribeFromPodcastUseCase)
     : ViewModel() {
 
-    // podcast from arg
-    var podcastFromArg: LiveData<Podcast> = MutableLiveData<Podcast>().apply {
-        postValue(podcast)
+    // podcast resource
+    val podcastResourceData: Flow<Resource<Podcast>> by lazy {
+        getPodcastUseCase
+                .execute(podcast.id)
+                .onStart { emit(Resource.loading(podcast)) }
+                .flowOn(Dispatchers.IO)
     }
 
-    // usecase result
-    private val getPodcastInDbUseCaseResult: UseCaseResult<Podcast> by lazy { getPodcastInDbUseCase.get(podcastId) }
     // podcast from db
-    val podcastDb: LiveData<Podcast> by lazy { getPodcastInDbUseCaseResult.data }
+    val podcastData: LiveData<Podcast> =
+            podcastResourceData
+                    .map { it.data }
+                    .filterNotNull()
+                    .distinctUntilChanged()
+                    .asLiveData()
 
-    // podcastData
-    val podcastLiveData: MediatorLiveData<Podcast> = MediatorLiveData<Podcast>().apply {
-        addSource(podcastFromArg) { podcast -> postValue(podcast) }
-        addSource(podcastDb) { podcast -> podcast?.let { postValue(it) } }
-    }
+    // episodes items
+    var podcastEpisodes: LiveData<List<Episode>> =
+            fetchPodcastEpisodesUseCase.execute(podcast.id)
+                    .distinctUntilChanged()
+                    .asLiveData(Dispatchers.IO)
 
-    // data items
-    var dataItems: LiveData<PagedList<Episode>>
-
-    // loading state
-    var initialState: LiveData<NetworkState>
-
-    // loading state
-    var networkState: LiveData<NetworkState>
+    // loading status
+    val loadingStatus: LiveData<Status> =
+            podcastResourceData
+                    .map { it.status }
+                    .filterNotNull()
+                    .distinctUntilChanged()
+                    .asLiveData()
 
     // count by section
-    val sectionCount: LiveData<SectionWithCount>
-
-    //endregion
+    val sectionCount: LiveData<SectionWithCount> =
+            fetchEpisodeCountBySectionUseCase.execute(podcast.id)
+                    .asLiveData(Dispatchers.IO)
 
     init {
-        // fetch episodes from Db
-        fetchPodcastEpisodesUseCase.fetchAll(podcastId).let {
-            dataItems = it.data
-            initialState = it.initialState
-            networkState = it.networkState
+        viewModelScope.launch {
+            //fetchPodcastData()
         }
-
-        // fetch episodes count by section
-        fetchEpisodeCountBySectionUseCase.fetchAll(podcastId).let {
-            sectionCount = it.data
-        }
-
-        // update podcasts from itunes
-        updatePodcastFromItunesUseCase.updatePodcast(podcastId)
     }
 
     fun refresh() {
-        dataItems.value?.dataSource?.invalidate()
+        val t: Flow<Episode>
     }
 
-
     fun toggleSubscription() {
-        subscribeToPodcastUseCase.subscribe(podcastId)
+        subscribeToPodcastUseCase.subscribe(podcast.id)
     }
 
     fun subscribeToPodcast() {
-        subscribeToPodcastUseCase.subscribe(podcastId)
+        subscribeToPodcastUseCase.subscribe(podcast.id)
+    }
+
+    fun unsubscribeFromPodcast() {
+        unsubscribeFromPodcastUseCase.unsubscribe(podcast.id)
     }
 }

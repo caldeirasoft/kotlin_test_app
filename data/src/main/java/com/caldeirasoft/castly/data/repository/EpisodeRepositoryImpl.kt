@@ -1,63 +1,60 @@
 package com.caldeirasoft.castly.data.repository
 
-import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
 import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
-import com.caldeirasoft.castly.data.extensions.convert
-import com.caldeirasoft.castly.data.extensions.convertAll
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.entities.Episode
 import com.caldeirasoft.castly.data.entity.EpisodeEntity
-import com.caldeirasoft.castly.domain.model.PodcastWithCount
-import com.caldeirasoft.castly.domain.model.SectionWithCount
+import com.caldeirasoft.castly.domain.model.entities.PodcastWithCount
+import com.caldeirasoft.castly.domain.model.entities.SectionWithCount
+import com.caldeirasoft.castly.domain.model.itunes.PodcastEpisodeItunes
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Created by Edmond on 15/02/2018.
  */
 class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
 
-    override fun fetch(podcastId: Long): LiveData<List<Episode>> = episodeDao.fetch(podcastId).convertAll()
+    override fun fetch(podcastId: Long): Flow<List<Episode>> = episodeDao.fetch(podcastId)
 
     override fun fetchSync(podcastId: Long): List<Episode> = episodeDao.fetchSync(podcastId)
 
     override fun fetchSync(podcastId: Long, limit: Int, offset: Int): List<Episode> = episodeDao.fetchSync(podcastId, limit, offset)
 
-    override fun fetchFactory(podcastId: Long): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(podcastId).convertAll()
-
-    override fun count(podcastId: Long): Int = episodeDao.count(podcastId)
-
-    override fun fetch(section: Int): LiveData<List<Episode>> = episodeDao.fetch(section).convertAll()
+    override fun fetch(section: Int): Flow<List<Episode>> = episodeDao.fetch(section)
 
     override fun fetchSync(section: Int): List<Episode> = episodeDao.fetchSync(section)
 
-    override fun fetchQueue(): LiveData<List<Episode>> = episodeDao.fetchQueue().convertAll()
+    override fun fetchQueue(): Flow<List<Episode>> = episodeDao.fetchQueue()
 
     override fun fetchQueueSync(): List<Episode> = episodeDao.fetchQueueSync()
 
-    override fun fetchFactory(section: Int): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(section).convertAll()
-
-    override fun fetch(section: Int, podcastId: Long): LiveData<List<Episode>> = episodeDao.fetch(section, podcastId).convertAll()
+    override fun fetch(section: Int, podcastId: Long): Flow<List<Episode>> = episodeDao.fetch(section, podcastId)
 
     override fun fetchSync(section: Int, podcastId: Long): List<Episode> = episodeDao.fetchSync(section, podcastId)
 
-    override fun fetchFactory(section: Int, podcastId: Long): DataSource.Factory<Int, Episode> = episodeDao.fetchFactory(section, podcastId).convertAll()
+    override fun fetchEpisodesCountByPodcast(section: Int): Flow<List<PodcastWithCount>> = episodeDao.fetchEpisodesCountByPodcast(section)
 
-    override fun fetchEpisodesCountByPodcast(section: Int): LiveData<List<PodcastWithCount>> = episodeDao.fetchEpisodesCountByPodcast(section).convertAll()
-
-    override fun fetchEpisodeCountBySection(podcastId: Long): LiveData<SectionWithCount> = episodeDao.fetchEpisodeCountBySection(podcastId).convert()
+    override fun fetchEpisodeCountBySection(podcastId: Long): Flow<SectionWithCount> = episodeDao.fetchEpisodeCountBySection(podcastId)
 
     override fun getSync(episodeId: Long): Episode? = episodeDao.getSync(episodeId)
 
-    override fun get(episodeId: Long): LiveData<Episode> = episodeDao.get(episodeId).convert()
+    override fun get(episodeId: Long): Flow<Episode> = episodeDao.get(episodeId)
 
-    override fun insert(episode: Episode) {
+    fun insert(episode: Episode) {
         episode as EpisodeEntity
         episodeDao.insert(episode)
     }
 
-    override fun insertIgore(episodes: List<Episode>) {
-        episodes as List<EpisodeEntity>
-        episodeDao.insertIgore(episodes)
+    fun insertIgore(episodes: List<Episode>) {
+        episodes.filterIsInstance<EpisodeEntity>()
+                .let {
+                    episodeDao.insertIgore(it)
+                }
+
+        episodes.filterIsInstance<PodcastEpisodeItunes>()
+                .map { EpisodeEntity(it.id).apply { updateFromItunes(it) } }
+                .let { episodeDao.insertIgore(it) }
+
     }
 
     override fun update(episode: Episode) {
@@ -65,24 +62,26 @@ class EpisodeRepositoryImpl(val episodeDao: EpisodeDao) : EpisodeRepository {
         episodeDao.update(episode)
     }
 
-    override fun update(episodes: List<Episode>) {
-        episodes as List<EpisodeEntity>
-        episodeDao.update(episodes)
+    fun update(episodes: List<Episode>) {
+        episodes.filterIsInstance<EpisodeEntity>()
+                .let {
+                    episodeDao.update(it)
+                }
     }
 
-    override fun delete(episode: Episode) {
+    fun delete(episode: Episode) {
         episode as EpisodeEntity
         episodeDao.delete(episode)
     }
 
-    override fun deleteByPodcast(podcastId: Long) {
+    fun deleteByPodcast(podcastId: Long) {
         episodeDao.deleteByPodcast(podcastId)
     }
 
     /**
      * Insert episode if not exists
      */
-    override fun upsert(episode: Episode) {
+    fun upsert(episode: Episode) {
         getSync(episode.id).let {
             if (it != null)
                 update(episode)

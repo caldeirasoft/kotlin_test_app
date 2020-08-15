@@ -2,6 +2,7 @@ package com.caldeirasoft.castly.data.datasources.remote
 
 import com.caldeirasoft.castly.data.dto.itunes.*
 import kotlinx.coroutines.Deferred
+import retrofit2.Response
 import retrofit2.http.*
 
 /**
@@ -16,5 +17,12 @@ interface PodcastsApi {
      * Podcasts collections by genre
      */
     @GET("/podcast/id{id}")
-    suspend fun podcast(@Header("X-Apple-Store-Front") storeFront:String, @Path("id") id:Long): PodcastResultDto
+    suspend fun podcast(@Header("X-Apple-Store-Front") storeFront: String, @Path("id") id: Long): Response<PodcastResultDto>
+
+    /**
+     * Artist
+     */
+    @GET("/artist/{id}")
+    suspend fun artist(@Header("X-Apple-Store-Front") storeFront: String, @Path("id") artistId: Long): ArtistResultDto
+
 }

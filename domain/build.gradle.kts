@@ -18,9 +18,8 @@ dependencies {
     implementation(deps.kotlin.reflect)
     implementation(deps.kotlin.coroutines.core)
     implementation(deps.kotlin.coroutines.android)
-    // Android-LiveData
-    implementation(deps.androidx.lifecycle.extensions)
-    kapt(deps.androidx.lifecycle.compiler)
+    // Kotlinx serialization
+    implementation(deps.kotlinx.serialization)
     // Android-Paging
     implementation(deps.androidx.paging.common)
     implementation(deps.androidx.paging.runtime)

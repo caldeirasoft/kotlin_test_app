@@ -45,19 +45,19 @@ class PodcastResultItemDto {
     var copyright: String = ""
 
     @Json(name = "artwork")
-    lateinit var artwork: Artwork
+    lateinit var artwork: ArtworkDto
 
     @Json(name = "userRating")
-    lateinit var userRating: UserRating
+    lateinit var userRating: UserRatingDto
 
     @Json(name = "description")
     lateinit var description: Description
 
     @Json(name = "contentRatingsBySystem")
-    lateinit var contentRatingsBySystem: ContentRatingsBySystemResult
+    lateinit var contentRatingsBySystem: ContentRatingDto
 
     @Json(name = "genres")
-    var genres: List<GenreResult> = emptyList()
+    var genres: List<GenreDto> = emptyList()
 
     @Json(name = "childrenIds")
     var childrenIds: List<Long> = emptyList()
@@ -65,52 +65,12 @@ class PodcastResultItemDto {
     @Json(name = "children")
     var children: Map<Long, ProductDvResultChildrenItem> = emptyMap()
 
-    class Artwork {
-        @Json(name = "url")
-        var url: String = ""
-
-        @Json(name = "width")
-        var width: Int = 0
-
-        @Json(name = "height")
-        var height: Int = 0
-    }
-
-    class UserRating {
-        @Json(name = "value")
-        var value: Float = 0F
-
-        @Json(name = "ratingCount")
-        var ratingCount: Int = 0
-
-        @Json(name = "ratingCountList")
-        var ratingCountList: List<Int> = arrayListOf()
-    }
-
     class Description {
         @Json(name = "standard")
         var standard: String = ""
-    }
 
-    class GenreResult {
-        @Json(name = "genreId")
-        var genreId: Int = 0
-
-        @Json(name = "name")
-        var name: String = ""
-    }
-
-    class ContentRatingsBySystemResult {
-        @Json(name = "riaa")
-        lateinit var riaa: RiaaResult
-
-        class RiaaResult {
-            @Json(name = "name")
-            var name: String = ""
-
-            @Json(name = "rank")
-            var rank: Int = 0
-        }
+        @Json(name = "short")
+        var short: String = ""
     }
 
     class ProductDvResultChildrenItem {
@@ -157,10 +117,10 @@ class PodcastResultItemDto {
         var podcastEpisodeWebsiteUrl: String? = null
 
         @Json(name = "genres")
-        var genres: List<GenreResult> = arrayListOf()
+        var genres: List<GenreDto> = arrayListOf()
 
         @Json(name = "contentRatingsBySystem")
-        lateinit var contentRatingsBySystem: ContentRatingsBySystemResult
+        lateinit var contentRatingsBySystem: ContentRatingDto
 
         @Json(name = "description")
         lateinit var description: Description
@@ -192,7 +152,7 @@ class PodcastResultItemDto {
             var extension: String = ""
 
             @Json(name = "duration")
-            var duration: Int = 0
+            var duration: Int? = null
         }
     }
 }

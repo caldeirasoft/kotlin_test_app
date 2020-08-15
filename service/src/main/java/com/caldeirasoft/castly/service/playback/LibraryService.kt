@@ -30,10 +30,10 @@ import androidx.media2.exoplayer.external.audio.AudioAttributes
 import androidx.media2.player.MediaPlayer
 import androidx.media2.session.*
 import androidx.media2.session.SessionResult.RESULT_SUCCESS
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.MediaID
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.MediaID
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
 import com.caldeirasoft.castly.domain.repository.PodcastRepository
@@ -357,39 +357,6 @@ class LibraryService : MediaLibraryService() {
          * Return episodes MediaItems from a list
          */
         private fun updateEpisodes(podcastId: Long) = GlobalScope.async {
-            podcastRepository.getSync(podcastId)?.let { podcastFromDb ->
-                // podcast existant en BD : verifier que le nb d'épisodes en BD correspond au trackcount
-                // sinon c'est que l'abonnement au podcast s'est fait sans episodes
-                val trackCount: Int = episodeRepository.count(podcastId)
-                if ((trackCount == 0) && (podcastFromDb.trackCount > 0)) {
-                    getPodcastWithEpisodesFromItunes(podcastId)?.let { podcastFromItunes ->
-                        podcastRepository.update(podcastFromItunes)
-                        episodeRepository.insertIgore(podcastFromItunes.episodes)
-                    }
-                }
-                else {
-                    // podcast existant en BD : verifier que la date du derniere episode correspond à la date délivrée par itunes
-                    // si la date est différente, c'est qu'un nouvel episode est arrivé
-                    // si c'est le cas, récuperer le podcast et les episodes depuis itunes, sauvegarder les nouveaux episodes en bd
-                    itunesRepository.lookupAsync(podcastId)?.let { podcastFromLookup ->
-                        if (podcastFromDb.releaseDate != podcastFromLookup.releaseDate) {
-                            getPodcastWithEpisodesFromItunes(podcastId)?.let { podcastFromItunes ->
-                                podcastFromDb.releaseDate = podcastFromItunes.releaseDate
-                                podcastRepository.update(podcastFromItunes)
-                                episodeRepository.insertIgore(podcastFromItunes.episodes)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-
-        /**
-         * Return episodes from podcasts
-         */
-        private suspend fun getPodcastWithEpisodesFromItunes(podcastId: Long) : Podcast? {
-            return itunesRepository.getPodcastAsync("143442-3,26", podcastId)
         }
 
 

@@ -5,14 +5,12 @@ import com.airbnb.epoxy.EpoxyModel
 import com.caldeirasoft.basicapp.LoadingBindingModel_
 import com.caldeirasoft.basicapp.PodcastCatalogBindingModel_
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.itunes.StoreCollection
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 
 class CatalogEpoxyController(private val callbacks: Callbacks)
     : BasePagedController<Podcast>() {
     interface Callbacks {
         fun onPodcastClicked(podcast: Podcast, view: View)
-        fun onCollectionClicked(collection: StoreCollection, view: View)
     }
 
     override fun buildItemModel(currentPosition: Int, item: Podcast?): EpoxyModel<*> {

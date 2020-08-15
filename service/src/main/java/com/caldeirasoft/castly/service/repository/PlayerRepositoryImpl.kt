@@ -13,7 +13,7 @@ import androidx.media2.session.MediaController
 import androidx.media2.session.SessionCommandGroup
 import androidx.media2.session.SessionToken
 import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
-import com.caldeirasoft.castly.domain.model.Episode
+import com.caldeirasoft.castly.domain.model.entities.Episode
 import com.caldeirasoft.castly.domain.repository.PlayerRepository
 
 /**

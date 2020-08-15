@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-  <data>
-    <import type="android.view.View" />
-    <variable
-        name="title"
-        type="String"/>
-    <variable
-        name="backButtonVisible"
-        type="Boolean"/>
-    <variable
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="backButtonVisible"
+            type="Boolean" />
+
+        <variable
         name="viewModel"
         type="com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListViewModel"/>
   </data>
@@ -21,7 +26,7 @@
       android:layout_height="250dp"
       android:minHeight="?attr/actionBarSize"
       android:orientation="vertical"
-      android:fitsSystemWindows="true"
+      android:fitsSystemWindows="false"
       android:background="@color/light_gray"
       app:layoutDescription="@xml/scene_podcasts"
       app:layout_scrollFlags="scroll|snap|exitUntilCollapsed">
@@ -37,6 +42,7 @@
           android:layout_width="0dp"
           android:gravity="center"
           android:text="@{title}"
+          tools:text="Podcasts"
           android:paddingStart="@dimen/element_margin_small"
           android:paddingEnd="@dimen/element_margin_small"
           app:layout_constraintStart_toStartOf="parent"
@@ -86,6 +92,7 @@
           android:marqueeRepeatLimit="marquee_forever"
           android:elevation="5dp"
           android:text="@{title}"
+          tools:text="Podcasts"
           android:singleLine="true"
           android:layout_marginTop="@dimen/dp_5"
           android:layout_marginBottom="@dimen/dp_5"

@@ -43,6 +43,12 @@ kapt {
     }
 }
 
+// Required since Gradle 4.10+.
+repositories {
+    jcenter()
+    maven("https://jitpack.io")
+}
+
 dependencies {
     // Local project
     implementation(project(":roundbutton"))
@@ -72,20 +78,33 @@ dependencies {
     // Android-Paging
     implementation(deps.androidx.paging.runtime)
     // Android-LiveData
-    implementation(deps.androidx.lifecycle.extensions)
+    implementation(deps.androidx.lifecycle.runtime_ktx)
+    implementation(deps.androidx.lifecycle.livedata_ktx)
+    implementation(deps.androidx.lifecycle.viewmodel_ktx)
+    implementation(deps.androidx.lifecycle.savestate)
     kapt(deps.androidx.lifecycle.compiler)
     // Android-Navigation
-    implementation(deps.arch.navigation.fragment)
-    implementation(deps.arch.navigation.ui)
-    // Circular progressbar
-    // implementation(deps.circularprogressbar)
+    implementation(deps.androidx.navigation.fragment_ktx)
+    implementation(deps.androidx.navigation.ui_ktx)
+    // Chucker
+    debugImplementation(deps.chucker.library)
+    releaseImplementation(deps.chucker.libraryNoOp)
+    // Coin
+    implementation(deps.coil)
     // Conscrypt
     implementation(deps.conscrypt)
+    // CustomizedTextView
+    implementation(deps.customizedTextView)
     // Epoxy
     implementation(deps.epoxy.runtime)
     implementation(deps.epoxy.databinding)
     implementation(deps.epoxy.paging)
     kapt(deps.epoxy.processor)
+    // Flipper
+    debugImplementation(deps.flipper.flipper)
+    debugImplementation(deps.flipper.flipperNetwork)
+    debugImplementation(deps.flipper.soloader)
+    releaseImplementation(deps.flipper.flipperNoOp)
     // Internationalisation
     implementation(deps.i18n)
     // Koin
@@ -97,6 +116,8 @@ dependencies {
     // KotPref
     implementation(deps.kotpref.runtime)
     implementation(deps.kotpref.enum)
+    // Lapism Search
+    implementation(deps.lapismSearch)
     // Material IconLib
     implementation(deps.materialIconLib)
     // Media2
@@ -110,6 +131,8 @@ dependencies {
     implementation(deps.okhttp.okhttp)
     implementation(deps.okhttp.dns)
     implementation(deps.okhttp.loggingInterceptor)
+    // OkLog3
+    implementation(deps.okLog3)
     // Picasso
     implementation(deps.picasso.picasso)
     implementation(deps.picasso.transformations)
@@ -121,6 +144,9 @@ dependencies {
     implementation(deps.retrofit.converters.kotlinxSerialization)
     // RoundedImageView
     implementation(deps.roundedImageView)
+    // Stetho
+    implementation(deps.stetho.runtime)
+    implementation(deps.stetho.okhttp3)
     // Shimmer
     implementation(deps.shimmerLayout)
     // TextDrawable

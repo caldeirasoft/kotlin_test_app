@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="androidx.lifecycle.MutableLiveData" />
+
+        <import type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel" />
+
+        <variable
+            name="viewModel"
+            type="PodcastInfoViewModel" />
+
+        <variable
+            name="title"
+            type="String" />
+
+        <variable
+            name="artist"
+            type="String" />
+
+        <variable
+            name="inDatabase"
+            type="Boolean" />
+
+        <variable
+            name="onSubscribe"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- description header -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/materialbutton_podcastinfoheader_descriptionheader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/label_about_this_podcast"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            app:strokeWidth="0dp"
+            android:layoutDirection="rtl"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+            android:textSize="16sp"
+            android:textColor="?android:textColorPrimary"
+            android:fontFamily="@font/manrope_semibold"
+            app:icon="@drawable/ic_arrow_forward_24dp"
+            app:iconTint="?android:textColorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- description -->
+        <com.libRG.CustomTextView
+            android:id="@+id/textview_podcastinfoheader_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@{viewModel.podcastData.description}"
+            android:textColor="#616161"
+            android:textAlignment="textStart"
+            android:layout_marginTop="@dimen/dp_10"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            app:layout_constraintTop_toBottomOf="@id/materialbutton_podcastinfoheader_descriptionheader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:lib_setExpandableText="true"
+            app:lib_setActionTextVisible="true"
+            app:lib_setCollapseHint="showless" />
+
+        <!-- genres -->
+        <HorizontalScrollView
+            android:id="@+id/horizontalscrollview_podcastinfoheader_genres"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            app:layout_constraintTop_toBottomOf="@id/textview_podcastinfoheader_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- Chip group filters -->
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipgroup_genres"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:chipSpacingHorizontal="@dimen/dp_10"
+                app:genres="@{viewModel.podcastData.genres}" />
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

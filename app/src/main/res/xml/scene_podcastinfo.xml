@@ -37,10 +37,10 @@
 
     <ConstraintSet android:id="@+id/expanded">
         <Constraint
-            android:id="@+id/podcastHeader_constraintLayout"
+            android:id="@+id/podcastHeaderConstraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/header_view"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:alpha="1"/>
@@ -51,7 +51,7 @@
             android:layout_width="0dp"
             android:layout_height="?attr/actionBarSize"
             app:titleTextColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/podcastHeader_constraintLayout"
+            app:layout_constraintTop_toBottomOf="@id/status_bar_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:elevation="1dp">
@@ -64,10 +64,10 @@
 
     <ConstraintSet android:id="@+id/collapsed">
         <Constraint
-            android:id="@+id/podcastHeader_constraintLayout"
+            android:id="@+id/podcastHeaderConstraintLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@id/chipHorizontalView"
+            app:layout_constraintBottom_toBottomOf="@id/toolbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:alpha="0"/>

@@ -3,28 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <data>
-    <variable name="title" type="String"/>
-    <variable
-        name="viewModel"
-        type="com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListViewModel"/>
+
+      <import type="java.util.List" />
+
+      <import type="com.caldeirasoft.castly.domain.model.entities.PodcastWithCount" />
+
+      <import type="com.caldeirasoft.basicapp.presentation.ui.episodelist.EpisodeListViewModel" />
+
+      <variable
+          name="title"
+          type="String" />
+
+      <variable
+          name="viewModel"
+          type="EpisodeListViewModel" />
+
+      <variable
+          name="podcastsWithCount"
+          type="List&lt;PodcastWithCount>" />
   </data>
 
-  <androidx.coordinatorlayout.widget.CoordinatorLayout
-      android:id="@+id/coordinatorLayout_root"
-      android:orientation="vertical"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="@color/light_gray">
-
-    <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
-        android:id="@+id/appbar_layout_root"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout_root"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="0dp">
+        android:layout_height="match_parent">
 
-      <include layout="@layout/fragment_list_header"
-          app:title="@{title}"
-          app:viewModel="@{viewModel}"/>
+        <com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout
+            android:id="@+id/appbar_layout_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="0dp">
+
+            <include
+                layout="@layout/fragment_list_header"
+                app:title="@{title}"
+                app:viewModel="@{viewModel}" />
 
     </com.caldeirasoft.basicapp.presentation.views.StateAppBarLayout>
 
@@ -51,13 +65,13 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-          <com.google.android.material.chip.ChipGroup
-              android:id="@+id/chipView"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:padding="@dimen/dp_10"
-              app:singleSelection="true"
-              app:podcasts="@{viewModel.podcastsWithCount}"/>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/dp_10"
+                app:singleSelection="true"
+                app:podcasts="@{podcastsWithCount}" />
 
         </HorizontalScrollView>
 

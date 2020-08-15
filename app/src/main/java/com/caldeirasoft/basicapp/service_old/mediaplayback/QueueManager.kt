@@ -7,8 +7,8 @@ import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import com.caldeirasoft.castly.data.datasources.local.dao.EpisodeDao
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 import kotlinx.coroutines.runBlocking
 import org.threeten.bp.ZoneOffset
 import java.util.*
@@ -148,7 +148,7 @@ class QueueManager(private val episodeDao: EpisodeDao)
         extras.putString(Podcast.PODCAST_PROGRAM_ID, episode.feedUrl)
         extras.putString(Podcast.PODCAST_BIG_IMAGE_URL, episode.getArtwork(600))
         extras.putLong(Podcast.PODCAST_DURATION, episode.duration?.toLong() ?: 0)
-        extras.putLong(Podcast.PODCAST_DATE, episode.releaseDate.toEpochSecond(ZoneOffset.UTC))
+        extras.putLong(Podcast.PODCAST_DATE, episode.releaseDateTime.toEpochSecond(ZoneOffset.UTC))
 
         val description = MediaDescriptionCompat.Builder()
                 .setMediaId(episode.mediaUrl)

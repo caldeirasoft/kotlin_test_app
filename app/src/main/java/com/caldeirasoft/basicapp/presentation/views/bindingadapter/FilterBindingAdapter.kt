@@ -1,26 +1,26 @@
 package com.caldeirasoft.basicapp.presentation.views.bindingadapter
 
 import android.content.Context
-import android.content.res.ColorStateList
-import android.content.res.TypedArray
-import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import androidx.annotation.Dimension
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.TextAppearanceSpan
+import android.view.View
 import androidx.databinding.BindingAdapter
+import coil.Coil
+import coil.api.load
+import coil.transform.CircleCropTransformation
 import com.caldeirasoft.basicapp.R
-import com.caldeirasoft.basicapp.presentation.views.TextDrawable
-import com.caldeirasoft.castly.domain.model.PodcastWithCount
-import com.caldeirasoft.castly.domain.model.SectionState
-import com.caldeirasoft.castly.domain.model.SectionWithCount
+import com.caldeirasoft.basicapp.presentation.utils.extensions.addChip
+import com.caldeirasoft.basicapp.presentation.utils.extensions.applyCustomColorToChoiceChip
+import com.caldeirasoft.basicapp.presentation.utils.extensions.mtrl_choice_chip_text_color
+import com.caldeirasoft.castly.domain.model.entities.PodcastWithCount
+import com.caldeirasoft.castly.domain.model.entities.SectionState
+import com.caldeirasoft.castly.domain.model.entities.SectionWithCount
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipDrawable
 import com.google.android.material.chip.ChipGroup
-import com.google.android.material.resources.MaterialResources
-import com.google.android.material.resources.TextAppearance
-import com.squareup.picasso.Picasso
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 
 @BindingAdapter("podcasts")
@@ -32,17 +32,11 @@ fun setFilters(chipGroup: ChipGroup, podcastsWithCount: List<PodcastWithCount>?)
     val totalCount: Int = podcastsWithCount?.sumBy { it.episodeCount } ?: 0
 
     // add main button
-    createAllFiltersChip(chipGroup.context, totalCount).let {
-        chipGroup.addView(it)
-    }
+    chipGroup.addChip { createAllFiltersChip(context = it, totalCount = totalCount) }
 
     // Append all Category Chip in Chip Group
-    podcastsWithCount?.let { list ->
-        for (podcast in list) {
-            createPodcastChip(chipGroup.context, podcast).let {
-                chipGroup.addView(it)
-            }
-        }
+    podcastsWithCount?.forEach { podcast ->
+        chipGroup.addChip { createPodcastChip(context = it, podcast = podcast) }
     }
 }
 
@@ -52,48 +46,31 @@ fun setFilters(chipGroup: ChipGroup, podcastsWithCount: List<PodcastWithCount>?)
 private fun createAllFiltersChip(context: Context, totalCount: Int? = null): Chip =
         Chip(context).apply {
             ChipDrawable
-                    .createFromAttributes(context, null, 0, R.style.ChipChoiceAllStyle)
+                    .createFromAttributes(context, null, 0, R.style.ChipChoiceTextStyle)
                     .let {
-                        it.isCloseIconVisible = true
-                        it.chipBackgroundColor = getChipBackgroundColorState(context, Color.BLUE)
                         setChipDrawable(it)
                     }
-            text = "All"
-            setTextColor(ContextCompat.getColorStateList(context, R.color.choice_chip_text_color))
-            totalCount?.let { count ->
-                setBadgeDrawable(this, count)
-            }
+            text = getTextAndCount(this, "All", totalCount)
+            applyCustomColorToChoiceChip()
         }
 
 /**
  * Create podcast filter chip
  */
-private fun createPodcastChip(context: Context, podcast: PodcastWithCount): Chip {
-    val chipDrawable = ChipDrawable
-            .createFromAttributes(context, null, 0, R.style.ChipChoiceIconStyle)
-            .apply {
-                isChipIconVisible = true
-                isCheckable = true
-                isCloseIconVisible = true
-                textStartPadding = 0f
-                textEndPadding = 0f
-                chipBackgroundColor = getChipBackgroundColorState(context, Color.GREEN)
+private fun createPodcastChip(context: Context, podcast: PodcastWithCount): Chip =
+        Chip(context).apply {
+            ChipDrawable
+                    .createFromAttributes(context, null, 0, R.style.ChipChoiceIconStyle)
+                    .let { setChipDrawable(it) }
+
+            text = getTextAndCount(this, null, podcast.episodeCount)//pod.name
+            tag = podcast.id
+            setOnCheckedChangeListener { _, _ ->
+                //viewModel.onCategoryFilterChanged(button.text as String, isChecked)
             }
-    val chip = Chip(context).apply {
-        setChipDrawable(chipDrawable)
-        text = ""//pod.name
-        tag = podcast.id
-        setOnCheckedChangeListener { _, _ ->
-            //viewModel.onCategoryFilterChanged(button.text as String, isChecked)
+            loadImageFromWebURL(this, podcast.getArtwork(100))
+            applyCustomColorToChoiceChip()
         }
-        loadImageFromWebURL(this, podcast.getArtwork(100))
-        setBadgeDrawable(this, podcast.episodeCount)
-        setOnCloseIconClickListener {
-            isChecked = true
-        }
-    }
-    return chip
-}
 
 @BindingAdapter("sectionsFilters")
 fun setSectionsFilters(chipGroup: ChipGroup, sectionWithCount: SectionWithCount?) {
@@ -101,56 +78,42 @@ fun setSectionsFilters(chipGroup: ChipGroup, sectionWithCount: SectionWithCount?
     chipGroup.removeAllViews()
 
     // Add All button
-    createAllFiltersChip(chipGroup.context).let {
-        chipGroup.addView(it)
-    }
+    chipGroup.addChip { createAllFiltersChip(context = it) }
 
     // Append all section with count
     sectionWithCount?.let {
         if (sectionWithCount.InboxCount != 0)
-            createSectionChip(chipGroup.context, SectionState.INBOX.value, sectionWithCount.InboxCount)
+            chipGroup.addChip { createSectionChip(it, SectionState.INBOX.value, sectionWithCount.InboxCount) }
         if (sectionWithCount.QueueCount != 0)
-            createSectionChip(chipGroup.context, SectionState.QUEUE.value, sectionWithCount.QueueCount)
+            chipGroup.addChip { createSectionChip(it, SectionState.QUEUE.value, sectionWithCount.QueueCount) }
         if (sectionWithCount.FavoritesCount != 0)
-            createSectionChip(chipGroup.context, SectionState.FAVORITE.value, sectionWithCount.FavoritesCount)
+            chipGroup.addChip { createSectionChip(it, SectionState.FAVORITE.value, sectionWithCount.FavoritesCount) }
         if (sectionWithCount.HistoryCount != 0)
-            createSectionChip(chipGroup.context, SectionState.HISTORY.value, sectionWithCount.HistoryCount)
+            chipGroup.addChip { createSectionChip(it, SectionState.HISTORY.value, sectionWithCount.HistoryCount) }
     }
 }
 
 /**
  * Create section filter chip
  */
-private fun createSectionChip(context: Context, section: Int, count: Int): Chip {
-    val chipDrawable = ChipDrawable
-            .createFromAttributes(context, null, 0, R.style.ChipChoiceIconStyle)
-            .apply {
-                isChipIconVisible = true
-                isCheckable = true
-                isCloseIconVisible = true
-                textStartPadding = 0f
-                textEndPadding = 0f
-                chipIcon = MaterialDrawableBuilder.with(context)
+private fun createSectionChip(context: Context, section: Int, count: Int): Chip =
+        Chip(context).apply {
+            ChipDrawable
+                    .createFromAttributes(context, null, 0, R.style.ChipChoiceIconStyle)
+                    .let {
+                        setChipDrawable(it)
+                    }
+            text = ""//pod.name
+            applyCustomColorToChoiceChip()
+            setOnCheckedChangeListener { _, _ ->
+                //viewModel.onCategoryFilterChanged(button.text as String, isChecked)
+            }
+            chipIcon = MaterialDrawableBuilder.with(context)
                     .setIcon(getSectionIcon(section))
                     .setColor(Color.BLACK)
                     .setToActionbarSize()
                     .build()
-                chipBackgroundColor = getChipBackgroundColorState(context, Color.BLUE)
-            }
-
-    val chip = Chip(context).apply {
-        setChipDrawable(chipDrawable)
-        text = ""//pod.name
-        setOnCheckedChangeListener { _, _ ->
-            //viewModel.onCategoryFilterChanged(button.text as String, isChecked)
         }
-        setBadgeDrawable(this, count)
-        setOnCloseIconClickListener {
-            isChecked = true
-        }
-    }
-    return chip
-}
 
 /**
  * Get section icon
@@ -170,28 +133,17 @@ private fun getSectionIcon(section: Int): MaterialDrawableBuilder.IconValue =
         }
 
 /**
- * Set unplayed number as drawable for a chip
- */
-private fun setBadgeDrawable(chip: Chip, number: Int) {
-    val context = chip.context
-    val ta: TypedArray =
-            context.obtainStyledAttributes(R.style.TextAppearance_MaterialComponents_Body1, androidx.appcompat.R.styleable.TextAppearance);
-
-    val drawable = TextDrawable(chip.context).apply {
-                text = number.toString()
-                setTextSize(Dimension.SP, 10f)
-                ta.getColorStateList(androidx.appcompat.R.styleable.TextAppearance_android_textColor)?.let {
-                    setTextColor(it)
-                }
-            }
-    chip.closeIcon = drawable
-}
-
-/**
  * Set podcast image for drawable chip
  */
 private fun loadImageFromWebURL(chip: Chip, url: String) {
-    Picasso.get()
+    Coil.load(chip.context, url) {
+        placeholder(R.drawable.gradient_background)
+        transformations(CircleCropTransformation())
+        target { drawable ->
+            chip.chipIcon = drawable
+        }
+    }
+    /*Picasso.get()
             .load(url)
             .placeholder(R.drawable.gradient_background)
             .into(object : com.squareup.picasso.Target {
@@ -210,15 +162,32 @@ private fun loadImageFromWebURL(chip: Chip, url: String) {
                 override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
                     TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
                 }
-            })
+            })*/
 }
 
-private fun getChipBackgroundColorState(context: Context, color: Int): ColorStateList {
-    val states = arrayOf(
-            intArrayOf(android.R.attr.state_selected),
-            intArrayOf(-android.R.attr.state_selected),
-            intArrayOf(-android.R.attr.state_enabled)
-    )
-    val colors = intArrayOf(color, android.R.attr.colorBackground, android.R.attr.colorBackground)
-    return ColorStateList(states, colors)
-}
+private fun getTextAndCount(view: View, text: String?, count: Int?): CharSequence =
+        SpannableString("${text ?: ""} ${count ?: ""}").apply {
+            setSpan(
+                    TextAppearanceSpan(null,
+                            Typeface.DEFAULT.style,
+                            view.context.resources.getDimensionPixelSize(R.dimen.mtrl_chip_text_size),
+                            view.mtrl_choice_chip_text_color(),
+                            null),
+                    0,
+                    text?.length ?: 0,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
+            )
+            count?.let {
+                setSpan(
+                        //mtrl_badge_text_size
+                        TextAppearanceSpan(null,
+                                Typeface.create(Typeface.DEFAULT, Typeface.ITALIC).style,
+                                view.context.resources.getDimensionPixelSize(R.dimen.mtrl_badge_text_size),
+                                view.mtrl_choice_chip_text_color(),
+                                null),
+                        (text?.length ?: 0) + 1,
+                        length,
+                        Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
+            }
+        }

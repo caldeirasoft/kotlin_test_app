@@ -1,7 +1,7 @@
 package com.caldeirasoft.castly.domain.usecase
 
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.domain.usecase.base.BaseDeferredUseCase
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ class QueueEpisodeUseCase(val episodeRepository: EpisodeRepository)
                                     QueuePosition.First -> {
                                         // move episodes from queue
                                         list.forEachIndexed { i, episode -> if (i > 0) episode.queuePosition = i + 1 }
-                                        episodeRepository.update(list)
+                                        //episodeRepository.update(list)
                                         // queue episode
                                         episode.queuePosition = 1
                                     }
@@ -37,14 +37,14 @@ class QueueEpisodeUseCase(val episodeRepository: EpisodeRepository)
                                 }
                             }
                         }
-                        episodeRepository.upsert(episode)
+                        //episodeRepository.upsert(episode)
                     }
                 }
 
                 true
             }
 
-    data class Params(val episode:Episode, val position: QueuePosition)
+    data class Params(val episode: Episode, val position: QueuePosition)
 
     enum class QueuePosition {
         First, Last

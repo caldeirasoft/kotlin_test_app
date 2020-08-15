@@ -1,174 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <import type="android.view.View" />
-        <import type="android.text.Html"/>
-        <import type="android.support.v4.media.session.PlaybackStateCompat"/>
+
+        <import type="android.text.Html" />
+
+        <import type="com.caldeirasoft.castly.domain.model.entities.Episode" />
+
         <variable
-            name="title"
-            type="String"/>
-        <variable
-            name="imageUrl"
-            type="String"/>
-        <variable
-            name="publishedDate"
-            type="String"/>
+            name="episode"
+            type="Episode" />
+
         <variable
             name="duration"
-            type="String"/>
+            type="String" />
+
+        <variable
+            name="progression"
+            type="Float" />
+
+        <variable
+            name="playState"
+            type="Integer" />
         <variable
             name="onEpisodeClick"
             type="android.view.View.OnClickListener"/>
+
         <variable
-            name="playbackState"
-            type="Integer"/>
+            name="onPlayClick"
+            type="android.view.View.OnClickListener" />
+
         <variable
-            name="timePlayed"
-            type="Long"/>
+            name="onQueueNextClick"
+            type="android.view.View.OnClickListener" />
+
         <variable
-            name="positionInList"
-            type="Integer"/>
+            name="onQueueEndClick"
+            type="android.view.View.OnClickListener" />
+
         <variable
-            name="roundedTopCorners"
-            type="Boolean"/>
-        <variable
-            name="roundedBottomCorners"
-            type="Boolean"/>
+            name="onArchiveClick"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/itemEpisodeConstraintLayout"
+        android:id="@+id/constraintlayout_itemepisodepodcast_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/dp_5"
-        android:paddingEnd="@dimen/dp_5"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:onClick="@{onEpisodeClick}">
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
 
-        <com.makeramen.roundedimageview.RoundedImageView
-            android:id="@+id/imageview_thumbnail"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+        <View
+            android:id="@+id/view_itemepisodepodcast_date"
+            android:layout_width="50dp"
+            android:layout_height="1dp"
             android:layout_margin="7dp"
             android:contentDescription="@null"
-            app:imageUrl="@{imageUrl}"
-            android:src="@drawable/thumb_1_0"
-            app:riv_border_color="@color/light_gray"
-            app:riv_border_width="1dp"
-            app:riv_corner_radius="5dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintDimensionRatio="W,1:1"/>
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <ImageButton
-            android:id="@+id/imagebutton_play_"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/avd_equalizer : @drawable/ic_play_24dp}"
-            app:animating="@{playbackState == PlaybackStateCompat.STATE_PLAYING}"
-            android:background="@drawable/roundshape_button"
-            android:tint="@color/white"
-            android:contentDescription="@null"
-            app:layout_constraintStart_toStartOf="@id/imageview_thumbnail"
-            app:layout_constraintEnd_toEndOf="@id/imageview_thumbnail"
-            app:layout_constraintTop_toTopOf="@id/imageview_thumbnail"
-            app:layout_constraintBottom_toBottomOf="@id/imageview_thumbnail"
-            android:visibility="@{playbackState != PlaybackStateCompat.STATE_NONE || timePlayed == 0}"/>
-
-        <TextView android:id="@+id/textview_pubDate"
+        <TextView
+            android:id="@+id/textview_itemepisodepodcast_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginTop="5dp"
-            android:text="@{publishedDate}"
-            android:singleLine="true"
-            android:textColor="#616161"
-            android:textSize="12sp"
-            android:textAllCaps="true"
-            app:layout_constraintStart_toEndOf="@id/imageview_thumbnail"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imagebutton_play"/>
-
-        <TextView android:id="@+id/textview_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="10dp"
-            android:text="@{title}"
-            android:maxLines="2"
+            android:paddingBottom="@dimen/dp_10"
+            android:maxLines="4"
             android:ellipsize="end"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="@id/textview_pubDate"
-            app:layout_constraintTop_toBottomOf="@id/textview_pubDate"
-            app:layout_constraintEnd_toStartOf="@+id/imagebutton_play"/>
-
-        <TextView android:id="@+id/textview_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="1"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:scrollHorizontally="false"
-            android:text="@{duration}"
-            android:textSize="12sp"
-            android:textColor="#616161"
-            app:layout_constraintStart_toStartOf="@id/textview_pubDate"
-            app:layout_constraintEnd_toStartOf="@+id/imagebutton_play"
-            app:layout_constraintTop_toBottomOf="@id/textview_title"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <ImageButton
-            android:id="@+id/imagebutton_play"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/avd_equalizer : @drawable/ic_play_24dp}"
-            app:animating="@{playbackState == PlaybackStateCompat.STATE_PLAYING}"
-            android:background="@android:color/transparent"
-            android:contentDescription="@null"
+            android:lineSpacingMultiplier="1.1"
+            tools:text="Episode Title\nThis is a description of the current episode topic"
+            app:layout_constraintStart_toEndOf="@id/view_itemepisodepodcast_date"
+            app:layout_constraintTop_toTopOf="@id/view_itemepisodepodcast_date"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{playbackState != PlaybackStateCompat.STATE_NONE || timePlayed == 0}"/>
+            app:title="@{episode.name}"
+            app:description="@{episode.description}"
+            android:onClick="@{onEpisodeClick}" />
 
-        <!--
-        <com.mikhaellopez.circularprogressbar.CircularProgressBar
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="@id/imagebutton_play"
-            app:layout_constraintEnd_toEndOf="@id/imagebutton_play"
-            app:layout_constraintTop_toTopOf="@id/imagebutton_play"
-            app:layout_constraintBottom_toBottomOf="@id/imagebutton_play"
-            android:background="@android:color/transparent"
-            app:cpb_background_progressbar_width="3dp"
-            app:cpb_background_progressbar_color="@android:color/transparent"
-            app:cpb_progressbar_color="@color/gray"
-            app:cpb_progressbar_width="3dp"
-            android:rotation="180"
-            app:cpb_progress="75"/>
-            -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_itemepisodepodcast_commands"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/textview_itemepisodepodcast_title"
+            app:layout_constraintStart_toEndOf="@id/view_itemepisodepodcast_date"
+            app:menu="@menu/episodes_menu">
 
-        <ImageButton
-            android:id="@+id/imagebutton_play3"
-            android:layout_width="13dp"
-            android:layout_height="13dp"
-            android:src="@drawable/ic_check_24dp"
-            android:tint="@color/black"
-            android:background="@color/yellow"
-            android:scaleType="fitCenter"
-            android:contentDescription="@null"
-            app:layout_constraintEnd_toEndOf="@id/imagebutton_play"
-            app:layout_constraintBottom_toBottomOf="@id/imagebutton_play"/>
+            <com.caldeirasoft.basicapp.presentation.views.PlayButton
+                android:id="@+id/chip_itemepisodepodcast_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/button_play_episode"
+                app:playState="@{playState}"
+                app:progress="@{progression}"
+                app:onButtonClick="@{onPlayClick}" />
 
-        <!--android:src="@{playbackState == PlaybackStateCompat.STATE_PLAYING ? @drawable/equalizer : @drawable/ic_play_24dp}"-->
+        </androidx.appcompat.widget.Toolbar>
+
 
         <!--TODO: android:text="@{Html.fromHtml(@string/concat_separator(episode.durationFormat(), episode.description), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE), default=`Description`}"-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>

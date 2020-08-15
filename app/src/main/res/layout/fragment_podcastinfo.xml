@@ -5,167 +5,166 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <import type="android.view.View" />
-        <import type="androidx.lifecycle.MutableLiveData"/>
+
+        <import type="androidx.lifecycle.MutableLiveData" />
+
+        <import type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel" />
+
         <variable
             name="viewModel"
-            type="com.caldeirasoft.basicapp.presentation.ui.podcastinfo.PodcastInfoViewModel"/>
-        <variable name="title" type="String"/>
-        <variable name="artist" type="String"/>
-        <variable name="albumArtUri" type="String"/>
-        <variable name="displayDescription" type="String"/>
-        <variable name="inDatabase" type="Boolean"/>
+            type="PodcastInfoViewModel" />
+
+        <variable
+            name="subscribed"
+            type="Boolean" />
+
         <variable
             name="onSubscribe"
-            type="android.view.View.OnClickListener"/>
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="onUnsubscribe"
+            type="android.view.View.OnClickListener" />
     </data>
 
     <androidx.constraintlayout.motion.widget.MotionLayout
-        android:id="@+id/motionLayout_root"
-        android:orientation="vertical"
+        android:id="@+id/motionlayout_podcastinfo_root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/light_gray"
-        app:layoutDescription="@xml/scene_podcastinfo">
-        <!--TODO: android:background="?android:attr/windowBackground"-->
+        app:layoutDescription="@xml/scene_podcastinfo_header">
 
         <!-- status bar -->
         <View
-            android:id="@+id/status_bar_view"
+            android:id="@+id/view_podcastinfo_headerbackgroud"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            app:paddingLeftSystemWindowInsets="@{true}"
+            app:paddingRightSystemWindowInsets="@{true}"
+            app:paddingTopSystemWindowInsets="@{true}"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <!-- titleLayout background view -->
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/podcastHeader_constraintLayout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/status_bar_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <!-- phantom toolbar -->
-            <View
-                android:id="@+id/phantomToolbarTop_view"
-                android:layout_width="0dp"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <!-- thumbnail -->
-            <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/imageView_thumbnail"
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:layout_marginTop="@dimen/dp_10"
-                android:contentDescription="@null"
-                android:scaleType="centerCrop"
-                app:imageUrl="@{albumArtUri}"
-                android:src="@drawable/thumb_1_0"
-                app:riv_border_color="@color/dark_gray"
-                app:riv_border_width="1dp"
-                app:riv_corner_radius="5dp"
-                app:layout_constraintTop_toBottomOf="@id/phantomToolbarTop_view"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintDimensionRatio="W,1:1"/>
-
-            <!-- title -->
-            <TextView android:id="@+id/textView_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="@dimen/dp_10"
-                android:layout_marginEnd="@dimen/dp_10"
-                android:text="@{title}"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:textAlignment="center"
-                app:layout_constraintTop_toBottomOf="@id/imageView_thumbnail"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <!-- artist -->
-            <TextView android:id="@+id/textView_artist"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginBottom="10dp"
-                android:text="@{artist}"
-                android:singleLine="true"
-                android:textColor="#616161"
-                android:textAlignment="center"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                app:layout_constraintTop_toBottomOf="@id/textView_title"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <!-- phantom toolbar -->
-            <View
-                android:id="@+id/phantomToolbarBottom_view"
-                android:layout_width="0dp"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_constraintTop_toBottomOf="@id/textView_artist"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <!-- toolbar -->
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="0dp"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@{title}"
-            app:titleTextColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/podcastHeader_constraintLayout"
+            app:layout_constraintBottom_toBottomOf="@id/view_podcastinfo_headerbottom"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:elevation="1dp"
-            app:menu="@menu/podcastinfo_menu"
-            app:navigationIcon="@drawable/ic_arrow_back_24dp"/>
+            android:background="@color/blue" />
 
-        <!-- filters -->
-        <HorizontalScrollView
-            android:id="@+id/chipHorizontalView"
+        <!-- top toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_podcastinfoheader_top"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingStart="@dimen/dp_10"
-            android:paddingEnd="@dimen/dp_10"
-            android:background="@drawable/bg_roundedcorners_top"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:paddingLeftSystemWindowInsets="@{true}"
+            app:paddingRightSystemWindowInsets="@{true}"
+            app:paddingTopSystemWindowInsets="@{true}"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:navigationIcon="@drawable/ic_arrow_back_24dp" />
 
-            <!-- Chip group filters -->
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chipView"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:paddingTop="@dimen/dp_5"
-                android:paddingBottom="@dimen/dp_5"
-                app:chipSpacingHorizontal="@dimen/dp_10"
-                app:singleSelection="true"
-                app:sectionsFilters="@{viewModel.sectionCount}"/>
+        <!-- empty space below toolbar -->
+        <View
+            android:id="@+id/view_podcastinfo_headertop"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_30"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_podcastinfoheader_top" />
 
-        </HorizontalScrollView>
+        <!-- bottom header with round corners -->
+        <View
+            android:id="@+id/view_podcastinfo_headerbottom"
+            android:background="@drawable/bg_roundedcorners_top"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/dp_30"
+            app:layout_constraintBottom_toBottomOf="@id/imageview_podcastinfo_thumbnail"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:elevation="3dp" />
+
+        <!-- thumbnail -->
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/imageview_podcastinfo_thumbnail"
+            android:layout_width="150dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            app:imageUrl="@{viewModel.podcastData.getArtwork(120)}"
+            android:src="@drawable/thumb_1_0"
+            app:riv_border_color="@color/dark_gray"
+            app:riv_border_width="1dp"
+            app:riv_corner_radius="5dp"
+            android:elevation="4dp"
+            app:layout_constraintTop_toBottomOf="@id/view_podcastinfo_headertop"
+            app:layout_constraintBottom_toBottomOf="@id/view_podcastinfo_headerbottom"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintDimensionRatio="W,1:1" />
+
+        <!-- title -->
+        <TextView
+            android:id="@+id/textview_podcastinfo_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="Podcast Name"
+            android:text="@{viewModel.podcastData.name}"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+            android:textAlignment="textStart"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            app:layout_constraintTop_toTopOf="@id/imageview_podcastinfo_thumbnail"
+            app:layout_constraintStart_toEndOf="@id/imageview_podcastinfo_thumbnail"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- artist -->
+        <TextView
+            android:id="@+id/textview_podcastinfo_artist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            tools:text="Artist Name"
+            android:text="@{viewModel.podcastData.artistName}"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            app:layout_constraintTop_toBottomOf="@id/textview_podcastinfo_title"
+            app:layout_constraintStart_toStartOf="@id/textview_podcastinfo_title"
+            app:layout_constraintEnd_toEndOf="@id/textview_podcastinfo_title" />
+
+        <!-- subscribe button -->
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/extendedfab_podcastinfo_subscribe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Subscribe"
+            app:layout_constraintTop_toTopOf="@id/view_podcastinfo_headerbottom"
+            app:layout_constraintBottom_toTopOf="@id/view_podcastinfo_headerbottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin" />
+
+        <View
+            style="@style/Divider"
+            android:id="@+id/view_podcastinfoheader_divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_podcastinfo_headerbottom" />
 
         <!-- episodes list -->
         <com.airbnb.epoxy.EpoxyRecyclerView
-            android:id="@+id/episodesRecyclerView"
+            android:id="@+id/recyclerView_podcastinfo_episodes"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:background="?android:attr/windowBackground"
-            app:layout_constraintTop_toBottomOf="@id/chipHorizontalView"
+            app:layout_constraintTop_toBottomOf="@id/view_podcastinfoheader_divider"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="?android:attr/windowBackground"
+            android:elevation="3dp" />
 
     </androidx.constraintlayout.motion.widget.MotionLayout>
 </layout>

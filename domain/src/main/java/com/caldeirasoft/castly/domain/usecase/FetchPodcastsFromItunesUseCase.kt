@@ -1,27 +1,17 @@
 package com.caldeirasoft.castly.domain.usecase
 
-import androidx.lifecycle.Transformations
-import androidx.paging.PagedList
-import androidx.paging.toLiveData
-import com.caldeirasoft.castly.domain.const.Constants
-import com.caldeirasoft.castly.domain.datasource.ItunesPodcastDataSource
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.util.FlowPaginationModel
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 import com.caldeirasoft.castly.domain.repository.ItunesRepository
-import com.caldeirasoft.castly.domain.repository.PodcastRepository
-import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
+import kotlinx.coroutines.CoroutineScope
 
-class FetchPodcastsFromItunesUseCase(
-        val itunesRepository: ItunesRepository,
-        val podcastRepository: PodcastRepository) {
+@kotlinx.coroutines.FlowPreview
+@kotlinx.coroutines.ExperimentalCoroutinesApi
+class FetchPodcastsFromItunesUseCase(val itunesRepository: ItunesRepository) {
 
-    fun fetchAll(genreId: Int): UseCaseResult<PagedList<Podcast>> {
-        val sourceFactory = ItunesPodcastDataSource.Factory(itunesRepository, podcastRepository, genreId)
-        val livePagedList = sourceFactory.toLiveData(Constants.PAGE_LOAD_SIZE)
-        val initialState = Transformations.switchMap(sourceFactory.sourceLiveData) { it.networkState }
-        val networkState = Transformations.switchMap(sourceFactory.sourceLiveData) { it.networkState }
-        return UseCaseResult(
-                data = livePagedList,
-                initialState = initialState,
-                networkState = networkState)
-    }
+    fun fetchAll(clientScope: CoroutineScope,
+                 pageSize: Int,
+                 genreId: Int): FlowPaginationModel<Podcast> =
+            itunesRepository.getTopPodcastsData(clientScope, pageSize, genreId)
+
 }

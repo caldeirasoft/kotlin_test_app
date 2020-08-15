@@ -1,13 +1,10 @@
 package com.caldeirasoft.basicapp.presentation.ui.episodeinfo
 
 import android.support.v4.media.MediaBrowserCompat.MediaItem
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.caldeirasoft.basicapp.media.MediaSessionConnection
-import com.caldeirasoft.castly.domain.model.Episode
-import com.caldeirasoft.castly.domain.model.SectionState
+import com.caldeirasoft.castly.domain.model.entities.Episode
+import com.caldeirasoft.castly.domain.model.entities.SectionState
 import com.caldeirasoft.castly.domain.repository.EpisodeRepository
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_ARCHIVE
 import com.caldeirasoft.castly.service.playback.const.Constants.Companion.COMMAND_CODE_EPISODE_TOGGLE_FAVORITE
@@ -36,7 +33,7 @@ class EpisodeInfoViewModel(val episodeId: Long,
 
     // init
     init {
-        episodeData = episodeRepository.get(episodeId)
+        episodeData = episodeRepository.get(episodeId).asLiveData()
 
         sectionData.addSource(episodeData) { episode ->
             sectionData.postValue(episode?.section ?: SectionState.ARCHIVE.value)

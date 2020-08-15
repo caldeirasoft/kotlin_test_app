@@ -19,7 +19,7 @@ import com.caldeirasoft.basicapp.presentation.ui.podcast.PodcastFragmentDirectio
 import com.caldeirasoft.basicapp.presentation.utils.epoxy.BasePagedController
 import com.caldeirasoft.basicapp.presentation.utils.extensions.navigateTo
 import com.caldeirasoft.basicapp.presentation.utils.extensions.observeK
-import com.caldeirasoft.castly.domain.model.Podcast
+import com.caldeirasoft.castly.domain.model.entities.Podcast
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import kotlinx.android.synthetic.main.fragment_catalog.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -84,9 +84,9 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
     }
 
     private fun initObservers() {
-        mViewModel.data.observeK(this) {data ->
+        /*mViewModel.data.observeK(this) {data ->
             controller.submitList(data)
-        }
+        }*/
     }
 
     private fun createEpoxyController(): PagedListEpoxyController<Podcast> =
@@ -103,11 +103,12 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
                                 val imageView: ImageView = rootView.findViewById(R.id.img_row)
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
-                                val direction =
-                                        PodcastFragmentDirections.openPodcast(podcast.id)
+                                /*
+                                val direction = PodcastFragmentDirections.openPodcast(podcast)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)
+                                */
                             }
                         }
                     }
@@ -134,11 +135,13 @@ class CatalogFragment : BindingFragment<FragmentCatalogBinding>() {
                                 val imageView: ImageView = rootView.findViewById(R.id.img_row)
                                 ViewCompat.setTransitionName(imageView, transitionName)
 
-                                val direction =
-                                        PodcastFragmentDirections.openPodcast(podcast.id)
+                                /*
+                                val direction = PodcastFragmentDirections.openPodcast(podcast)
                                 val extras = FragmentNavigatorExtras(
                                         imageView to transitionName)
                                 navigateTo(direction, extras)
+
+                                 */
                             }
                         }
                     }

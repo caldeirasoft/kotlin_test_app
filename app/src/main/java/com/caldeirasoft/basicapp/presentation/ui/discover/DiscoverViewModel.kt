@@ -1,20 +1,26 @@
 package com.caldeirasoft.basicapp.presentation.ui.discover
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import android.util.Log
+import androidx.lifecycle.*
 import androidx.paging.PagedList
-import com.caldeirasoft.castly.domain.model.NetworkState
-import com.caldeirasoft.castly.domain.model.Podcast
-import com.caldeirasoft.castly.domain.model.itunes.StoreCollection
-import com.caldeirasoft.castly.domain.model.itunes.StoreData
-import com.caldeirasoft.castly.domain.model.itunes.StoreMultiCollection
+import com.caldeirasoft.basicapp.util.Event
+import com.caldeirasoft.castly.domain.model.entities.Podcast
+import com.caldeirasoft.castly.domain.model.itunes.GroupingPageData
 import com.caldeirasoft.castly.domain.usecase.FetchPodcastsFromItunesUseCase
-import com.caldeirasoft.castly.domain.usecase.GetItunesStoreUseCase
-import com.caldeirasoft.castly.domain.usecase.base.UseCaseResult
+import com.caldeirasoft.castly.domain.usecase.GetItunesGroupingDataUseCase
+import com.caldeirasoft.castly.domain.util.Resource
+import com.caldeirasoft.castly.domain.util.Status
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 
+@kotlinx.coroutines.FlowPreview
+@kotlinx.coroutines.ExperimentalCoroutinesApi
 class DiscoverViewModel(
-        getItunesStoreUseCase: GetItunesStoreUseCase,
+        getItunesStoreUseCase: GetItunesGroupingDataUseCase,
         fetchPodcastsFromItunesUseCase: FetchPodcastsFromItunesUseCase)
     : ViewModel() {
 
@@ -24,31 +30,56 @@ class DiscoverViewModel(
         val STORE_FRONT = "143442-3,26"
     }
 
+    // grouping page data flow
+    private val groupingPageDataFlow: Flow<Resource<GroupingPageData>> by lazy {
+        getItunesStoreUseCase
+                .execute(STORE_FRONT, DEFAULT_CATEGORY)
+                .flowOn(Dispatchers.IO)
+    }
 
-    private val itunesStoreUseCaseResult: UseCaseResult<StoreData> by lazy { getItunesStoreUseCase.execute(STORE_FRONT, DEFAULT_CATEGORY) }
-    val itunesStoreData: LiveData<StoreData> by lazy { itunesStoreUseCaseResult.data }
-    val itunesStoreInitialState: LiveData<NetworkState> by lazy { itunesStoreUseCaseResult.initialState }
+    // loading status
+    val groupingPageLoadingStatus: LiveData<Status> =
+            groupingPageDataFlow
+                    .map { it.status }
+                    .distinctUntilChanged()
+                    .asLiveData()
 
-    private val fetchPodcastsFromItunesUseCaseResult by lazy { fetchPodcastsFromItunesUseCase.fetchAll(DEFAULT_CATEGORY) }
-    val topItems: LiveData<PagedList<Podcast>> by lazy { fetchPodcastsFromItunesUseCaseResult.data }
-    val topItemsInitialState: LiveData<NetworkState> by lazy { fetchPodcastsFromItunesUseCaseResult.initialState }
-    val topItemsNetworkState: LiveData<NetworkState> by lazy { fetchPodcastsFromItunesUseCaseResult.networkState }
+    // error status
+    val groupingPageErrorMessage: LiveData<Event<String?>> =
+            groupingPageDataFlow
+                    .map { Event(it.message) }
+                    .distinctUntilChanged()
+                    .asLiveData()
 
-    fun updatePodcast(podcast: Podcast) {
-        itunesStoreData.value?.let {
-            it.groups.flatMap { collection ->
-                        when (collection) {
-                            is StoreCollection -> collection.podcasts
-                            is StoreMultiCollection -> collection.multiCollection.flatMap { c -> c.podcasts }
-                            else -> ArrayList()
-                        }
+    // grouping page data
+    val groupingPageData: LiveData<GroupingPageData?> =
+            groupingPageDataFlow
+                    .map { it.data }
+                    .distinctUntilChanged()
+                    .asLiveData()
+
+    // header data
+    val groupingPageHeaderData: LiveData<GroupingPageData.TrendingCollection?> =
+            groupingPageDataFlow
+                    .map {
+                        it.data
+                                ?.items
+                                ?.filterIsInstance<GroupingPageData.TrendingCollection>()
+                                ?.filter { it.isHeader }
+                                ?.firstOrNull()
                     }
-                    .filter { podcastSection -> podcastSection.id == podcast.id }
-                    .forEach { podcastSection ->
-                        podcastSection.name = "CHAAAAAANNNGED !!!"
-                    }
-            val mutableStoreData = itunesStoreData as MutableLiveData<StoreData>
-            mutableStoreData.postValue(it)
+                    .asLiveData()
+
+    // top podcasts
+    val topPodcastsData: Flow<PagedList<Podcast>> =
+            fetchPodcastsFromItunesUseCase.fetchAll(viewModelScope, 15, DEFAULT_CATEGORY).pagedList
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+/*            getItunesStoreUseCase.execute(STORE_FRONT, DEFAULT_CATEGORY)
+                    .onEach { _groupingPageLoadingStatusData.postValue(it.status) }
+                    .onEach { _groupingPageData.postValue(it.data) }
+                    .onEach { _groupingPageErrorMessageData.postValue(Event(it.message)) }*/
         }
     }
 }
